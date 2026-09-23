@@ -50,18 +50,11 @@ the work that slips with it is the 5% marked as "measurement and recommendation"
 | Part | Owner | Slides | Works mainly in |
 |---|---|---|---|
 | Part 1 — technical core (service, tests, analysis) | **Yeo Kai Yuan** | 1, 2, 5, 9 | `service/`, `scripts/`, `jmeter/`, `analysis/`, `models/` |
-| Part 2 — golden set lead, labeller 1 | **Teammate A** — TODO(Yeo Kai Yuan): replace with real name | 6 (with B) | `labelling/`, `golden/` |
-| Part 3 — labeller 2, accuracy results | **Teammate B** — TODO(Yeo Kai Yuan): replace with real name | 6 (with A), 10 | `labelling/`, `analysis/output/accuracy/` |
-| Part 4 — workload model and requirements | **Teammate C** — TODO(Yeo Kai Yuan): replace with real name | 3, 4 | `workload/` |
-| Part 5 — environment, playbooks, deck | **Teammate D** — TODO(Yeo Kai Yuan): replace with real name | 7, 8, 12 | `docs/environment/`, `docs/playbooks/`, `slides/` |
+| Part 2 — golden set lead, labeller 1 | **Teammate A** | 6 (with B) | `labelling/`, `golden/` |
+| Part 3 — labeller 2, accuracy results | **Teammate B** | 6 (with A), 10 | `labelling/`, `analysis/output/accuracy/` |
+| Part 4 — workload model and requirements | **Teammate C** | 3, 4 | `workload/` |
+| Part 5 — environment, playbooks, deck | **Teammate D** | 7, 8, 12 | `docs/environment/`, `docs/playbooks/`, `slides/` |
 | Slide 11 (predictions, recommendation, defence) | whole team | 11 | `predictions/` |
-
-The four placeholder names are placeholders because the real names are not recorded anywhere in this
-repository yet. Slide 1 must carry every member's **full name and student ID**, so this is on the critical path
-for Slide 1, not an afterthought.
-
-- [ ] TODO(Yeo Kai Yuan): collect the four real names and student IDs, replace every `Teammate A/B/C/D`
-      placeholder in this file, and hand the list to Part 5 for Slide 1.
 
 Slide content is specified slide by slide in `slides/outline.md`: required content, owner, the files each slide
 draws its numbers from, and what "done" means for that slide. Every owner builds their slides from that file;

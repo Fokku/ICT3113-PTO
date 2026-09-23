@@ -1,0 +1,35 @@
+row_number,agreed_label,resolution_note,protocol_revision
+# ---------------------------------------------------------------------------
+# labelling/resolutions.csv -- the machine-readable resolution record.
+# Read by labelling/scripts/build_golden_set.py. Owner: Part 3 -- Teammate B.
+#
+# One line per DISAGREEMENT between labeller_A.csv and labeller_B.csv. Every
+# disagreement listed in labelling/disagreements.csv must appear here, or the
+# build fails and names the rows it is missing.
+#
+# Columns
+#   row_number         the row from data/team_rows.csv, digits only.
+#   agreed_label       one of the seven categories, spelled exactly as in
+#                      service/categories.py, OR the token EXCLUDE to drop the
+#                      row from the golden set. UNPARSEABLE is a model-output
+#                      value and is rejected here.
+#   resolution_note    why, in one line. Required -- a resolution with no
+#                      reasoning is not a resolution. Reference the protocol
+#                      rule that settles the row (E1-E7) where there is one.
+#                      Keep it on a single line and quote it if it contains a
+#                      comma.
+#   protocol_revision  the revision id from the Revision log in protocol.md
+#                      (e.g. R2) if this disagreement caused a protocol change,
+#                      otherwise: none
+#
+# A line whose first non-space character is # is a comment and is skipped, so a
+# resolution_note must not contain a line break followed by #.
+#
+# Every line here must also be written up in resolutions.md, which is the
+# narrative record Slide 6 quotes. build_golden_set.py warns when a row appears
+# in one file and not the other.
+#
+# Commented example of the shape (delete nothing above; add real rows below):
+# 10123,Debt collection,"E7: collector chasing a card debt; conduct wins",R2
+# 10456,EXCLUDE,"E2: narrative is a single redacted line, no product stated",none
+# ---------------------------------------------------------------------------

@@ -1,0 +1,12 @@
+# Project configuration for ICT3113 Assignment 1 (Team 10).
+#
+# This file exists only to configure pytest and to make the repository root
+# importable (so `from service.categories import CATEGORIES` works from tests
+# and from the analysis scripts). The service itself is installed from
+# requirements.txt inside the Docker image; there is no packaging step.
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "analysis/tests"]
+pythonpath = ["."]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]

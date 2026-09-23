@@ -1,0 +1,44 @@
+# ---------------------------------------------------------------------------
+# ICT3113 Assignment 1 — .gitignore
+# ---------------------------------------------------------------------------
+
+# The full course CSV is large and is distributed via xSiTe. Never commit it.
+# Only data/team_rows.csv (our 1000 rows) is committed.
+ict3113_tickets.csv
+*_tickets_full.csv
+/data/course/
+
+# Dev-mode outputs: pre-freeze smoke/dev runs against synthetic tickets only.
+# These are NOT evidence and must never be reported.
+/results/dev/
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local environment
+.env
+!.env.example
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# JMeter local noise (the plans themselves ARE committed)
+jmeter/*.log
+jmeter.log
+/jmeter/out/
+
+# Scratch
+*.tmp
+*.bak
+scratch/

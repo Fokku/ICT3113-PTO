@@ -1,0 +1,7 @@
+# Host-side tooling: tests, analysis scripts, and the helper scripts used by
+# Parts 2-5. Not installed in the service container.
+-r requirements.txt
+pytest>=8.0
+pandas>=2.2
+matplotlib>=3.8
+PyYAML>=6.0

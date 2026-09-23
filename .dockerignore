@@ -1,0 +1,68 @@
+# ---------------------------------------------------------------------------
+# Build context for the triage image. Owner: Yeo Kai Yuan (Part 1).
+#
+# The image needs exactly two things: requirements.txt and service/. Everything
+# listed here is excluded so that:
+#   * the 45 MB course CSV and our 1,000 team rows never enter an image — the
+#     service must only ever see tickets that arrive through POST /tickets;
+#   * results, logs and .jtl files stay out, so an image can never be confused
+#     with evidence;
+#   * the build context stays small, which keeps `docker compose build` quick.
+#
+# Excludes are listed explicitly rather than with a `*` + `!service` allow-list,
+# because an explicit list is what a reader can check against `ls`.
+# ---------------------------------------------------------------------------
+
+# Version control and local tooling
+.git
+.gitignore
+.venv
+venv
+**/__pycache__
+**/*.py[cod]
+.pytest_cache
+.ruff_cache
+.coverage
+htmlcov
+
+# Datasets — never in an image
+ict3113_tickets.csv
+data
+golden
+labelling
+
+# Evidence and outputs
+results
+logs
+analysis
+predictions
+workload
+models
+slides
+
+# Host-side tooling, docs and tests
+tests
+scripts
+jmeter
+docs
+requirements-dev.txt
+pyproject.toml
+README.md
+*.md
+*.docx
+
+# Container definitions themselves (not needed inside the image)
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Local secrets and scratch. .env is gitignored; it must not be baked in either —
+# configuration is passed at run time by docker-compose.yml.
+.env
+.env.example
+*.tmp
+*.bak
+scratch
+.vscode
+.idea
+.DS_Store

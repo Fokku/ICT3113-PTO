@@ -1,0 +1,114 @@
+# ---------------------------------------------------------------------------
+# ICT3113 Assignment 1 — system under test (Team 10)
+# Owner: Yeo Kai Yuan (Part 1 — baseline service)
+#
+# Two services: the triage web service, and Ollama as the model backend.
+#
+# HOW TO RUN IT
+#
+#   1) Everything on this machine (service + Ollama in containers):
+#        docker compose --profile local-ollama up -d --build
+#      The service reaches Ollama at http://ollama:11434 over the compose network.
+#
+#   2) Service here, Ollama on ANOTHER machine (this is the shape we measure in,
+#      because the brief requires the load generator to be off the machine under
+#      test and our Ollama host is the machine with the CPU headroom):
+#        OLLAMA_BASE_URL=http://<ollama-host>:11434 docker compose up -d --build triage
+#      The `ollama` service below sits behind the `local-ollama` profile, so it is
+#      simply not created unless that profile is requested. There is deliberately
+#      no `depends_on`: the triage service must start, serve /search and /stats,
+#      and report "degraded" from /health when the backend is absent.
+#
+# Values come from the shell environment or from ./.env (Compose reads .env for
+# interpolation automatically); the defaults below are the ones in .env.example
+# and in the configuration table of the build contract.
+#
+# GPU: there is NO `deploy.resources.reservations.devices` block and no GPU
+# runtime anywhere in this file, deliberately. The client's constraint is CPU-only
+# commodity hardware, so the measurements must be CPU-only too. Do not add one.
+# ---------------------------------------------------------------------------
+name: ict3113-triage
+
+services:
+  triage:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ict3113/triage:baseline
+    container_name: ict3113-triage
+    environment:
+      # Model backend. Point this at an external host to run form (2) above.
+      OLLAMA_BASE_URL: "${OLLAMA_BASE_URL:-http://ollama:11434}"
+      MODEL_TAG: "${MODEL_TAG:-llama3.2:1b}"
+      # Empty means "resolve the digest from /api/tags at start-up and log it".
+      MODEL_DIGEST: "${MODEL_DIGEST:-}"
+      # Set explicitly: see the rationale in .env.example. Logged per request.
+      NUM_CTX: "${NUM_CTX:-4096}"
+      OLLAMA_TIMEOUT_S: "${OLLAMA_TIMEOUT_S:-120}"
+      OLLAMA_SEED: "${OLLAMA_SEED:-42}"
+      # Must stay inside /data, which is where the named volume is mounted.
+      DB_PATH: "${DB_PATH:-/data/triage.db}"
+      LOG_DIR: "${LOG_DIR:-/logs/service}"
+      SERVICE_HOST: "${SERVICE_HOST:-0.0.0.0}"
+      SERVICE_PORT: "${SERVICE_PORT:-8000}"
+      UVICORN_WORKERS: "${UVICORN_WORKERS:-1}"
+      SERVICE_THREADPOOL_SIZE: "${SERVICE_THREADPOOL_SIZE:-40}"
+      LOG_LEVEL: "${LOG_LEVEL:-INFO}"
+    ports:
+      - "${SERVICE_PORT:-8000}:${SERVICE_PORT:-8000}"
+    volumes:
+      # The SQLite database lives in a named volume so it survives a restart and
+      # so scripts/reset.sh can delete it wholesale between runs — the service
+      # must start empty for every measured run.
+      - triage_db:/data
+      # The request log is bind-mounted to the repository, because it is evidence:
+      # every number we report has to reconcile with a line in these files, and
+      # they are committed with the results.
+      - ./logs/service:${LOG_DIR:-/logs/service}
+    restart: unless-stopped
+    # No cpus/mem_limit: the baseline gets the whole machine, and the hardware it
+    # got is described in docs/environment. Constraining it would be tuning.
+
+  ollama:
+    # Only created when the local-ollama profile is requested; see the header.
+    profiles: ["local-ollama"]
+    # The official image. Its digest for the run is captured by
+    # scripts/capture_env.sh, and each model's tag and digest are pinned in
+    # models/models.yaml — pinning the models is what the brief asks for.
+    image: ollama/ollama:latest
+    container_name: ict3113-ollama
+    environment:
+      # Both of the following are set EXPLICITLY, at Ollama's own default value,
+      # so that the value appears in `docker compose config` and can be copied
+      # into every run's metadata.json. 0 is Ollama's sentinel for "use the
+      # built-in default", i.e. let Ollama choose based on available memory.
+      #
+      # We are deliberately NOT tuning either of them. Concurrency is the knob
+      # most likely to move throughput on CPU, and turning it here would mean the
+      # baseline is already tuned and there is nothing left to show in
+      # Assignment 2. The effective values are captured from the running server
+      # by scripts/capture_env.sh.
+      #   A2 candidate: raise OLLAMA_NUM_PARALLEL and re-measure the latency /
+      #   throughput trade-off on the same plans
+      OLLAMA_NUM_PARALLEL: "${OLLAMA_NUM_PARALLEL:-0}"
+      #   A2 candidate: OLLAMA_MAX_LOADED_MODELS > 1 to avoid a model reload when
+      #   two candidates are exercised in the same session
+      OLLAMA_MAX_LOADED_MODELS: "${OLLAMA_MAX_LOADED_MODELS:-0}"
+      # Bind on all interfaces inside the container so the triage service (and,
+      # in form (2), a service on another host) can reach it.
+      OLLAMA_HOST: "0.0.0.0:11434"
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      # Pulled model weights. Kept in a named volume and NEVER deleted by
+      # scripts/reset.sh: wiping it would force a multi-gigabyte re-pull of every
+      # candidate model before the next run.
+      - ollama_models:/root/.ollama
+    restart: unless-stopped
+    # CPU only. No `deploy:` block, no `gpus:`, no nvidia runtime — see the header.
+
+volumes:
+  # Wiped between runs by scripts/reset.sh, so /stats starts at zero.
+  triage_db:
+  # Never wiped automatically. Holds the pinned candidate models.
+  ollama_models:

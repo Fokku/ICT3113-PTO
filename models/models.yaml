@@ -1,0 +1,178 @@
+# ===========================================================================
+# models/models.yaml -- the candidate model PIN FILE. Team 10, ICT3113 A1.
+# ===========================================================================
+#
+# WHAT THIS FILE IS
+#   The machine-readable half of models/candidates.md. Two kinds of field live
+#   here and they must not be confused:
+#
+#     * HUMAN-WRITTEN fields (everything except the `pinned:` blocks) are edited
+#       by a person, reviewed, and committed. scripts/pull_and_pin_models.sh
+#       never touches them.
+#     * PINNED fields (inside each `pinned:` block) are written ONLY by
+#       scripts/pull_and_pin_models.sh, from what the Ollama host actually
+#       reports after a pull. Do not type them in by hand: a digest you typed
+#       is not evidence that anything was pulled.
+#
+# WHY THE DIGESTS MATTER
+#   The digests in this file are what we report with our results on Slide 5.
+#   They are the only thing tying a latency or accuracy number to a specific
+#   set of weights. An Ollama tag is mutable: `llama3.2:3b` can be re-published
+#   against different weights at any time, and `latest` tags move by design.
+#
+#   Therefore: A RE-PULL THAT CHANGES A DIGEST INVALIDATES EVERY EARLIER RUN
+#   RECORDED UNDER THE OLD DIGEST. Those runs are not wrong, they are simply no
+#   longer comparable with anything pulled afterwards, and they cannot be
+#   pooled with new runs or reported in the same row of a results table.
+#   scripts/pull_and_pin_models.sh therefore FAILS LOUDLY on a digest change
+#   instead of quietly rewriting the pin; overriding it needs --allow-repin and
+#   means re-running the affected benchmarks.
+#
+# HOW TO CHANGE THIS FILE
+#   Adding or removing a candidate, or editing a rationale: edit by hand, and
+#   keep models/candidates.md in step -- the slide is built from both.
+#   Establishing or refreshing a pin: run the script. Never by hand.
+#     scripts/pull_and_pin_models.sh --dry-run     # prints the plan only
+#     scripts/pull_and_pin_models.sh               # pulls and pins
+#     scripts/pull_and_pin_models.sh --model llama3.2:1b
+#
+# STATUS: PROPOSAL. Every `pinned:` block below is null, which means nothing in
+#   here has been pulled or verified, and the shortlist itself is still awaiting
+#   confirmation -- see the TODO at the top of models/candidates.md.
+#
+# FORMAT NOTE FOR ANYONE EDITING BY HAND
+#   The script patches the four scalars inside each `pinned:` block in place, by
+#   line, so that these comments survive. Keep each `pinned:` block exactly four
+#   keys, one per line, at the indentation used below, and do not put trailing
+#   comments on those four lines.
+# ===========================================================================
+
+# Schema version of THIS file's layout. Bump it if the shape changes, because
+# scripts/pull_and_pin_models.sh checks it and refuses a shape it predates.
+schema_version: 1
+
+# Free-text provenance, for the marker and for us in six weeks' time.
+source: >-
+  Shortlist proposed 2026-09-23 from ollama.com/library and the upstream model
+  cards. Every factual claim about a model, and every licence, is cited in
+  models/candidates.md. Sizes and digests here are written by
+  scripts/pull_and_pin_models.sh, not by hand.
+
+# ---------------------------------------------------------------------------
+# The candidates, in the order they should appear on Slide 5: smallest first,
+# so the size/speed trade-off reads left to right.
+# ---------------------------------------------------------------------------
+candidates:
+
+  # -- Slot: floor of the trade-off (sub-2B) --------------------------------
+  # NOTE: Ollama's default build for this tag is Q8_0, while the 3B default is
+  # Q4_K_M. The Llama pair therefore varies quantisation as well as parameter
+  # count. See "The Q8_0 problem" in models/candidates.md -- there is an open
+  # decision to either accept this or pin llama3.2:1b-instruct-q4_K_M instead.
+  - tag: "llama3.2:1b"
+    name: "Meta Llama 3.2 1B Instruct"
+    size_class: "sub-2B"
+    parameters: "1.24B"
+    default_quantisation: "Q8_0"
+    expected_download: "1.3 GB"
+    licence: "Llama 3.2 Community License (custom, not OSI-approved)"
+    licence_url: "https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/LICENSE"
+    url: "https://ollama.com/library/llama3.2:1b"
+    rationale: >-
+      The fast end of the trade-off and the member most likely to fail the
+      accuracy requirement. It is in the set to show how cheap the client can go
+      before short-output instruction-following breaks down.
+    # Written by scripts/pull_and_pin_models.sh. Never edit by hand.
+    pinned:
+      digest: null
+      pulled_at: null
+      size_bytes: null
+      ollama_version: null
+
+  # -- Slot: middle of the trade-off, controlled within-family comparison ---
+  - tag: "llama3.2:3b"
+    name: "Meta Llama 3.2 3B Instruct"
+    size_class: "3-4B"
+    parameters: "3.21B"
+    default_quantisation: "Q4_K_M"
+    expected_download: "2.0 GB"
+    licence: "Llama 3.2 Community License (custom, not OSI-approved)"
+    licence_url: "https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/LICENSE"
+    url: "https://ollama.com/library/llama3.2:3b"
+    rationale: >-
+      Same family, tokeniser, chat template and licence as llama3.2:1b, one size
+      class up, so this pair isolates the effect of parameter count under a
+      fixed prompt. This is the controlled comparison in the set.
+    # Written by scripts/pull_and_pin_models.sh. Never edit by hand.
+    pinned:
+      digest: null
+      pulled_at: null
+      size_bytes: null
+      ollama_version: null
+
+  # -- Slot: middle of the trade-off, licence-clean comparator --------------
+  # This is the dense build. The granite4 *-h tags are the hybrid Mamba-2
+  # builds, which IBM positions for cases where mamba-2 is optimised; the dense
+  # build is the safer pin for a CPU-only measurement.
+  - tag: "granite4:3b"
+    name: "IBM Granite 4.0 Micro"
+    size_class: "3-4B"
+    parameters: "3.4B"
+    default_quantisation: "Q4_K_M"
+    expected_download: "2.1 GB"
+    licence: "Apache License 2.0"
+    licence_url: "https://www.apache.org/licenses/LICENSE-2.0"
+    url: "https://ollama.com/library/granite4:3b"
+    rationale: >-
+      A permissively licensed alternative in the same size class as
+      llama3.2:3b. It answers the client's commercial question directly: does
+      choosing an Apache-2.0 model cost us anything measurable?
+    # Written by scripts/pull_and_pin_models.sh. Never edit by hand.
+    pinned:
+      digest: null
+      pulled_at: null
+      size_bytes: null
+      ollama_version: null
+
+  # -- Slot: ceiling of the trade-off (7-8B) --------------------------------
+  # Apache-2.0 at THIS size. Note that qwen2.5:3b and qwen2.5:72b are NOT
+  # Apache-2.0 -- they carry the non-commercial Qwen Research License. Do not
+  # add another size from this family without re-checking its licence.
+  - tag: "qwen2.5:7b"
+    name: "Alibaba Qwen2.5 7B Instruct"
+    size_class: "7-8B"
+    parameters: "7.62B"
+    default_quantisation: "Q4_K_M"
+    expected_download: "4.7 GB"
+    licence: "Apache License 2.0"
+    licence_url: "https://www.apache.org/licenses/LICENSE-2.0"
+    url: "https://ollama.com/library/qwen2.5:7b"
+    rationale: >-
+      The largest model that is honestly servable on commodity CPU, and the only
+      candidate expected to be slow enough to matter. It is instruction-tuned
+      with no thinking mode to disable, so it tests capability rather than our
+      prompt.
+    # Written by scripts/pull_and_pin_models.sh. Never edit by hand.
+    pinned:
+      digest: null
+      pulled_at: null
+      size_bytes: null
+      ollama_version: null
+
+# ---------------------------------------------------------------------------
+# Named substitutes. NOT candidates, and never pulled by the script: they exist
+# so that a decision made under time pressure is a decision we already argued.
+# Promote one by moving it into `candidates:` above, with a pinned block, and
+# say why in models/candidates.md.
+# ---------------------------------------------------------------------------
+substitutes:
+  - tag: "mistral:7b"
+    for_slot: "7-8B"
+    licence: "Apache License 2.0 (page states \"Apache license\" without a version)"
+    url: "https://ollama.com/library/mistral"
+    reason: "Use if qwen2.5:7b will not serve on the Ollama host."
+  - tag: "qwen2.5:1.5b"
+    for_slot: "sub-2B"
+    licence: "Apache License 2.0"
+    url: "https://ollama.com/library/qwen2.5:1.5b"
+    reason: "Use if the Llama 3.2 Community License is judged unacceptable for the client."

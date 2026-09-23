@@ -1,0 +1,71 @@
+# TODO(Part 4 — Teammate C): review these against the workload model.
+# Part 4 owns two things here, not Part 1: the SEARCH RATE, which nothing in this
+# file sets and whose default in jmeter/mixed_load.jmx is a visible placeholder;
+# and whether this list is realistic for a complaints desk. Notes at end of file.
+overdraft fee
+late fee
+minimum payment
+annual fee
+interest rate increase
+credit limit decrease
+balance transfer
+unauthorized charge
+identity theft
+fraud alert
+credit freeze
+hard inquiry
+mixed credit file
+dispute investigation
+collection agency
+debt validation
+statute of limitations
+wage garnishment
+repossession
+escrow
+loan modification
+foreclosure
+payoff statement
+autopay
+direct deposit
+wire transfer
+money order
+prepaid card
+closed my account
+account frozen
+# ---------------------------------------------------------------------------
+# Notes. These are at the END of the file on purpose, not the top.
+#
+# jmeter/mixed_load.jmx reads this file with a CSV Data Set Config, and JMeter has
+# no concept of a comment line: it hands every line to the sampler as though an
+# agent had typed it. The plan copes in two ways — "Use first line as Variable
+# Names" skips exactly line 1, and a small pre-processor replaces any other '#' or
+# blank line with one of the terms above. That pre-processor can only substitute a
+# term it has already seen, so comment lines placed at the TOP of the file are
+# queried for real during the first pass of a run, whereas comment lines down
+# here never are. Hence the split: a short TODO header, and the prose down here.
+# Full explanation: jmeter/README.md, section "The search terms file".
+#
+# Format: one term per line, and the whole line is the term — the plan reads the
+# file with a tab delimiter and quoting off, so a term may contain commas,
+# apostrophes and double quotes with no escaping. Blank lines are tolerated but
+# are better avoided: JMeter turns an empty line into its <EOF> marker.
+#
+# Why the terms were written from scratch rather than mined from our own data:
+# they must not be tuned to ../data/team_rows.csv. Test traffic that is known in
+# advance to match stored tickets would flatter GET /search, and choosing terms by
+# reading the team's rows is exactly the sort of peeking the golden-set freeze
+# exists to prevent. The consequence is that some terms will match nothing; a
+# query that matches nothing still costs the service a full-table scan, which is
+# the work this plan measures.
+#
+# Why US spellings (unauthorized, not unauthorised): the narratives come from the
+# US Consumer Financial Protection Bureau complaint database and are written in US
+# English, so a British spelling would match fewer stored tickets than a real
+# agent's query would. Repository prose stays in British English; query strings
+# match the data they are searching.
+#
+# TODO(Part 4 — Teammate C): if the workload model concludes that agents mostly
+# search for a reference number, a surname or an account number rather than for
+# subject-matter phrases, replace the list above and say so in
+# ../workload/requirements.md with the figure the search rate comes from.
+# ---------------------------------------------------------------------------

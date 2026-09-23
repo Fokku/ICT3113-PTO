@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ICT3113 Assignment 1 — stress_ramp.jmx
+  Owner: Part 1 — Yeo Kai Yuan (test harness).  Feeds slides 8 and 9.
+
+  The stress test: one stepped, open-loop ramp on POST /tickets that keeps
+  raising the ticket arrival rate until the system under test stops keeping up.
+  The brief asks for one test that "determines a limit of the system under test";
+  the limit this plan looks for is the highest arrival rate at which the baseline
+  still answers within the response-time requirement and without errors.
+
+  A STAIRCASE, NOT A SMOOTH RAMP, AND WHY.
+  Each step holds a constant rate for ramp_step_duration_s seconds. A smooth
+  linear ramp would never give the service a steady state at any particular rate,
+  so a p95 computed over the ramp would not belong to any rate you could quote to
+  a client. Flat steps mean each step yields its own p50/p95/p99, throughput and
+  error rate, and the limit is then simply "the last step that still met the
+  requirement". analysis/stress_summary.py slices the .jtl on the step boundaries
+  documented below and in docs/playbooks/stress-test.md.
+
+  Hand-written rather than GUI-generated so that it stays reviewable in a diff.
+  See jmeter/README.md for the property list and the step-boundary table.
+-->
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="ICT3113 A1 — stepped stress ramp on POST /tickets" enabled="true">
+      <stringProp name="TestPlan.comments">WHY THIS PLAN IS OPEN-LOOP, AND WHY A STRESS TEST ABSOLUTELY CANNOT BE CLOSED-LOOP.
+
+This plan uses an Open Model Thread Group: an open-loop arrival-rate model in
+which JMeter starts a thread for each scheduled arrival whether or not earlier
+requests have been answered.
+
+On a stress test the closed-loop failure is fatal, not merely inconvenient. With a
+fixed pool of N threads the offered rate is N / response_time, so the harder the
+service struggles the less work it is sent. The measured throughput then converges
+on the service's own service rate by construction, the queue in front of Ollama
+never grows, and the plan can never find a limit because it never exceeds one.
+A closed-loop "stress test" reports that the system copes with everything you
+offered it, because you only ever offered it what it could cope with.
+
+Open-loop instead keeps offering the configured rate. When the rate passes what
+the service can sustain, requests pile up: latency climbs step after step,
+eventually the 180 s response timeout and the service's own 502s appear, and the
+step at which that starts IS the limit we are looking for.
+
+The assignment brief is explicit: "Traffic must be generated open-loop, at
+controlled arrival rates: use the Open Model Thread Group or the Precise
+Throughput Timer... Results from closed-loop tests will not be accepted as
+evidence against throughput or latency requirements."
+
+BASELINE NOTE. The plan drives the unmodified baseline. There is no concurrency
+limit anywhere to protect it: the service does not bound its in-flight model
+calls, so the queue forms inside Ollama. That is the behaviour we are here to
+measure and record, not to fix.
+# A2 candidate (service side, recorded here because this is the plan that exposes
+# it): a bulkhead or semaphore around the model call, and backpressure - a 429 or
+# a queue with a bounded wait - instead of unbounded queueing.</stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+    </TestPlan>
+    <hashTree>
+      <!--
+        The stepped ramp. Six steps written out literally: JMeter cannot loop a
+        schedule string, and the documented ${__groovy(...)} loop trick was
+        rejected on purpose because it hides the actual rates from anyone reading
+        the plan. Each step's rate is its own -J property, so a teammate can raise
+        one step without touching the structure of the schedule.
+      -->
+      <org.apache.jmeter.threads.openmodel.OpenModelThreadGroup guiclass="org.apache.jmeter.threads.openmodel.gui.OpenModelThreadGroupGui" testclass="org.apache.jmeter.threads.openmodel.OpenModelThreadGroup" testname="Ticket intake (stepped ramp)" enabled="true">
+        <stringProp name="TestPlan.comments">STEP BOUNDARIES. With every property left at its default
+(ramp_start_per_min=30, ramp_step_per_min=30, ramp_step_duration_s=120):
+
+  step  offered rate   window (s from test start)   expected arrivals
+  ----  ------------   -------------------------   -----------------
+   1      30 / min          0 -  120                        60
+   2      60 / min        120 -  240                       120
+   3      90 / min        240 -  360                       180
+   4     120 / min        360 -  480                       240
+   5     150 / min        480 -  600                       300
+   6     180 / min        600 -  720                       360
+  drain   no arrivals     720 -  840                         0
+  ----  ------------   -------------------------   -----------------
+                                            total        1,260 tickets
+
+Arrivals are a Poisson process, so the per-step counts vary a little around those
+figures. The same table appears in jmeter/README.md and must be repeated in
+docs/playbooks/stress-test.md, because analysis/stress_summary.py has to be TOLD
+where the boundaries are: pass --step-seconds 120 (i.e. the same value as
+-Jramp_step_duration_s) and it slices the .jtl into equal windows from the first
+sample's timestamp.
+
+If you change ramp_step_duration_s you must pass the same number to
+stress_summary.py --step-seconds, or the reported per-step figures will be sliced
+at the wrong places. That is the one coupling in this plan that is not enforced in
+code, so it is written here, in the README and in the playbook.
+
+HOW THE SIX RATES ARE SET. Each step reads its own property:
+    -Jramp_rate_1 ... -Jramp_rate_6      (tickets per minute for that step)
+If a step's property is not given, its default is computed from the shape
+properties as  ramp_start_per_min + (step - 1) * ramp_step_per_min, which with the
+defaults above gives 30, 60, 90, 120, 150, 180 per minute. So:
+  * -Jramp_start_per_min=12 -Jramp_step_per_min=12  gives 12/24/36/48/60/72;
+  * -Jramp_rate_6=240 raises only the top step and leaves the rest alone.
+
+TODO(Part 4 — Teammate C): the defaults above are a placeholder staircase, not a
+workload figure. The rates that matter are the ones that bracket the throughput
+requirement — you want steps below it, one at it, and steps above it, so that the
+test actually demonstrates where the baseline stops meeting it. Choose them from
+the workload model in ../workload/requirements.md and record them in the playbook.
+
+THE DRAIN PAUSE AT THE END. An Open Model Thread Group interrupts its threads as
+soon as the schedule ends, and an interrupted in-flight request is recorded as a
+failed sample. At the top step a CPU-only model call can easily still be running
+when the last step ends, so without a drain the plan would manufacture a burst of
+errors that look like the limit we are hunting for. The trailing pause admits no
+new arrivals but lets the requests already in flight finish and be recorded as the
+latencies they really were. Its default is one step duration; override with
+-Jramp_drain_s.
+
+random_seed = ${__P(random_seed,0)} — a fresh arrival pattern per run, so the
+spread across the three repeat runs includes arrival variability.</stringProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <stringProp name="OpenModelThreadGroup.schedule">/* ICT3113 stepped stress ramp. ramp_steps=${__P(ramp_steps,6)} is recorded here so the run log states how many steps the operator intended; this schedule implements SIX steps LITERALLY, because JMeter cannot loop a schedule string. Changing ramp_steps does NOT change the schedule - add or remove a step line below by hand and update jmeter/README.md and the playbook. */
+/* step 1 */ rate(${__P(ramp_rate_1,${__groovy((props['ramp_start_per_min'] ?: '30').toInteger())})}/min) random_arrivals(${__P(ramp_step_duration_s,120)} sec) rate(${__P(ramp_rate_1,${__groovy((props['ramp_start_per_min'] ?: '30').toInteger())})}/min)
+/* step 2 */ rate(${__P(ramp_rate_2,${__groovy((props['ramp_start_per_min'] ?: '30').toInteger() + 1 * (props['ramp_step_per_min'] ?: '30').toInteger())})}/min) random_arrivals(${__P(ramp_step_duration_s,120)} sec) rate(${__P(ramp_rate_2,${__groovy((props['ramp_start_per_min'] ?: '30').toInteger() + 1 * (props['ramp_step_per_min'] ?: '30').toInteger())})}/min)
+/* step 3 */ rate(${__P(ramp_rate_3,${__groovy((props['ramp_start_per_min'] ?: '30').toInteger() + 2 * (props['ramp_step_per_min'] ?: '30').toInteger())})}/min) random_arrivals(${__P(ramp_step_duration_s,120)} sec) rate(${__P(ramp_rate_3,${__groovy((props['ramp_start_per_min'] ?: '30').toInteger() + 2 * (props['ramp_step_per_min'] ?: '30').toInteger())})}/min)
+/* step 4 */ rate(${__P(ramp_rate_4,${__groovy((props['ramp_start_per_min'] ?: '30').toInteger() + 3 * (props['ramp_step_per_min'] ?: '30').toInteger())})}/min) random_arrivals(${__P(ramp_step_duration_s,120)} sec) rate(${__P(ramp_rate_4,${__groovy((props['ramp_start_per_min'] ?: '30').toInteger() + 3 * (props['ramp_step_per_min'] ?: '30').toInteger())})}/min)
+/* step 5 */ rate(${__P(ramp_rate_5,${__groovy((props['ramp_start_per_min'] ?: '30').toInteger() + 4 * (props['ramp_step_per_min'] ?: '30').toInteger())})}/min) random_arrivals(${__P(ramp_step_duration_s,120)} sec) rate(${__P(ramp_rate_5,${__groovy((props['ramp_start_per_min'] ?: '30').toInteger() + 4 * (props['ramp_step_per_min'] ?: '30').toInteger())})}/min)
+/* step 6 */ rate(${__P(ramp_rate_6,${__groovy((props['ramp_start_per_min'] ?: '30').toInteger() + 5 * (props['ramp_step_per_min'] ?: '30').toInteger())})}/min) random_arrivals(${__P(ramp_step_duration_s,120)} sec) rate(${__P(ramp_rate_6,${__groovy((props['ramp_start_per_min'] ?: '30').toInteger() + 5 * (props['ramp_step_per_min'] ?: '30').toInteger())})}/min)
+/* drain: no new arrivals, but requests already in flight are allowed to finish so that they are recorded as latencies rather than as interrupted samples */ pause(${__P(ramp_drain_s,${__groovy((props['ramp_step_duration_s'] ?: '120').toInteger())})} sec)</stringProp>
+        <stringProp name="OpenModelThreadGroup.random_seed">${__P(random_seed,0)}</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="org.apache.jmeter.threads.openmodel.OpenModelThreadGroupController"/>
+      </org.apache.jmeter.threads.openmodel.OpenModelThreadGroup>
+      <hashTree>
+        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Ticket narratives (CSV Data Set Config)" enabled="true">
+          <stringProp name="TestPlan.comments">Identical configuration to the other two plans: columns
+row_number,narrative,raw_label; quoted data because narratives contain commas and
+newlines; header skipped and re-skipped on recycle; recycled at EOF; one shared
+file handle.
+
+Recycling matters more here than anywhere else. The full default ramp offers about
+1,260 tickets and our team slice has 1,000 rows, so the file is re-read part-way
+through. That is correct for a stress test: the question is how many tickets per
+minute the service can absorb, not which tickets they were. It is also why
+accuracy must never be computed from a stress run.
+
+Defaults to the synthetic dev tickets. No team row reaches a model before the
+golden set and the prediction record are committed and tagged.</stringProp>
+          <stringProp name="filename">${__P(input_csv,../data/dev/synthetic_tickets.csv)}</stringProp>
+          <stringProp name="fileEncoding">UTF-8</stringProp>
+          <stringProp name="variableNames">row_number,narrative,raw_label</stringProp>
+          <boolProp name="ignoreFirstLine">true</boolProp>
+          <stringProp name="delimiter">,</stringProp>
+          <boolProp name="quotedData">true</boolProp>
+          <boolProp name="recycle">true</boolProp>
+          <boolProp name="stopThread">false</boolProp>
+          <stringProp name="shareMode">shareMode.all</stringProp>
+        </CSVDataSet>
+        <hashTree/>
+        <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager — content type and reconciliation headers" enabled="true">
+          <stringProp name="TestPlan.comments">X-Request-ID is the join key between this .jtl and logs/service/*.jsonl, and it
+is what makes a stress run auditable: when the service starts failing, the failed
+samples can be matched to the log lines that explain why. X-Source-Row carries the
+course CSV row number. Content-Type must be application/json for FastAPI.</stringProp>
+          <collectionProp name="HeaderManager.headers">
+            <elementProp name="Content-Type" elementType="Header">
+              <stringProp name="Header.name">Content-Type</stringProp>
+              <stringProp name="Header.value">application/json</stringProp>
+            </elementProp>
+            <elementProp name="X-Request-ID" elementType="Header">
+              <stringProp name="Header.name">X-Request-ID</stringProp>
+              <stringProp name="Header.value">${request_id}</stringProp>
+            </elementProp>
+            <elementProp name="X-Source-Row" elementType="Header">
+              <stringProp name="Header.name">X-Source-Row</stringProp>
+              <stringProp name="Header.value">${source_row}</stringProp>
+            </elementProp>
+          </collectionProp>
+        </HeaderManager>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /tickets" enabled="true">
+          <stringProp name="TestPlan.comments">The sampler name is the .jtl label column. It is deliberately the same string as
+in the other two plans so that a stress step and a steady-load run at the same
+rate are directly comparable. Do not rename it.
+
+host has no usable default: the brief requires the load generator on a separate
+machine, so the default is an invalid hostname that fails loudly rather than
+quietly measuring a co-hosted run. Pass -Jhost.
+
+response_timeout_ms = 180000 by default, longer than the service's
+OLLAMA_TIMEOUT_S of 120 s. On a stress ramp this is the number that decides what
+"failure" means: below it, a slow request is recorded as a real latency; at it,
+the sample fails. Keeping it above the service's own timeout means the first
+failures we see are the service's 502s - the system under test giving up - rather
+than the load generator giving up first, which would tell us nothing about the SUT.
+Raise it with care and record the value you used in the playbook: the limit this
+plan finds depends on it.</stringProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="Request body" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{"narrative": ${narrative_json}}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">${__P(host,SET-JHOST-TO-THE-SERVICE-HOST)}</stringProp>
+          <stringProp name="HTTPSampler.port">${__P(port,8000)}</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
+          <stringProp name="HTTPSampler.path">/tickets</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <boolProp name="HTTPSampler.follow_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.connect_timeout">${__P(connect_timeout_ms,10000)}</stringProp>
+          <stringProp name="HTTPSampler.response_timeout">${__P(response_timeout_ms,180000)}</stringProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="Per-iteration ids (request_id, source_row)" enabled="true">
+            <stringProp name="TestPlan.comments">request_id = ${__UUID()} ; source_row = ${row_number}.
+
+per_iteration is FALSE on purpose. With it true these values would be set from an
+iterationStart listener, and JMeter notifies iteration listeners in reverse
+registration order, so this element could fire before the CSV Data Set Config had
+advanced to the current row; every source_row would then name the previous ticket,
+and every reconciled row would be off by one with nothing in the .jtl to show it.
+With it false the values are set from process(), immediately before the sampler,
+once this iteration's CSV row is already bound.</stringProp>
+            <collectionProp name="UserParameters.names">
+              <stringProp name="37109963">request_id</stringProp>
+              <stringProp name="-1111110730">source_row</stringProp>
+            </collectionProp>
+            <collectionProp name="UserParameters.thread_values">
+              <collectionProp name="-1">
+                <stringProp name="118040362">${__UUID()}</stringProp>
+                <stringProp name="2006504376">${row_number}</stringProp>
+              </collectionProp>
+            </collectionProp>
+            <boolProp name="UserParameters.per_iteration">false</boolProp>
+          </UserParameters>
+          <hashTree/>
+          <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="JSON-escape the narrative (escaping, not logic)" enabled="true">
+            <stringProp name="TestPlan.comments">THIS IS ESCAPING, NOT LOGIC. JMeter has no JSON-escape function and our
+narratives contain double quotes, newlines and non-ASCII punctuation, so the body
+cannot be built by string concatenation. JsonOutput.toJson() returns the value
+already wrapped in double quotes, which is why the body template is
+{"narrative": ${narrative_json}} with no quotes of its own.
+
+cacheKey makes Groovy compile the script once per run rather than once per sample.
+That matters most in this plan: at the top step the generator is starting hundreds
+of threads a minute, and a per-sample compile would spend load-generator CPU
+inside the measured interval and inflate the latency we blame on the service.</stringProp>
+            <stringProp name="cacheKey">ict3113-narrative-json-escape</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="script">// Escaping only. See this element's comment.
+// Names no Java type on purpose: JMeter 5.6.3's Groovy cannot compile one on a
+// newer JDK and the failure is silent. See jmeter/README.md, "Groovy and the JDK
+// version". JsonOutput is a Groovy class, which is safe.
+vars.put('narrative_json', groovy.json.JsonOutput.toJson(vars.get('narrative')))</stringProp>
+          </JSR223PreProcessor>
+          <hashTree/>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="HTTP 200" enabled="true">
+            <stringProp name="TestPlan.comments">Response code equals 200, and nothing else. This assertion is what defines the
+error rate per step, and the error rate per step is how this plan finds the limit:
+analysis/stress_summary.py compares each step's error rate against
+--error-rate-limit and each step's p95 against --p95-limit-ms.
+
+There is deliberately no assertion on the returned category. Checking it would be
+measuring classification accuracy client-side inside a timed test, and would make
+a correct-but-slow service indistinguishable from a fast-but-wrong one in the
+error rate. Accuracy is measured only by scripts/run_accuracy.py against the
+frozen golden set. A 200 carrying category = "UNPARSEABLE" counts as a success
+here: the request was served.
+
+Note for whoever reads the results: as the ramp bites, failures will arrive as a
+mixture of the service's own 502s (the model timed out or errored) and JMeter's
+"Non HTTP response code" entries (the 180 s response timeout, or a refused
+connection once the service is overwhelmed). They mean different things. Split
+them by responseCode before interpreting, and cross-check the 502s against the
+error slug in logs/service/*.jsonl.</stringProp>
+            <collectionProp name="Asserion.test_strings">
+              <stringProp name="49586">200</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+            <intProp name="Assertion.test_type">8</intProp>
+            <stringProp name="Assertion.custom_message">Expected HTTP 200 from POST /tickets. A 502 is the service reporting a model error or timeout; a "Non HTTP response code" is the load generator's own timeout or a refused connection. Check logs/service/*.jsonl for this request_id.</stringProp>
+          </ResponseAssertion>
+          <hashTree/>
+        </hashTree>
+      </hashTree>
+      <ResultCollector guiclass="SimpleDataWriter" testclass="ResultCollector" testname="Simple Data Writer (only when -Jjtl_out is set)" enabled="true">
+        <stringProp name="TestPlan.comments">scripts/run_load_test.sh writes results with JMeter's -l flag, whose own result
+collector is configured from the jmeter.save.saveservice.* settings in
+jmeter/user.properties. That file, not this element, is the authoritative save
+configuration and is what appends the request_id and source_row columns.
+
+This element only writes when -Jjtl_out=/absolute/path/results.jtl is given, so
+the plan is also runnable by hand or from the GUI. Left unset it writes nothing.
+
+error_logging=false: keep every sample. A stress run's successes are as important
+as its failures — the per-step percentiles are computed from them.</stringProp>
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>true</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <sentBytes>true</sentBytes>
+            <url>true</url>
+            <threadCounts>true</threadCounts>
+            <idleTime>true</idleTime>
+            <connectTime>true</connectTime>
+          </value>
+        </objProp>
+        <stringProp name="filename">${__P(jtl_out,)}</stringProp>
+      </ResultCollector>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

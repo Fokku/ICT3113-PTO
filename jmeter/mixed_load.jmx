@@ -1,0 +1,527 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ICT3113 Assignment 1 — mixed_load.jmx
+  Owner: Part 1 — Yeo Kai Yuan (test harness).  Feeds slides 8 and 9.
+
+  The mixed-workload plan. Two independent open-loop arrival streams hit the same
+  service at the same time:
+      * the complaint intake            POST /tickets           at rate_per_min
+      * the agents' desk searching      GET  /search            at search_rate_per_min
+
+  This is the plan that answers a response-time requirement of the form "GET
+  /search must stay under X ms at the p95 while tickets are being classified at
+  Y per minute". The two streams matter together and not separately: POST
+  /tickets blocks on a CPU-only model call, and GET /search does a full-table
+  LIKE scan in the same single-worker process, so the interesting question is
+  what each does to the other.
+
+  Hand-written rather than GUI-generated so that it stays reviewable in a diff.
+  See jmeter/README.md for the property list.
+-->
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="ICT3113 A1 — mixed load: POST /tickets + GET /search" enabled="true">
+      <stringProp name="TestPlan.comments">WHY BOTH THREAD GROUPS ARE OPEN-LOOP, AND WHY THAT MATTERS EVEN MORE HERE.
+
+Both streams use an Open Model Thread Group, which is an open-loop (arrival-rate)
+model: JMeter decides in advance when each request arrives and starts a thread
+for it, whether or not earlier requests have been answered.
+
+A closed-loop thread group would self-throttle. Its offered rate is
+threads / response_time, so as soon as the service slows the generator slows with
+it, no queue builds up, and the interference between the two streams — the whole
+point of this plan — disappears from the measurement. On a mixed plan it is worse
+than on a single-endpoint plan: if POSTs slow down under load, a closed-loop
+search stream would also slow down, so we would never see what a search costs an
+agent while the classifier is saturated.
+
+The assignment brief is explicit: "Traffic must be generated open-loop, at
+controlled arrival rates: use the Open Model Thread Group or the Precise
+Throughput Timer... Results from closed-loop tests will not be accepted as
+evidence against throughput or latency requirements."
+
+TestPlan.serialize_threadgroups is FALSE and must stay false. Serialising the
+groups would run the searches after the tickets instead of during them, and this
+plan would then measure two separate single-endpoint tests under a misleading name.
+
+BASELINE NOTE. Nothing here makes the service look fast: no caching, no think
+time, no reuse across samples, no client-side retries.
+# A2 candidate: none in this file — the load generator is not what we optimise.</stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+    </TestPlan>
+    <hashTree>
+      <!-- ===================================================================
+           STREAM 1 — the complaint intake. Identical in every respect to
+           jmeter/load_post_tickets.jmx, so that a mixed run and a pure-POST run
+           at the same rate are directly comparable.
+           =================================================================== -->
+      <org.apache.jmeter.threads.openmodel.OpenModelThreadGroup guiclass="org.apache.jmeter.threads.openmodel.gui.OpenModelThreadGroupGui" testclass="org.apache.jmeter.threads.openmodel.OpenModelThreadGroup" testname="Ticket intake" enabled="true">
+        <stringProp name="TestPlan.comments">Schedule: rate(${__P(rate_per_min,60)}/min) random_arrivals(${__P(duration_s,300)} sec)
+
+Byte-for-byte the schedule used by jmeter/load_post_tickets.jmx. Keep it that way:
+the value of this plan is that the POST numbers can be compared against the
+pure-POST plan at the same rate_per_min, and the only difference between the two
+runs is the presence of the search stream.
+
+random_seed = ${__P(random_seed,0)}, i.e. a fresh arrival pattern per run.
+If a fixed pattern is wanted for reproducibility, pass -Jrandom_seed AND
+-Jsearch_random_seed with DIFFERENT non-zero values: JMeter's documentation warns
+that two thread groups sharing one non-zero seed can fire their samples at the
+same instants, which would manufacture a collision that no real workload has.</stringProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <stringProp name="OpenModelThreadGroup.schedule">rate(${__P(rate_per_min,60)}/min) random_arrivals(${__P(duration_s,300)} sec)</stringProp>
+        <stringProp name="OpenModelThreadGroup.random_seed">${__P(random_seed,0)}</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="org.apache.jmeter.threads.openmodel.OpenModelThreadGroupController"/>
+      </org.apache.jmeter.threads.openmodel.OpenModelThreadGroup>
+      <hashTree>
+        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Ticket narratives (CSV Data Set Config)" enabled="true">
+          <stringProp name="TestPlan.comments">Same configuration as jmeter/load_post_tickets.jmx: columns
+row_number,narrative,raw_label; quoted data because narratives contain commas and
+newlines; header line skipped and re-skipped on recycle; recycled at EOF so the
+offered rate is sustained for the whole duration; one shared file handle.
+
+Defaults to the synthetic dev tickets. No team row may reach a model before the
+golden set and prediction record are committed and tagged; run_load_test.sh
+passes -Jinput_csv and only passes data/team_rows.csv after the freeze gate passes.
+
+Placed inside this thread group rather than at test-plan level so that the search
+stream does not also consume rows from it.</stringProp>
+          <stringProp name="filename">${__P(input_csv,../data/dev/synthetic_tickets.csv)}</stringProp>
+          <stringProp name="fileEncoding">UTF-8</stringProp>
+          <stringProp name="variableNames">row_number,narrative,raw_label</stringProp>
+          <boolProp name="ignoreFirstLine">true</boolProp>
+          <stringProp name="delimiter">,</stringProp>
+          <boolProp name="quotedData">true</boolProp>
+          <boolProp name="recycle">true</boolProp>
+          <boolProp name="stopThread">false</boolProp>
+          <stringProp name="shareMode">shareMode.all</stringProp>
+        </CSVDataSet>
+        <hashTree/>
+        <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager — content type and reconciliation headers" enabled="true">
+          <stringProp name="TestPlan.comments">X-Request-ID is the join key between this .jtl and logs/service/*.jsonl;
+analysis/reconcile.py joins on it. X-Source-Row carries the course CSV row number
+so a log line can be traced to the exact ticket text. Content-Type must be
+application/json for FastAPI to parse the body.</stringProp>
+          <collectionProp name="HeaderManager.headers">
+            <elementProp name="Content-Type" elementType="Header">
+              <stringProp name="Header.name">Content-Type</stringProp>
+              <stringProp name="Header.value">application/json</stringProp>
+            </elementProp>
+            <elementProp name="X-Request-ID" elementType="Header">
+              <stringProp name="Header.name">X-Request-ID</stringProp>
+              <stringProp name="Header.value">${request_id}</stringProp>
+            </elementProp>
+            <elementProp name="X-Source-Row" elementType="Header">
+              <stringProp name="Header.name">X-Source-Row</stringProp>
+              <stringProp name="Header.value">${source_row}</stringProp>
+            </elementProp>
+          </collectionProp>
+        </HeaderManager>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /tickets" enabled="true">
+          <stringProp name="TestPlan.comments">The sampler name is the .jtl label column and analysis/ groups by it. It is
+deliberately the same string as in jmeter/load_post_tickets.jmx so the two plans'
+POST results line up. Do not rename it.
+
+host has no usable default: the brief requires the load generator on a separate
+machine from the service, so the default below is an invalid hostname that fails
+loudly rather than quietly measuring a co-hosted run. Pass -Jhost.
+
+response_timeout_ms defaults to 180000, longer than the service's
+OLLAMA_TIMEOUT_S of 120 s, so a slow model call is recorded as the service's
+latency and not as a load-generator timeout.</stringProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="Request body" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{"narrative": ${narrative_json}}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">${__P(host,SET-JHOST-TO-THE-SERVICE-HOST)}</stringProp>
+          <stringProp name="HTTPSampler.port">${__P(port,8000)}</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
+          <stringProp name="HTTPSampler.path">/tickets</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <boolProp name="HTTPSampler.follow_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.connect_timeout">${__P(connect_timeout_ms,10000)}</stringProp>
+          <stringProp name="HTTPSampler.response_timeout">${__P(response_timeout_ms,180000)}</stringProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="Per-iteration ids (request_id, source_row)" enabled="true">
+            <stringProp name="TestPlan.comments">request_id = ${__UUID()} ; source_row = ${row_number}.
+
+per_iteration is FALSE on purpose. With it true these values would be set from an
+iterationStart listener, and JMeter notifies iteration listeners in reverse
+registration order, so this element could fire before the CSV Data Set Config had
+advanced to the current row — every source_row would then name the previous
+ticket and every reconciled row would be off by one, invisibly. With it false the
+values are set from process(), i.e. immediately before the sampler, once the CSV
+row for this iteration is already bound.</stringProp>
+            <collectionProp name="UserParameters.names">
+              <stringProp name="37109963">request_id</stringProp>
+              <stringProp name="-1111110730">source_row</stringProp>
+            </collectionProp>
+            <collectionProp name="UserParameters.thread_values">
+              <collectionProp name="-1">
+                <stringProp name="118040362">${__UUID()}</stringProp>
+                <stringProp name="2006504376">${row_number}</stringProp>
+              </collectionProp>
+            </collectionProp>
+            <boolProp name="UserParameters.per_iteration">false</boolProp>
+          </UserParameters>
+          <hashTree/>
+          <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="JSON-escape the narrative (escaping, not logic)" enabled="true">
+            <stringProp name="TestPlan.comments">THIS IS ESCAPING, NOT LOGIC. JMeter has no JSON-escape function and our
+narratives contain double quotes, newlines and non-ASCII punctuation, so the body
+cannot be built by string concatenation. JsonOutput.toJson() returns the value
+already wrapped in double quotes, which is why the body template is
+{"narrative": ${narrative_json}} with no quotes of its own.
+
+cacheKey makes Groovy compile the script once per run instead of once per sample,
+so the generator does not burn CPU inside a measured interval.</stringProp>
+            <stringProp name="cacheKey">ict3113-narrative-json-escape</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="script">// Escaping only. See this element's comment.
+// Names no Java type on purpose: JMeter 5.6.3's Groovy cannot compile one on a
+// newer JDK and the failure is silent. See jmeter/README.md, "Groovy and the JDK
+// version". JsonOutput is a Groovy class, which is safe.
+vars.put('narrative_json', groovy.json.JsonOutput.toJson(vars.get('narrative')))</stringProp>
+          </JSR223PreProcessor>
+          <hashTree/>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="HTTP 200" enabled="true">
+            <stringProp name="TestPlan.comments">Response code equals 200, and nothing else. There is deliberately no assertion
+on the returned category: that would be measuring classification accuracy
+client-side inside a timed load test. Accuracy is measured only by
+scripts/run_accuracy.py against the frozen golden set. A 200 carrying
+category = "UNPARSEABLE" is correctly counted as a success here — the request was
+served; the reply being unusable is an accuracy question, not a performance one.</stringProp>
+            <collectionProp name="Asserion.test_strings">
+              <stringProp name="49586">200</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+            <intProp name="Assertion.test_type">8</intProp>
+            <stringProp name="Assertion.custom_message">Expected HTTP 200 from POST /tickets. A 502 is a model error or timeout, a 422 is a malformed request body — check logs/service/*.jsonl for this request_id.</stringProp>
+          </ResponseAssertion>
+          <hashTree/>
+        </hashTree>
+      </hashTree>
+      <!-- ===================================================================
+           STREAM 2 — the agents' desk. Runs concurrently with stream 1.
+           =================================================================== -->
+      <org.apache.jmeter.threads.openmodel.OpenModelThreadGroup guiclass="org.apache.jmeter.threads.openmodel.gui.OpenModelThreadGroupGui" testclass="org.apache.jmeter.threads.openmodel.OpenModelThreadGroup" testname="Agent searches" enabled="true">
+        <stringProp name="TestPlan.comments">Schedule: rate(${__P(search_rate_per_min,60)}/min) random_arrivals(${__P(duration_s,300)} sec)
+
+The duration is the SAME property as the intake stream's, so the two streams
+start together and stop together and every search happens while tickets are being
+classified. Do not give the search stream its own duration: a search stream that
+outlives the intake would contribute uncontended samples to the same percentile.
+
+TODO(Part 4 — Teammate C): set the search rate from the workload model. The
+default of 60/min is deliberately the same number as rate_per_min's default so
+that it is visibly a placeholder and not a measured agent-to-ticket ratio. The
+brief requires the workload model to estimate "the rate of agent-side searches"
+with a cited source; put the figure in ../workload/requirements.md and pass
+--search-rate to scripts/run_load_test.sh. Nothing in this repository invents it.
+
+random_seed = ${__P(search_random_seed,0)} — a separate property from the intake
+stream's on purpose. If reproducible arrival patterns are wanted, the two streams
+must be given DIFFERENT non-zero seeds; JMeter's documentation warns that two
+thread groups sharing one non-zero seed can fire at the same instants.</stringProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <stringProp name="OpenModelThreadGroup.schedule">rate(${__P(search_rate_per_min,60)}/min) random_arrivals(${__P(duration_s,300)} sec)</stringProp>
+        <stringProp name="OpenModelThreadGroup.random_seed">${__P(search_random_seed,0)}</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="org.apache.jmeter.threads.openmodel.OpenModelThreadGroupController"/>
+      </org.apache.jmeter.threads.openmodel.OpenModelThreadGroup>
+      <hashTree>
+        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Search terms (CSV Data Set Config)" enabled="true">
+          <stringProp name="TestPlan.comments">One term per line, read from ../data/search_terms.txt. Not really a CSV at all:
+the whole line is the term.
+
+quotedData is FALSE and the delimiter is a TAB, which together are what make the
+whole line the term. This is not cosmetic and was found the hard way: with quoted
+data enabled and a comma delimiter JMeter parses every line as CSV, and a prose
+comment line containing a double quote raises "Cannot have quote-char in plain
+field". That exception aborts the iteration, so the sample is never sent — which
+silently drops an arrival and destroys the one property an open-loop test must
+have. With quoting off there is no parse step to fail, and a term may contain
+commas and quotes freely.
+
+ignoreFirstLine is TRUE, which skips exactly one line and re-skips it on every
+recycle. The terms file is hand-maintained and headed by a '#' comment block, and
+JMeter's CSV Data Set Config has no notion of a comment, so it would otherwise
+hand those lines to the sampler as though an agent had typed them. One line is all
+JMeter can skip; the JSR223 pre-processor on the sampler below deals with the rest
+of the block and with any '#' line a teammate adds later. See jmeter/README.md,
+section "Why the search plan filters the terms file".
+
+recycle=true, stopThread=false: a 300 s run at any useful rate needs more searches
+than the file has terms, and an open-loop stream must keep offering its rate.
+
+Placed inside this thread group so the intake stream does not consume terms.</stringProp>
+          <stringProp name="filename">${__P(search_terms_file,../data/search_terms.txt)}</stringProp>
+          <stringProp name="fileEncoding">UTF-8</stringProp>
+          <stringProp name="variableNames">search_term</stringProp>
+          <boolProp name="ignoreFirstLine">true</boolProp>
+          <stringProp name="delimiter">\t</stringProp>
+          <boolProp name="quotedData">false</boolProp>
+          <boolProp name="recycle">true</boolProp>
+          <boolProp name="stopThread">false</boolProp>
+          <stringProp name="shareMode">shareMode.all</stringProp>
+        </CSVDataSet>
+        <hashTree/>
+        <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager — reconciliation header" enabled="true">
+          <stringProp name="TestPlan.comments">X-Request-ID only. A search is not a ticket, so there is no course CSV row to
+report and X-Source-Row is deliberately NOT sent: the log line contract says
+source_row is null for /search and /stats lines, and sending an empty header
+would put an empty string there instead of a null.
+
+analysis/reconcile.py joins on request_id, which every sample carries, so search
+samples reconcile with their log lines exactly as POST samples do.
+
+No Content-Type: this is a GET with no body.</stringProp>
+          <collectionProp name="HeaderManager.headers">
+            <elementProp name="X-Request-ID" elementType="Header">
+              <stringProp name="Header.name">X-Request-ID</stringProp>
+              <stringProp name="Header.value">${request_id}</stringProp>
+            </elementProp>
+          </collectionProp>
+        </HeaderManager>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /search" enabled="true">
+          <stringProp name="TestPlan.comments">GET /search?q=&lt;term&gt;&amp;limit=50
+
+The sampler name is the .jtl label column; analysis/ groups by it. Do not rename.
+
+limit is the literal 50 fixed by the build contract. It is the parameter that
+decides how much JSON the service has to serialise for a query that matches many
+tickets, so changing it changes what the response-time requirement means. If a
+different page size is ever tested, add a second sampler rather than editing this
+one, so old and new results stay distinguishable in the .jtl by label.
+
+q is sent as a request parameter with always_encode=true, so multi-word terms are
+URL-encoded by JMeter and the terms file needs no escaping.
+
+Note what is NOT asserted: nothing about the number of results. A term that
+matches no stored ticket still costs the service a full-table LIKE scan, which is
+the work this plan is here to measure.
+-- A2 candidate (service side, recorded here because this is the plan that
+-- exposes it): SQLite FTS5 or an index instead of a full-table LIKE scan.</stringProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="Query parameters" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="q" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.name">q</stringProp>
+                <stringProp name="Argument.value">${search_q}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              </elementProp>
+              <elementProp name="limit" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.name">limit</stringProp>
+                <stringProp name="Argument.value">50</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">${__P(host,SET-JHOST-TO-THE-SERVICE-HOST)}</stringProp>
+          <stringProp name="HTTPSampler.port">${__P(port,8000)}</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
+          <stringProp name="HTTPSampler.path">/search</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <boolProp name="HTTPSampler.follow_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.connect_timeout">${__P(connect_timeout_ms,10000)}</stringProp>
+          <stringProp name="HTTPSampler.response_timeout">${__P(response_timeout_ms,180000)}</stringProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="Per-iteration ids (request_id, source_row)" enabled="true">
+            <stringProp name="TestPlan.comments">request_id = ${__UUID()} ; source_row = "" (empty).
+
+source_row is declared and set to empty on purpose rather than left undefined, so
+that the source_row column of the .jtl is deterministically empty for every
+search row and a reader can see from this element why. A search has no course CSV
+row behind it. The Header Manager above does not send X-Source-Row at all, so the
+service records source_row as null for these requests, as the log contract requires.
+
+per_iteration is FALSE for the same reason as in the intake stream: process() runs
+immediately before the sampler, after the CSV Data Set Config has bound this
+iteration's term, whereas an iterationStart listener could fire before it.</stringProp>
+            <collectionProp name="UserParameters.names">
+              <stringProp name="37109963">request_id</stringProp>
+              <stringProp name="-1111110730">source_row</stringProp>
+            </collectionProp>
+            <collectionProp name="UserParameters.thread_values">
+              <collectionProp name="-1">
+                <stringProp name="118040362">${__UUID()}</stringProp>
+                <stringProp name="0"></stringProp>
+              </collectionProp>
+            </collectionProp>
+            <boolProp name="UserParameters.per_iteration">false</boolProp>
+          </UserParameters>
+          <hashTree/>
+          <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="Skip comment and blank lines from the terms file (line filtering, not logic)" enabled="true">
+            <stringProp name="TestPlan.comments">THIS IS LINE FILTERING, NOT TEST LOGIC. It decides nothing about the workload; it
+only stops a comment line in a hand-maintained file from being sent as a query.
+
+Why it exists: ../data/search_terms.txt is edited by hand and its format allows
+'#' comment lines and blank lines — the file is headed by a TODO block for Part 4.
+JMeter's CSV Data Set Config has no concept of a comment, so it hands those lines
+to this sampler as though an agent had typed them.
+
+Why it substitutes instead of skipping the sample: skipping would drop an arrival,
+and an open-loop test's one non-negotiable property is that the offered rate is
+the rate we configured. So a comment or blank line is replaced by one of the
+file's OWN usable terms. That keeps the offered rate exact and invents no term
+that is not already in the file.
+
+The substitution pool is the set of usable terms this run has already seen, kept
+in a JMeter property as one newline-separated string. It is deliberately NOT built
+by re-reading the terms file from this script: see jmeter/README.md, section
+"Groovy and the JDK version" — the Groovy that ships with JMeter 5.6.3 cannot
+compile a script that names a Java type such as File on a JDK newer than it
+expects, and its failure kills the sampler SILENTLY, with no error in jmeter.log
+and no row in the .jtl. This script therefore names no Java type at all and uses
+only JMeter's own bindings. Keep it that way.
+
+The consequence, stated plainly: at the very start of a run the pool is empty, so
+the leading '#' lines of the terms file that ignoreFirstLine did not skip are sent
+as queries. With the file as committed that is the first few searches of a run —
+about 2% of a 300 s run at 60/min, all of them at the beginning. They are real
+requests that cost the service a real full-table scan and match nothing, so they
+are not excluded from the results; they are simply not realistic queries. If that
+matters for a reported run, move the comment block to the END of the terms file:
+by the time JMeter reaches it the pool holds every term and no query is ever a
+comment.
+
+A blank line in the terms file arrives as JMeter's &lt;EOF&gt; marker rather than as an
+empty string, because splitting an empty line yields no fields at all and
+CSVDataSet then sets every variable to csvdataset.eofstring. That is treated here
+exactly like a comment.
+
+cacheKey makes Groovy compile this once per run rather than once per sample.</stringProp>
+            <stringProp name="cacheKey">ict3113-search-term-line-filter</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="script">// Line filtering only. See this element's comment for why it exists.
+// NO Java type names anywhere in this script, on purpose: JMeter 5.6.3's Groovy
+// cannot compile them on a newer JDK and the failure is silent. Bindings only.
+def KEY = 'ict3113.search_terms_seen'
+
+def term = vars.get('search_term')
+if (term == null) { term = '' }
+term = term.trim()
+
+// A blank line in the terms file arrives as the &lt;EOF&gt; marker, not as '';
+// treat it like a comment line.
+def usable = !term.isEmpty() &amp;&amp; !term.startsWith('#') &amp;&amp; term != '&lt;EOF&gt;'
+
+def stored = props.get(KEY)
+if (stored == null) { stored = '' }
+
+if (usable) {
+    // Remember it, so a later comment line has a real term to be replaced by.
+    if (!stored.readLines().contains(term)) {
+        props.put(KEY, stored.isEmpty() ? term : stored + '\n' + term)
+    }
+} else {
+    def pool = stored.readLines()
+    if (pool.size() &gt; 0) {
+        // ctx.getThreadNum() increments with every arrival in an Open Model
+        // Thread Group, so successive substitutions rotate through the pool
+        // instead of all landing on the same term.
+        term = pool[ctx.getThreadNum() % pool.size()]
+    }
+}
+vars.put('search_q', term)</stringProp>
+          </JSR223PreProcessor>
+          <hashTree/>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="HTTP 200" enabled="true">
+            <stringProp name="TestPlan.comments">Response code equals 200, and nothing else. In particular there is no assertion
+on the number of results returned: a query that matches nothing is a perfectly
+valid search and still costs the service a full-table scan. Asserting on the
+result set would turn a data question into a spurious error rate.</stringProp>
+            <collectionProp name="Asserion.test_strings">
+              <stringProp name="49586">200</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+            <intProp name="Assertion.test_type">8</intProp>
+            <stringProp name="Assertion.custom_message">Expected HTTP 200 from GET /search. Check logs/service/*.jsonl for this request_id.</stringProp>
+          </ResponseAssertion>
+          <hashTree/>
+        </hashTree>
+      </hashTree>
+      <ResultCollector guiclass="SimpleDataWriter" testclass="ResultCollector" testname="Simple Data Writer (only when -Jjtl_out is set)" enabled="true">
+        <stringProp name="TestPlan.comments">scripts/run_load_test.sh writes results with JMeter's -l flag, whose own result
+collector is configured from the jmeter.save.saveservice.* settings in
+jmeter/user.properties. That file, not this element, is the authoritative save
+configuration and is what appends the request_id and source_row columns.
+
+This element only writes when -Jjtl_out=/absolute/path/results.jtl is given, so
+the plan is also runnable by hand or from the GUI. Left unset it writes nothing.
+
+error_logging=false: keep every sample. Both labels, POST /tickets and
+GET /search, land in the same file and analysis/ separates them by label.</stringProp>
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>true</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <sentBytes>true</sentBytes>
+            <url>true</url>
+            <threadCounts>true</threadCounts>
+            <idleTime>true</idleTime>
+            <connectTime>true</connectTime>
+          </value>
+        </objProp>
+        <stringProp name="filename">${__P(jtl_out,)}</stringProp>
+      </ResultCollector>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

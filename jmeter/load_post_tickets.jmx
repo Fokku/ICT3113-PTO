@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ICT3113 Assignment 1 — load_post_tickets.jmx
+  Owner: Part 1 — Yeo Kai Yuan (test harness).  Feeds slides 8 and 9.
+
+  The steady-state load plan: ticket narratives arrive one at a time at a fixed,
+  controlled rate and are POSTed to /tickets, exactly as the client's complaint
+  intake would deliver them. Nothing else runs in this plan.
+
+  Hand-written rather than GUI-generated so that it stays reviewable in a diff.
+  It still opens and re-saves cleanly in the JMeter 5.6.3 GUI. Every element
+  carries a GUI-visible comment (TestPlan.comments) as well, so the reasoning
+  survives a GUI round-trip.
+
+  Run it through scripts/run_load_test.sh; see jmeter/README.md for the property
+  list and for how request_id / source_row reconciliation works.
+-->
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="ICT3113 A1 — steady load on POST /tickets" enabled="true">
+      <stringProp name="TestPlan.comments">WHY THIS PLAN IS OPEN-LOOP, AND WHY IT MUST STAY THAT WAY.
+
+This plan uses an Open Model Thread Group, which is an open-loop (arrival-rate)
+load model: JMeter decides in advance WHEN each ticket arrives and starts a
+thread for it, whether or not the previous ticket has been answered.
+
+A closed-loop thread group does the opposite. A fixed pool of N threads each
+sends a request, waits for the response, then sends the next. The offered rate is
+therefore N / response_time, so the moment the service slows down the load
+generator slows down with it. Three things then go wrong at once:
+  1. the test silently stops offering the rate we claim to be testing, so a
+     latency figure cannot be attributed to any stated arrival rate;
+  2. no queue ever builds up in front of the service or in front of Ollama, so
+     the very failure mode we are looking for is hidden by the measurement;
+  3. throughput appears to plateau smoothly instead of the service falling over,
+     which flatters the baseline and makes the Assignment 2 comparison worthless.
+
+The assignment brief is explicit: "Traffic must be generated open-loop, at
+controlled arrival rates: use the Open Model Thread Group or the Precise
+Throughput Timer... Results from closed-loop tests will not be accepted as
+evidence against throughput or latency requirements."
+
+So: no Thread Group, no Ultimate Thread Group, no Constant Throughput Timer
+sitting inside a loop. If the service cannot keep up, that must show as growing
+latency and rising errors, not as a load generator that quietly backs off.
+
+BASELINE NOTE. Nothing in this plan tries to make the system under test look
+fast. There is no warm-up sampler (scripts/run_load_test.sh sends one warm-up
+request with X-Warmup: 1 before the run and stores its log line separately), no
+think time, no caching of anything, and no reuse of a request across samples.
+# A2 candidate: none in this file — the load generator is not the thing we are
+# optimising. Any change here changes what we measure, not how fast the service is.</stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+    </TestPlan>
+    <hashTree>
+      <!--
+        Open Model Thread Group. The schedule string is fixed by the build
+        contract and must not be edited; change the run instead by passing
+        -Jrate_per_min and -Jduration_s.
+      -->
+      <org.apache.jmeter.threads.openmodel.OpenModelThreadGroup guiclass="org.apache.jmeter.threads.openmodel.gui.OpenModelThreadGroupGui" testclass="org.apache.jmeter.threads.openmodel.OpenModelThreadGroup" testname="Ticket intake" enabled="true">
+        <stringProp name="TestPlan.comments">Schedule: rate(${__P(rate_per_min,60)}/min) random_arrivals(${__P(duration_s,300)} sec)
+
+"random_arrivals" is a Poisson arrival process at the stated rate, which is what
+a complaint intake actually looks like: requests clump, they do not arrive at
+tidy equal intervals. Evenly spaced arrivals would understate the concurrency
+the service really sees at a given mean rate.
+
+Because the start and finish rates are the same, the load is flat for the whole
+duration — this plan measures a steady state, not a ramp. jmeter/stress_ramp.jmx
+does the ramp.
+
+Expected samples per run is rate_per_min / 60 * duration_s, and because arrivals
+are random the actual count varies a little around that. At very low rates over
+very short durations the expected count is below one and a run can legitimately
+produce zero samples; that is the Poisson process, not a broken plan.
+
+on_sample_error = continue: an error is data. A failed sample must be recorded
+and counted in the error rate, never allowed to stop the run, or the error rate
+we report would depend on when the first failure happened.
+
+random_seed = ${__P(random_seed,0)}: 0 means JMeter picks a fresh seed per run,
+so the three repeat runs of a configuration see three different arrival patterns
+and the spread we report across runs includes arrival variability.
+TODO(Part 5 — Teammate D): if you would rather hold the arrival pattern fixed
+across the three runs so that the spread reflects only the service, pass a
+non-zero -Jrandom_seed and say so in the playbook. Do not change the default
+here without recording the decision.</stringProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <stringProp name="OpenModelThreadGroup.schedule">rate(${__P(rate_per_min,60)}/min) random_arrivals(${__P(duration_s,300)} sec)</stringProp>
+        <stringProp name="OpenModelThreadGroup.random_seed">${__P(random_seed,0)}</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="org.apache.jmeter.threads.openmodel.OpenModelThreadGroupController"/>
+      </org.apache.jmeter.threads.openmodel.OpenModelThreadGroup>
+      <hashTree>
+        <!--
+          The ticket source. Defaults to the synthetic dev tickets, never to the
+          team's real rows: nothing in this repository may put a team row in
+          front of a model before the golden set and the prediction record are
+          committed and tagged. scripts/run_load_test.sh passes -Jinput_csv and
+          only passes data/team_rows.csv once scripts/freeze_gate.py has passed.
+        -->
+        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Ticket narratives (CSV Data Set Config)" enabled="true">
+          <stringProp name="TestPlan.comments">Reads data/dev/synthetic_tickets.csv or data/team_rows.csv; both have the
+columns row_number,narrative,raw_label and a header line.
+
+quotedData=true is not optional. 379 of our 1,000 team narratives contain a
+newline and 780 contain a comma, so the narrative column is a quoted CSV field
+that spans several physical lines. With quoted data disabled JMeter would split
+those rows at the first comma and post fragments of tickets.
+
+ignoreFirstLine=true skips the header line; JMeter re-skips it on every recycle.
+
+recycle=true and stopThread=false: the file is re-read from the top at EOF and no
+thread is ever stopped by running out of data. A long run at a high rate needs
+more samples than the file has rows, and an open-loop test must keep offering the
+configured rate for the whole duration. Re-reading means a ticket can be posted
+more than once in a long run, which is correct for a throughput test and is why
+accuracy is measured separately by scripts/run_accuracy.py, one golden ticket at
+a time, and never from a load run.
+
+shareMode.all: one file handle shared by every thread, so each arriving ticket
+takes the next row rather than every thread reading from the top.
+
+raw_label is read but deliberately never used. The raw dataset labels are noisy —
+that is the whole reason Part 2 builds a golden set — so this plan must not
+compare the service's answer against raw_label anywhere.
+
+The default path is relative to this .jmx file, because that is how JMeter
+resolves relative CSV paths. run_load_test.sh passes an absolute path.</stringProp>
+          <stringProp name="filename">${__P(input_csv,../data/dev/synthetic_tickets.csv)}</stringProp>
+          <stringProp name="fileEncoding">UTF-8</stringProp>
+          <stringProp name="variableNames">row_number,narrative,raw_label</stringProp>
+          <boolProp name="ignoreFirstLine">true</boolProp>
+          <stringProp name="delimiter">,</stringProp>
+          <boolProp name="quotedData">true</boolProp>
+          <boolProp name="recycle">true</boolProp>
+          <boolProp name="stopThread">false</boolProp>
+          <stringProp name="shareMode">shareMode.all</stringProp>
+        </CSVDataSet>
+        <hashTree/>
+        <!--
+          The half of the reconciliation mechanism that leaves the load
+          generator: two headers carrying the per-iteration identifiers that the
+          User Parameters pre-processor set. The service copies both into its
+          JSONL log line, and analysis/reconcile.py joins on request_id.
+        -->
+        <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager — content type and reconciliation headers" enabled="true">
+          <stringProp name="TestPlan.comments">X-Request-ID is the join key between this .jtl and logs/service/*.jsonl. The
+service reads it, uses it verbatim as the request_id in its log line, and returns
+it in the response body, so one HTTP sample and one log line can always be tied
+together. If the header were absent the service would generate a UUID of its own
+and the two files could not be joined at all.
+
+X-Source-Row carries the course CSV row number that this narrative came from, so
+a log line can be traced back to the exact ticket text without storing the text
+in the .jtl.
+
+Content-Type must be application/json for FastAPI to parse the body.</stringProp>
+          <collectionProp name="HeaderManager.headers">
+            <elementProp name="Content-Type" elementType="Header">
+              <stringProp name="Header.name">Content-Type</stringProp>
+              <stringProp name="Header.value">application/json</stringProp>
+            </elementProp>
+            <elementProp name="X-Request-ID" elementType="Header">
+              <stringProp name="Header.name">X-Request-ID</stringProp>
+              <stringProp name="Header.value">${request_id}</stringProp>
+            </elementProp>
+            <elementProp name="X-Source-Row" elementType="Header">
+              <stringProp name="Header.name">X-Source-Row</stringProp>
+              <stringProp name="Header.value">${source_row}</stringProp>
+            </elementProp>
+          </collectionProp>
+        </HeaderManager>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /tickets" enabled="true">
+          <stringProp name="TestPlan.comments">The sampler name "POST /tickets" becomes the label column in the .jtl, and
+analysis/ groups by it. Do not rename it.
+
+host has no usable default. The brief requires the load generator to run on a
+different machine from the service, so there is no correct localhost value to
+fall back on; the default below is a deliberately invalid hostname that fails
+immediately with UnknownHostException rather than quietly measuring a co-hosted
+run. Pass -Jhost=&lt;service machine&gt;.
+
+response_timeout_ms defaults to 180000, which is deliberately longer than the
+service's own OLLAMA_TIMEOUT_S of 120 s. If JMeter gave up first we would record
+a load-generator timeout instead of the service's real latency, and the number
+would be an artefact of the test rig. A sample that does hit 180 s is a genuine
+failure of the system under test to answer within three minutes.
+
+use_keepalive is JMeter's default and is a generator-side setting: it keeps a TCP
+handshake out of every measured sample. It changes nothing about the service,
+which still builds a fresh httpx client and a fresh SQLite connection per
+request by design.</stringProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="Request body" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{"narrative": ${narrative_json}}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">${__P(host,SET-JHOST-TO-THE-SERVICE-HOST)}</stringProp>
+          <stringProp name="HTTPSampler.port">${__P(port,8000)}</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
+          <stringProp name="HTTPSampler.path">/tickets</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <boolProp name="HTTPSampler.follow_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.connect_timeout">${__P(connect_timeout_ms,10000)}</stringProp>
+          <stringProp name="HTTPSampler.response_timeout">${__P(response_timeout_ms,180000)}</stringProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <!--
+            Reconciliation, step 1 of 2. "Update Once Per Iteration" is
+            deliberately OFF; see the element comment for why.
+          -->
+          <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="Per-iteration ids (request_id, source_row)" enabled="true">
+            <stringProp name="TestPlan.comments">Sets the two variables the Header Manager sends:
+  request_id = ${__UUID()}   a fresh UUID4 for every ticket
+  source_row = ${row_number} the CSV row this iteration is posting
+
+UserParameters.per_iteration is FALSE on purpose, and that is the important
+detail in this element. With it true, JMeter sets the values from an
+iterationStart listener; JMeter notifies iteration listeners in reverse
+registration order, so this element could fire BEFORE the CSV Data Set Config
+had advanced to the current row, and source_row would then name the previous
+ticket. Every reconciled row would be off by one and the mistake would be
+invisible in the .jtl.
+
+With per_iteration false the values are set from process(), i.e. as an ordinary
+pre-processor immediately before the sampler runs, by which time the CSV row for
+this iteration is already bound. There is exactly one sampler per iteration in
+this plan, so the values are still per-iteration in effect — they are just
+sequenced safely.
+
+Verified: with this setting the source_row column of the .jtl walks the input CSV
+in order and request_id is unique per sample.</stringProp>
+            <collectionProp name="UserParameters.names">
+              <stringProp name="37109963">request_id</stringProp>
+              <stringProp name="-1111110730">source_row</stringProp>
+            </collectionProp>
+            <collectionProp name="UserParameters.thread_values">
+              <collectionProp name="-1">
+                <stringProp name="118040362">${__UUID()}</stringProp>
+                <stringProp name="2006504376">${row_number}</stringProp>
+              </collectionProp>
+            </collectionProp>
+            <boolProp name="UserParameters.per_iteration">false</boolProp>
+          </UserParameters>
+          <hashTree/>
+          <!--
+            Escaping only. This pre-processor exists because JMeter has no
+            JSON-escape function; it contains no test logic and must not grow any.
+          -->
+          <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="JSON-escape the narrative (escaping, not logic)" enabled="true">
+            <stringProp name="TestPlan.comments">THIS IS ESCAPING, NOT LOGIC. It makes the narrative safe to paste into a JSON
+body and does nothing else. It must not filter, shorten, retry, cache or classify
+anything; if a future change needs one of those, it does not belong here.
+
+Why it is needed at all: JMeter has no built-in JSON escape function, and our
+narratives contain double quotes (123 of 1,000 team rows), newlines (379 of
+1,000) and non-ASCII punctuation. Building the body by string concatenation would
+produce invalid JSON and the service would answer 422 for a quarter of the corpus.
+
+groovy.json.JsonOutput.toJson() returns the value ALREADY wrapped in double
+quotes, which is why the body template is
+
+    {"narrative": ${narrative_json}}
+
+with no quotes of its own around the placeholder.
+
+cacheKey is set so Groovy compiles the script once for the whole run instead of
+once per sample. That is a load-generator cost, not a service optimisation:
+recompiling per sample would burn CPU on the generator and inflate the latency
+we attribute to the service.</stringProp>
+            <stringProp name="cacheKey">ict3113-narrative-json-escape</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="script">// Escaping only. See this element's comment.
+// A missing 'narrative' variable means the input CSV's columns are wrong; we let
+// that fail loudly at the service (HTTP 422) rather than paper over it here.
+// Names no Java type on purpose: JMeter 5.6.3's Groovy cannot compile one on a
+// newer JDK and the failure is silent. See jmeter/README.md, "Groovy and the JDK
+// version". JsonOutput is a Groovy class, which is safe.
+vars.put('narrative_json', groovy.json.JsonOutput.toJson(vars.get('narrative')))</stringProp>
+          </JSR223PreProcessor>
+          <hashTree/>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="HTTP 200" enabled="true">
+            <stringProp name="TestPlan.comments">Asserts the response code equals 200, and nothing else.
+
+There is deliberately NO assertion on the returned category. Checking the
+category here would be measuring classification accuracy client-side, in the
+middle of a timed load test, against whatever the load generator happened to be
+told — which is not how accuracy is measured in this assignment. Accuracy is
+measured only by scripts/run_accuracy.py against the frozen golden set in
+golden/golden_set.csv, and only after scripts/freeze_gate.py passes. Asserting on
+the category here would also mean a correct-but-slow service and a fast-but-wrong
+service produced the same error rate, which would make the load results unreadable.
+
+What this assertion is for: it turns a 502 from a model timeout, a 422 from a
+malformed body, or a connection refusal into a failed sample, so the error rate
+in the .jtl is a real error rate. The service returns 200 with
+category = "UNPARSEABLE" when the model's reply cannot be mapped, and that is
+correctly counted here as a success — the request was served; the reply was
+merely unusable, which is an accuracy question, not a performance one.
+
+assume_success=false: a failed assertion must show as a failed sample.</stringProp>
+            <collectionProp name="Asserion.test_strings">
+              <stringProp name="49586">200</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+            <intProp name="Assertion.test_type">8</intProp>
+            <stringProp name="Assertion.custom_message">Expected HTTP 200 from POST /tickets. A 502 is a model error or timeout, a 422 is a malformed request body, anything else is unexpected — check logs/service/*.jsonl for this request_id.</stringProp>
+          </ResponseAssertion>
+          <hashTree/>
+        </hashTree>
+      </hashTree>
+      <!--
+        Result writer. Inert unless -Jjtl_out is given; run_load_test.sh uses
+        JMeter's own -l instead. See the element comment.
+      -->
+      <ResultCollector guiclass="SimpleDataWriter" testclass="ResultCollector" testname="Simple Data Writer (only when -Jjtl_out is set)" enabled="true">
+        <stringProp name="TestPlan.comments">scripts/run_load_test.sh writes results with JMeter's -l flag, which creates its
+own result collector from the jmeter.save.saveservice.* settings in
+jmeter/user.properties. That file, not this element, is the authoritative save
+configuration, and it is what puts the request_id and source_row columns on the
+end of every row.
+
+This element exists so that the plan is also runnable by hand, or from the GUI,
+without -l: pass -Jjtl_out=/absolute/path/results.jtl. Left unset the filename is
+empty and nothing is written. Do not set both -l and -Jjtl_out for the same run
+unless you actually want two copies of the results.
+
+error_logging=false: save every sample, not only the failures. Percentiles
+computed from failures alone would be meaningless.</stringProp>
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>true</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <sentBytes>true</sentBytes>
+            <url>true</url>
+            <threadCounts>true</threadCounts>
+            <idleTime>true</idleTime>
+            <connectTime>true</connectTime>
+          </value>
+        </objProp>
+        <stringProp name="filename">${__P(jtl_out,)}</stringProp>
+      </ResultCollector>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

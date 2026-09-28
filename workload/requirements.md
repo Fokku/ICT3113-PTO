@@ -1,13 +1,12 @@
 # Performance and accuracy requirements
 
 **What this document is for.** The requirements half of Step 4 of the brief: the service quality
-we promise the client, stated so that a test can prove or disprove each one. Every requirement
-here is justified from a figure in `workload_model.md`, and every one is checked against our own
-measurements in Step 6. The brief is blunt about the consequence: *"a recommendation that
-contradicts your stated requirements ... fails regardless of which model it picks."*
+we promise the client, stated so that a test can prove or disprove each one. Every requirement here
+is justified from the workload model, the assignment brief, or an explicit client-facing assumption,
+and every one is checked against our own measurements in Step 6. The brief is blunt about the 
+consequence: *"a recommendation that contradicts your stated requirements ... fails regardless of which model it picks."*
 
-**Owner: Part 4 — Teammate C.**
-`TODO(Yeo Kai Yuan): replace "Teammate C" with the real name once the team roles are confirmed.`
+**Owner: Part 4 — Si Pei.**
 
 **Which slide this feeds.** **Slide 4 — Performance and Accuracy Requirements**. The cost position
 at the end of this document also feeds **Slide 11 — Predictions, Recommendation and Defence**.
@@ -27,29 +26,22 @@ A fourth part is ours rather than the brief's, and it is why the last column exi
 requirement we have no way to measure is not a requirement.** Before writing a threshold, check
 that the script named in the final column will actually produce that number. If it will not, either
 change the requirement or raise it with Part 1 — Yeo Kai Yuan before the freeze.
-`TODO(Yeo Kai Yuan): replace with the real name.`
 
 ---
 
 ## The requirements
 
-Columns are fixed — do not add, remove or reorder them. Every cell marked `TODO` is a decision
-that belongs to Part 4; the *How it will be measured* column is already filled in because it is a
-fact about this repository rather than a judgement.
+Columns are fixed. The *How it will be measured* column names the script and output that produce each number.
 
 | ID | Metric | Threshold | Percentile | Load condition | Justification | How it will be measured (script + output) |
 |---|---|---|---|---|---|---|
-| R1 | `POST /tickets` end-to-end response time | TODO(Part 4 — Teammate C) | TODO(Part 4 — Teammate C) | TODO(Part 4 — Teammate C) | TODO(Part 4 — Teammate C) | `analysis/summarise_load.py --runs results/runs --plan load_post_tickets` → latency tables under `analysis/output/load/`, from the `.jtl` of each run, cross-checked against the service log by `analysis/reconcile.py` |
-| R2 | Tickets classified per hour at sustained load | TODO(Part 4 — Teammate C) | TODO(Part 4 — Teammate C) | TODO(Part 4 — Teammate C) | TODO(Part 4 — Teammate C) | `analysis/summarise_load.py --runs results/runs` → achieved throughput and error rate under `analysis/output/load/`, at the arrival rate named in the load condition |
-| R3 | Overall classification accuracy on the golden set | TODO(Part 4 — Teammate C) | TODO(Part 4 — Teammate C) | TODO(Part 4 — Teammate C) | TODO(Part 4 — Teammate C) | `analysis/accuracy.py --results results/accuracy --golden golden/golden_set.csv` → overall accuracy under `analysis/output/accuracy/` |
-| R4 | Per-category classification accuracy on the golden set | TODO(Part 4 — Teammate C) | TODO(Part 4 — Teammate C) | TODO(Part 4 — Teammate C) | TODO(Part 4 — Teammate C) | `analysis/accuracy.py --results results/accuracy --golden golden/golden_set.csv` → per-category table and confusion matrix under `analysis/output/accuracy/` |
-| R5 *(optional)* | `GET /search` response time under mixed load | TODO(Part 4 — Teammate C) | TODO(Part 4 — Teammate C) | TODO(Part 4 — Teammate C) | TODO(Part 4 — Teammate C) | `analysis/summarise_load.py --runs results/runs --plan mixed_load` → latency tables under `analysis/output/load/`, split by sampler label |
+| R1 | `POST /tickets` end-to-end response time | ≤ 10 s | p95 | `load_post_tickets`: 1 req/min, 600 s, 3 runs, each candidate model | Lowest runnable rate is 1 req/min, about 42× the modelled peak of 0.024 tickets/min, so it is tested as a headroom margin. An agent waiting at the screen should get a routing answer within 10 s. Each run's p95 rests on about 10 samples (30 across three runs), so it is indicative only. | `analysis/summarise_load.py --runs results/runs` → latency tables in `analysis/output/load/`; cross-check with `analysis/reconcile.py` |
+| R2 | Errors and backlog at sustained load | ≥ 95% of tickets sent are classified successfully (≤ 5% errors), and each run finishes within 660 s (no backlog) | n/a | `load_post_tickets`: 12 req/min (720 tickets/hour offered), 600 s, 3 runs, each candidate model | 12 req/min is the capacity test, about 500× the modelled peak. Arrivals are random (Poisson), so the number of tickets sent varies by about ±10% around 120 per run and a fixed tickets/hour cut-off would fail a perfect system in many runs. Instead the service must classify what it receives and finish within 60 s of the last arrival, which fails if a queue builds up. Achieved tickets/hour is reported alongside. | `analysis/summarise_load.py --runs results/runs` → `error_rate_pct`, `span_s` and `ok_throughput_per_hour` in `analysis/output/load/load_per_run.csv` (all three runs must pass) |
+| R3 | Overall classification accuracy on the golden set | ≥ 90% | n/a | `POST /tickets`; golden set measured serially, not under load, each candidate model. Measured in a single serial pass of the golden set (once per model). | About 1,496 tickets/year (workload model) at 90% means at most about 150 misrouted tickets/year, each costing repeated handling. `UNPARSEABLE` counts as incorrect. Achievable accuracy is also bounded by labeller agreement (kappa). | `analysis/accuracy.py --results results/accuracy --golden golden/golden_set.csv` → `analysis/output/accuracy/` |
+| R4 | Per-category classification accuracy on the golden set | ≥ 80% for every category | n/a | `POST /tickets`; golden set measured serially, not under load, each candidate model. Measured in a single serial pass of the golden set (once per model). | Stops a strong overall figure hiding a failing category. One floor is used because the client has not said any category matters more. With 150–200 tickets across seven categories, some categories have only about 10–20 tickets, so per-category accuracy is a coarse fraction. `UNPARSEABLE` counts as incorrect. At about 1,496 tickets/year (workload model), a category that is systematically misrouted sends a steady stream of tickets to the wrong team; the 80% floor caps that at one in five. | `analysis/accuracy.py --results results/accuracy --golden golden/golden_set.csv` → per-category table and confusion matrix |
+| R5 | `GET /search` response time under mixed load | ≤ 2 s | p95 | `mixed_load`: 1 ticket req/min + 1 search req/min, 600 s, 3 runs, each candidate model; store starts empty and grows to about 10 tickets | Search should stay responsive while classification runs. Lowest runnable search rate is 1/min (modelled: 0.167/min). With about 10 stored tickets a `LIKE` scan is trivial, so this mainly tests contention with Ollama, not scan cost. | `analysis/summarise_load.py --runs results/runs` → the `GET /search` sampler rows of `analysis/output/load/load_per_run_by_label.csv` (one p95 per run; all three must be ≤ 2 s) |
 
-R1 to R4 are the minimum the brief demands. R5 is optional: the brief offers "the latency of
-`GET /search` under mixed load" as an example of a response-time requirement, and we have a
-mixed-load plan that would measure it. Keep it only if you intend to justify and test it; an
-untested requirement on Slide 4 is worse than no requirement.
-`TODO(Part 4 — Teammate C): decide whether R5 stays. If it goes, delete the row.`
+Each load requirement (R1, R2, R5) is judged on the worst of the three runs (highest per-run p95, error rate and span; not the mean). The mean and spread are reported alongside.
 
 ---
 
@@ -63,7 +55,8 @@ untested requirement on Slide 4 is worse than no requirement.
   for requirements set *before* the benchmarks.
 * **Percentile.** Required. Our analysis reports p50, p95 and p99 for every run, so the
   requirement may bind any of them; say which, and say it in the same words the analysis output
-  uses. `TODO(Part 4 — Teammate C): choose the percentile and say why that one.`
+  uses. 
+  Percentile: p95. The requirement uses p95 because the client needs most requests to remain responsive while allowing a small number of slower requests caused by transient system or model-inference variation. p95 is less dominated by individual extreme outliers than p99 and is therefore the chosen percentile for the latency requirement.
 * **Load condition.** Required: an arrival rate from the *Derived arrival rates for testing*
   section of `workload_model.md`, plus which plan and which candidate model. If the workload model
   implies a peak, the brief requires the requirement to cater for the peak — so state whether R1
@@ -106,7 +99,7 @@ untested requirement on Slide 4 is worse than no requirement.
 * **Watch out.** State how `UNPARSEABLE` replies count. A model reply we could not map onto a
   category is not a correct classification; whether you count it as an error or report it
   separately, decide now and write it down, because it changes the number.
-  `TODO(Part 4 — Teammate C): decide how UNPARSEABLE counts, and say so here.`
+  `UNPARSEABLE` responses count as incorrect classifications for both overall and per-category accuracy. A response that cannot be mapped to one of the seven required categories therefore contributes to the error count rather than being treated as a correct or excluded result.
 
 ### R4 — per-category accuracy
 
@@ -138,22 +131,21 @@ untested requirement on Slide 4 is worse than no requirement.
 
 Work through this before committing. After the freeze, none of it can be changed.
 
-* [ ] Every `TODO` in the table above is replaced by a real decision.
-* [ ] Every threshold has a unit.
-* [ ] Every requirement that is measured across many requests names a percentile; the ones that
+* [x] Every `TODO` in the table above is replaced by a real decision.
+* [x] Every threshold has a unit.
+* [x] Every requirement that is measured across many requests names a percentile; the ones that
       are not say `n/a` rather than being left blank.
-* [ ] Every requirement names its load condition: arrival rate, plan and candidate model — or
+* [x] Every requirement names its load condition: arrival rate, plan and candidate model — or
       states explicitly that it is measured serially.
-* [ ] If `workload_model.md` implies a peak, at least one requirement holds *at the peak*, and the
+* [x] If `workload_model.md` implies a peak, at least one requirement holds *at the peak*, and the
       arrival-rate list contains a rate at or above that peak.
-* [ ] Every justification points at a specific figure in `workload_model.md`.
-* [ ] Every row's *How it will be measured* column names a script that exists and an output we
+* [x] Every justification points at a specific figure in `workload_model.md`.
+* [x] Every row's *How it will be measured* column names a script that exists and an output we
       will actually produce. Walk the list with Part 1 — Yeo Kai Yuan.
-      `TODO(Yeo Kai Yuan): replace with the real name.`
-* [ ] The error-rate ceiling for R2 is stated.
-* [ ] The treatment of `UNPARSEABLE` in R3 and R4 is stated.
-* [ ] The cost position below is written.
-* [ ] `workload_model.md` and this file agree with each other.
+* [x] The error-rate ceiling for R2 is stated.
+* [x] The treatment of `UNPARSEABLE` in R3 and R4 is stated.
+* [x] The cost position below is written.
+* [x] `workload_model.md` and this file agree with each other.
 * [ ] Both files are committed, and the commit is before the `golden-freeze` tag. Confirm with:
 
 ```bash
@@ -171,26 +163,11 @@ defended. Our candidate models will not agree: the small ones are fast and wrong
 larger ones are slower and more accurate. Without a stated position, the recommendation between
 them is arbitrary, and an arbitrary recommendation cannot be defended.
 
-`TODO(Part 4 — Teammate C): write the cost position here, in a short paragraph, and make it
-decisive.` Work it through in terms the client would recognise:
+**Position: a misrouted ticket costs the client more than a slow triage.** A misrouted complaint is read, bounced and re-routed, so an agent's handling time is spent twice and the customer's complaint reaches the right team late. A slow triage still produces the correct routing decision and needs no rework, provided it stays within the 10 s p95 requirement.
 
-* **What does a misrouted ticket actually cost?** A ticket routed to the wrong team is presumably
-  read, bounced and re-routed — so the cost is an agent's handling time, twice, plus the delay to
-  the customer. Is there a regulatory clock on complaint handling that a misroute eats into?
-  Is there a category where a misroute is worse than an inconvenience?
-* **What does a slow triage cost?** If classification takes seconds rather than milliseconds, who
-  waits? If tickets are triaged in a batch overnight, a slow model costs nothing until the batch
-  no longer finishes before the shift starts. If an agent waits at the screen, it costs their time
-  directly. This depends on the working pattern you assumed in `workload_model.md` — make sure the
-  two agree.
-* **Which one binds?** State it plainly: *the client would rather wait than misroute*, or *the
-  client would rather misroute occasionally than have agents waiting*. Then show that R1 to R4
-  reflect that choice — a team that says accuracy matters more but sets a tight latency threshold
-  and a loose accuracy floor has contradicted itself, and Slide 11 will not survive it.
-* **Say what would change your mind.** Which measured outcome would make you swap the position?
-  That sentence is worth writing: it is the difference between a position and an opinion.
+This is reflected in the requirements: R3 (≥ 90%) and R4 (≥ 80% per category) are strict, while R1 allows 10 s at p95 rather than a millisecond-level target. When candidates trade accuracy against latency, correct routing takes priority.
 
-`TODO(Part 4 — Teammate C): state which requirement is the one you would relax first if no
-candidate model meets all of them.` The brief says plainly that finding no candidate meets every
-requirement is a strong result when it is measured carefully and argued clearly — but the argument
-is much easier to make if the order of concession was decided *before* the measurements arrived.
+**What would change this position:** if the measured p95 latency of a model that meets R3 and R4 exceeds the 10 s R1 threshold, or if a model cannot sustain the 12 req/min capacity test in R2 without a growing queue, responsiveness would need more weight against accuracy.
+
+**Order of concession if no candidate meets every requirement:** R5 is relaxed first, then R2's throughput target, then the R1 latency threshold. R3 and R4 are relaxed last, because accuracy is what the position says matters most.
+

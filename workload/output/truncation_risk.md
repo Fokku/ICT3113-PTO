@@ -1,0 +1,11 @@
+| quantity | value | unit | how it was obtained |
+|---|---|---|---|
+| num_ctx | 4096 | tokens | --num-ctx (configuration contract NUM_CTX) |
+| prompt overhead | 449 | characters | measured: len(service.prompt.build_prompt('')), the prompt the service sends |
+| output tokens reserved | 0 | tokens | --reserve-output-tokens (default 0; the reply is a category name) |
+| rows measured | 1000 | rows | counted from the input CSV |
+| approximate prompt tokens, p99 | 604.01 | approximate tokens | approximation ceil((characters + prompt overhead) / 4), linear-interpolated p99 |
+| approximate prompt tokens, longest row | 612 | approximate tokens | approximation ceil((characters + prompt overhead) / 4) |
+| context headroom at the longest row | 3484 | approximate tokens | num_ctx - (longest prompt + reserved output); negative means it would not fit |
+| rows at truncation risk | 0 | rows | count of rows where ceil((characters + prompt overhead) / 4) + reserved output > num_ctx |
+| share of rows at truncation risk | 0.00 | % of rows measured | rows at risk / rows measured |

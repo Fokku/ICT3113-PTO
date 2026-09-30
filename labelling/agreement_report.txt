@@ -1,0 +1,89 @@
+Inter-annotator agreement -- Cohen's kappa
+==========================================
+
+Sheets
+  labeller A   labelling\labeller_A.csv
+  labeller B   labelling\labeller_B.csv
+  categories   7 (service.categories.CATEGORIES)
+
+Raw counts (these are the numbers to check the kappa by hand)
+  N, rows labelled by both        200
+  rows where A and B agree        132
+  rows where they disagree        68
+  observed agreement  Po = 132/200 = 0.660000
+
+  Marginal category use, and the chance term Pe
+    category                      n_A      p_A   n_B      p_B    p_A*p_B
+    --------------------------------------------------------------------
+    Credit reporting               43   0.2150    35   0.1750   0.037625
+    Debt collection                22   0.1100    21   0.1050   0.011550
+    Mortgage                       27   0.1350    25   0.1250   0.016875
+    Credit card                    24   0.1200    23   0.1150   0.013800
+    Bank account or service        39   0.1950    43   0.2150   0.041925
+    Consumer loan                  23   0.1150    25   0.1250   0.014375
+    Money transfer or service      22   0.1100    28   0.1400   0.015400
+    --------------------------------------------------------------------
+    TOTAL                         200   1.0000   200   1.0000   0.151550
+
+  kappa = (Po - Pe) / (1 - Pe)
+        = (0.660000 - 0.151550) / (1 - 0.151550)
+        = 0.508450 / 0.848450
+        = 0.599269
+
+  COHEN'S KAPPA = 0.599  (moderate)
+
+  Interpretation bands used above (a convention, not a law):
+    0.81 to 1.00   almost perfect
+    0.61 to 0.80   substantial
+    0.41 to 0.60   moderate
+    0.21 to 0.40   fair
+    0.00 to 0.20   slight
+    below 0.00     poor, worse than chance
+    source: Landis, J.R. and Koch, G.G. (1977) 'The measurement of observer agreement for categorical data', Biometrics, 33(1), pp. 159-174.
+
+Confusion matrix: labeller A (rows) against labeller B (columns)
+    A \ B                             1     2     3     4     5     6     7  total
+    1. Credit reporting              24     2     3     0    11     2     1     43
+    2. Debt collection                2    15     1     2     1     1     0     22
+    3. Mortgage                       1     1    21     0     1     2     1     27
+    4. Credit card                    5     0     0    14     2     1     2     24
+    5. Bank account or service        1     1     0     6    23     0     8     39
+    6. Consumer loan                  2     2     0     0     0    19     0     23
+    7. Money transfer or service      0     0     0     1     5     0    16     22
+    total                            35    21    25    23    43    25    28    200
+    Column key: 1=Credit reporting, 2=Debt collection, 3=Mortgage, 4=Credit card, 5=Bank account or service, 6=Consumer loan, 7=Money transfer or service
+    The diagonal is agreement; off-diagonal cells name the confusion.
+
+Per-category agreement: one-vs-rest Cohen's kappa
+  (see the module docstring for why this statistic and not per-category %)
+    category                      n_A   n_B  both       Po       Pe    kappa
+    ------------------------------------------------------------------------
+    Credit reporting               43    35    24   0.8500   0.6853    0.523
+    Debt collection                22    21    15   0.9350   0.8081    0.661
+    Mortgage                       27    25    21   0.9500   0.7737    0.779
+    Credit card                    24    23    14   0.9050   0.7926    0.542
+    Bank account or service        39    43    23   0.8200   0.6739    0.448
+    Consumer loan                  23    25    19   0.9500   0.7888    0.763
+    Money transfer or service      22    28    16   0.9100   0.7808    0.589
+
+Disagreements
+  count                   68
+  written to              labelling\disagreements.csv
+  ordered least-confident first, so the rows most likely to be protocol
+  gaps are at the top of the resolution queue.
+
+  First rows to discuss:
+    row 10214: A=Bank account or service (low) vs B=Credit card (high)
+    row 10271: A=Bank account or service (low) vs B=Credit card (medium)
+    row 10469: A=Bank account or service (low) vs B=Credit card (high)
+    row 10510: A=Consumer loan (medium) vs B=Credit reporting (low)
+    row 10517: A=Debt collection (high) vs B=Bank account or service (low)
+    row 10551: A=Bank account or service (high) vs B=Money transfer or service (low)
+    row 10604: A=Credit reporting (medium) vs B=Money transfer or service (low)
+    row 10653: A=Credit card (high) vs B=Money transfer or service (low)
+    row 10799: A=Bank account or service (low) vs B=Debt collection (high)
+    row 10024: A=Money transfer or service (medium) vs B=Credit card (medium)
+
+Next: resolve every disagreement together, record each one in
+labelling/resolutions.md AND labelling/resolutions.csv, log any protocol
+revision in labelling/protocol.md, then run build_golden_set.py.

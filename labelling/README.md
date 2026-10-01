@@ -10,8 +10,8 @@ disagreement was resolved, and the script that turns all of that into
 
 | Part | Person | Responsible for |
 |---|---|---|
-| Part 2 | **Teammate A** — `TODO(Yeo Kai Yuan): replace with real name` | `protocol.md`, labelling sheet A, any protocol revision |
-| Part 3 | **Teammate B** — `TODO(Yeo Kai Yuan): replace with real name` | labelling sheet B, running `agreement.py`, writing up `resolutions.md` / `resolutions.csv`, running `build_golden_set.py` |
+| Part 2 | **Teammate A** — Loh Wen Xuan | `protocol.md`, labelling sheet A, any protocol revision |
+| Part 3 | **Teammate B** — Jolie Ngai Ning Li | labelling sheet B, running `agreement.py`, writing up `resolutions.md` / `resolutions.csv`, running `build_golden_set.py` |
 | Technical core | **Yeo Kai Yuan** — `TODO(Yeo Kai Yuan): replace with real name` | the three scripts, the freeze gate, the commit and the tag |
 
 **"Done" looks like:** `../golden/golden_set.csv` exists with 150–200 rows, it and

@@ -7,9 +7,9 @@ where a disagreement revealed a gap in it." This is the record; its machine
 readable counterpart is `resolutions.csv`, which `build_golden_set.py` consumes.
 
 **Owner: Part 3 — Teammate B** (writes it up during and after the resolution
-meeting). `TODO(Yeo Kai Yuan): replace with real name.`
+meeting). Jolie Ngai Ning Li
 **Co-owner: Part 2 — Teammate A** (agrees each resolution and makes any protocol
-revision it implies). `TODO(Yeo Kai Yuan): replace with real name.`
+revision it implies). Loh Wen Xuan
 
 **Feeds:** Slide 6 (Golden Test Set) — the number of disagreements, how they were
 resolved, and **one or two worked examples quoted from this file**. Also a

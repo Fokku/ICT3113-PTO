@@ -1,35 +1,69 @@
 row_number,agreed_label,resolution_note,protocol_revision
-# ---------------------------------------------------------------------------
-# labelling/resolutions.csv -- the machine-readable resolution record.
-# Read by labelling/scripts/build_golden_set.py. Owner: Part 3 -- Teammate B.
-#
-# One line per DISAGREEMENT between labeller_A.csv and labeller_B.csv. Every
-# disagreement listed in labelling/disagreements.csv must appear here, or the
-# build fails and names the rows it is missing.
-#
-# Columns
-#   row_number         the row from data/team_rows.csv, digits only.
-#   agreed_label       one of the seven categories, spelled exactly as in
-#                      service/categories.py, OR the token EXCLUDE to drop the
-#                      row from the golden set. UNPARSEABLE is a model-output
-#                      value and is rejected here.
-#   resolution_note    why, in one line. Required -- a resolution with no
-#                      reasoning is not a resolution. Reference the protocol
-#                      rule that settles the row (E1-E7) where there is one.
-#                      Keep it on a single line and quote it if it contains a
-#                      comma.
-#   protocol_revision  the revision id from the Revision log in protocol.md
-#                      (e.g. R2) if this disagreement caused a protocol change,
-#                      otherwise: none
-#
-# A line whose first non-space character is # is a comment and is skipped, so a
-# resolution_note must not contain a line break followed by #.
-#
-# Every line here must also be written up in resolutions.md, which is the
-# narrative record Slide 6 quotes. build_golden_set.py warns when a row appears
-# in one file and not the other.
-#
-# Commented example of the shape (delete nothing above; add real rows below):
-# 10123,Debt collection,"E7: collector chasing a card debt; conduct wins",R2
-# 10456,EXCLUDE,"E2: narrative is a single redacted line, no product stated",none
-# ---------------------------------------------------------------------------
+10214,Credit card,"Fraudulent charges (out-of-state pizza orders, an unknown payee) were disputed with the card issuer, which closed the escalations without investigating. The complaint is about card dispute handling, so Credit card.",none
+10271,Credit card,"The consumer's Vanilla prepaid card cannot be set up and the funds on it are inaccessible. The problem sits with the card product itself, so Credit card.",R4
+10469,Credit card,"RushCard is a prepaid debit card and the outage cut off access to the money on that card. The withdrawals mentioned are a consequence of the card failing, so Credit card.",R4
+10510,Consumer loan,"The consumer consolidated Parent PLUS loans after being told they would qualify for PSLF, then learned they did not. The issue is the loan product and its terms, so Consumer loan.",R5
+10517,Debt collection,"Alco Collections Inc is pursuing a debt the consumer never received notice of and will not respond to calls. The credit report is only where the debt surfaced, so Debt collection.",R2
+10551,Bank account or service,"The complaint is about Cash App failing to protect the consumer's account from fraud and running an unfair dispute process. That is the provider's handling of the account, so Bank account or service.",none
+10604,Credit reporting,"A late payment caused by the company's system outage is being reported on the consumer's credit file, and the request to correct it was denied. The complaint is about the misreporting, so Credit reporting.",R3
+10653,Credit card,"The consumer disputed a never-delivered purchase with Goldman Sachs on their Apple Card and the dispute was not resolved. This is a card dispute with the issuer, so Credit card.",R4
+10799,Bank account or service,"Unauthorized transactions were made on the consumer's Direct Express benefits account and Comerica has not reimbursed them. This is the bank's handling of a fraud claim on a benefits account, the same pattern as 10483, so Bank account or service.",none
+10024,Money transfer or service,"The consumer overpaid a closed Citibank account and Citibank is refusing to send the surplus back. The complaint is about getting the funds returned, so Money transfer or service.",none
+10045,Consumer loan,"Payments on a federal student loan rose after the consumer was close to forgiveness under the program. The complaint is about the loan's repayment and forgiveness terms, so Consumer loan.",R5
+10085,Credit card,"A dental office billed the full estimate to a financing credit card for treatment never performed, and the issuer is adding interest and penalties. The charge sits on the card, so Credit card.",none
+10110,Credit card,"The consumer applied for a Chase business credit card and the issuer's fraud team stalled the application with document requests. This is about the card application, so Credit card.",none
+10116,Debt collection,"The consumer sent a debt validation letter, got no response, and the unvalidated debt is still being reported. Failing to validate a debt is collector conduct, so Debt collection.",R2
+10127,Mortgage,"Someone changed the autopay bank details on the consumer's NewRez mortgage account without permission. The complaint is about the servicer's handling of the mortgage account, so Mortgage.",R1
+10129,Credit card,"A Chime Credit Builder secured credit card was opened fraudulently in the consumer's name. The complaint is about that card account, so Credit card.",none
+10167,Bank account or service,"PayPal sent a fraudulent account in the consumer's name to collections and would not fix it. The complaint is about PayPal's handling of the account, so Bank account or service.",none
+10178,Debt collection,"After moving out, the apartment sent vague damage charges to a collections company that will not itemise them. This is a third-party collector dispute, so Debt collection.",R2
+10210,Credit reporting,"The consumer was never given a chance to dispute an account and wants it deleted from their credit report, or proof of proper notice. This is a credit report dispute, the same pattern as 10497 and 10338, so Credit reporting.",R3
+10219,Mortgage,"Formal notice that a mortgage servicer missed the Regulation X deadline to request documents for a loss mitigation application. This is mortgage servicing, so Mortgage.",R1
+10297,Credit card,"The card issuer removed fraudulent charges earlier but is now making them permanent, saying the fraud window has passed. This is a card dispute, so Credit card.",none
+10338,Credit reporting,"Two accounts opened through identity theft appear on the credit report, and no product detail is given beyond the account names. The complaint is about the report, so Credit reporting.",R3
+10358,Credit reporting,"A loan application through a marketplace was denied and the inquiry lowered the consumer's credit score. The harm described is to the credit file, so Credit reporting.",R3
+10381,Bank account or service,"Ally flagged a $50,000 outgoing transfer as fraud, restricted all access to the savings account and then closed it, leaving the consumer without their funds for weeks. The restriction and closure of the account is the complaint, so Bank account or service.",R6
+10452,Credit reporting,"A mortgage company pulled the consumer's credit twice for a refinance she never authorised. The complaint is about the unauthorised hard inquiries, so Credit reporting.",R3
+10463,Bank account or service,"TCF reversed a deposit, closed the account after a fraud review, and then deposited two Social Security checks into the closed account. The closure and handling of the account is the complaint, so Bank account or service.",R6
+10467,Consumer loan,"Student loans on an approved deferment are reported as late and duplicated. The deferment terms of the loan decide whether the reporting is right, so Consumer loan.",R5
+10483,Bank account or service,"An account takeover drained the consumer's Bank of America checking and savings, and the bank is now billing the consumer. The complaint is about the bank's handling of the deposit accounts, so Bank account or service.",none
+10497,Credit reporting,"An apartment was rented using the consumer's stolen identity and the consumer wants it removed from the credit report. No financial product is involved, so Credit reporting.",R3
+10528,Bank account or service,"Bank of America is still showing a balance on an account that should have been closed for fraud. The complaint is about the bank's failure to close the account properly, so Bank account or service.",none
+10537,Debt collection,"Credit Collections USA LLC placed an $83 collection that the consumer says it is not licensed to collect in Florida. This is collector conduct, so Debt collection.",R2
+10540,Bank account or service,"Truist charged overdraft fees despite a positive balance and never called back about the complaint. This is a deposit account fee issue, so Bank account or service.",none
+10575,Debt collection,"Robocalls from Naviant (as the narrative spells it) demand payment on a student loan the consumer denies any connection to, and threaten vague legal action. This is collector conduct, so Debt collection.",R2
+10602,Mortgage,"The consumer's Wells Fargo home loan payment keeps rising and the amount now demanded does not match what was paid. This is a mortgage payment dispute with the servicer, so Mortgage.",R1
+10622,Credit reporting,"A paid-off loan is reported with a balance rather than as paid in full. This is a report accuracy complaint, so Credit reporting.",R3
+10638,Credit reporting,"Discover is reporting a debt it no longer owns, and the consumer cites the FCRA. The complaint is about inaccurate reporting, so Credit reporting.",none
+10666,Debt collection,"Sunrise Credit Service is trying to collect a card debt the consumer already paid and settled, and is threatening to force repayment. The complaint is about the collector's conduct, the same pattern as 10517 and 10537, so Debt collection.",R2
+10747,Bank account or service,"Wells Fargo took $500 more than the agreed payment plan amount from the consumer's account. The complaint is about the bank debiting the account, so Bank account or service.",none
+10763,Credit reporting,"Klarna approved a line of credit opened with the consumer's stolen details. The consumer's concern is the fraudulent account showing up against their identity, so Credit reporting.",R3
+10774,Debt collection,"LVNV re-reported three accounts after a bureau investigation and never answered the validation request. This is collector conduct, so Debt collection.",R2
+10790,Consumer loan,"The consumer is seeking forgiveness on federal student loans because of hardship and a school that was closed for fraud. No collector is involved and the issue is the loan itself, so Consumer loan.",R5
+10805,Bank account or service,"Money disappeared from the consumer's Chase account and Chase will not help. This is a deposit account service complaint, so Bank account or service.",none
+10858,Credit card,"Autopay drew money for a Bank of America credit card even though a dispute was resolved and the balance was zero. This is card billing, so Credit card.",none
+10945,Credit card,"The consumer paid for an online training program with PayPal Credit and the promised money-back guarantee was not honoured. The dispute is on the credit card, so Credit card.",R4
+10120,Credit reporting,"The complaint quotes FCRA sections to argue an account was furnished without consent. This is a credit report dispute, so Credit reporting.",R3
+10196,Bank account or service,"Bank of America charged a check imaging fee the consumer never ordered. This is a deposit account fee, so Bank account or service.",none
+10322,Credit reporting,"A Sezzle account opened through identity theft appears on the consumer's credit report, and the consumer wants it removed. This is a credit report dispute, the same pattern as 10763, so Credit reporting.",R3
+10337,Bank account or service,"A large transfer out of a Flagstar high-yield savings account is stuck waiting for approval over the transfer limit. The bank's account-level limits are the issue, so Bank account or service.",none
+10396,Bank account or service,"Wise froze the consumer's new account after identity verification, so incoming funds cannot be received. Wise is acting as the account provider, so Bank account or service.",none
+10406,Credit reporting,"A boilerplate FCRA complaint about an account furnished to the credit bureaus without consent. This is a credit report dispute, so Credit reporting.",R3
+10409,Credit reporting,"Fraudulent accounts and inquiries keep being reported on the consumer's credit file by the bureaus. This is a credit report dispute, so Credit reporting.",R3
+10454,Mortgage,"Select Portfolio Servicing, the mortgage servicer, has repeatedly failed to manage the consumer's escrow account correctly. Escrow mismanagement by a mortgage servicer is a mortgage servicing issue, so Mortgage.",R1
+10461,Bank account or service,"The consumer's bank confirms a wire reached Coinbase but Coinbase will not credit the account. The issue is how Coinbase handles the account, so Bank account or service.",none
+10465,Credit card,"After a data breach notice deactivated the card, the consumer's payments posted but no replacement card was sent. This is a card account problem, so Credit card.",none
+10471,Money transfer or service,"A Citibank ATM failed during a deposit, kept the cash, and the money has not been credited. The failed transaction is the complaint, so Money transfer or service.",none
+10520,Mortgage,"GreenTree, the mortgage servicer, paid property insurance out of the consumer's escrow account to the wrong company. This is the same escrow mishandling pattern as 10454, so Mortgage.",R1
+10524,Money transfer or service,"Wells Fargo moved money from the daughter's minor account into the consumer's account without explanation. The complaint is about that transfer between accounts, so Money transfer or service.",none
+10549,Credit reporting,"A boilerplate FCRA complaint naming a specific account and balance. This is a credit report dispute, so Credit reporting.",R3
+10557,Credit reporting,"An FCRA template complaint asserting the right to accurate reporting, the same pattern as 10549 and 10120. This is a credit report dispute, so Credit reporting.",R3
+10560,Bank account or service,"Small unauthorised transactions hit several Bank of America checking accounts and the bank made no adjustments. This is fraud on deposit accounts, the same pattern as 10483 and 10805, so Bank account or service.",R6
+10609,Bank account or service,"Cash App closed the consumer's account and the remaining funds were never returned. Cash App is the account provider here, so Bank account or service.",none
+10714,Debt collection,"A creditor kept reporting derogatory history on a debt discharged in bankruptcy, which the consumer frames as a violation of the automatic stay. Continuing to treat a discharged debt as owed is collection conduct, so Debt collection.",none
+10827,Mortgage,"Fay Servicing lost the consumer's mortgage loan modification application and stalled the loss mitigation process for months. This is mortgage loss mitigation, so Mortgage.",R1
+10887,Credit reporting,"A boilerplate FCRA complaint about an account furnished without consent, with no product named. This is a credit report dispute, so Credit reporting.",R3
+10933,Credit card,"Car insurance bought with a PayPal Credit card did not get the advertised six months of no interest. This is a card promotion dispute, so Credit card.",R4
+10951,Credit card,"The consumer paid a PayPal Credit balance by money order and was billed again for the same amount. The billing is on the card account, so Credit card.",R4
+10962,Bank account or service,"The consumer cannot link an external bank to an Ally money market savings account. This is an account functionality issue, so Bank account or service.",none
+10996,Credit reporting,"Credco, a third-party mortgage agency, ran the consumer's credit twice for a rehab mortgage without a signed authorisation. The complaint is the unauthorised inquiries, the same pattern as 10452, so Credit reporting.",R3

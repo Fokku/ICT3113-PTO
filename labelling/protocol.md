@@ -438,7 +438,7 @@ problem surfaced (an account, a credit file).
 
 | Role | Name | Date read and agreed |
 |---|---|---|
-| Protocol author, labeller A | `TODO(Part 2 — Teammate A)` | `TODO(Part 2 — Teammate A)` |
+| Protocol author, labeller A | Loh Wen Xuan | Yes |
 | Labeller B | `TODO(Part 3 — Teammate B)` | `TODO(Part 3 — Teammate B)` |
 
 ---
@@ -457,13 +457,13 @@ first row and be ready to say why.
 
 | Revision | Date | What changed | Which disagreement prompted it | Agreed by |
 |---|---|---|---|---|
-| R0 | 2026-10-02 | Protocol text completed for the first time: confidence levels, the seven category definitions, E1 to E7, the procedure for uncovered cases and the tie-break ordering. This was written after both sheets were labelled and the disagreements resolved, from the patterns in the resolutions. It was not available to the labellers during independent labelling. | none (whole document) | `TODO: both labellers' names` |
-| R1 | 2026-10-02 | Mortgage definition: escrow handling, loan modification and loss mitigation, payment disputes and unauthorised account changes at a mortgage servicer are Mortgage, not Bank account or service, Consumer loan or Credit reporting. | 10127, 10219, 10454, 10520, 10602, 10827 | `TODO: both labellers' names` |
-| R2 | 2026-10-02 | E7 and Debt collection definition: a collector's conduct (including collecting a settled debt, ignoring validation, or re-reporting after an unanswered validation request) is Debt collection even when the debt is a card debt. | 10666, 10517, 10537, 10178, 10116, 10774, 10575 | `TODO: both labellers' names` |
-| R3 | 2026-10-02 | E1 and Credit reporting definition: a complaint whose only remedy is a change to the credit file (FCRA boilerplate, unauthorised accounts or inquiries, report accuracy) is Credit reporting. | 10120, 10549, 10557, 10887, 10406, 10409, 10210, 10322, 10338, 10497, 10763, 10452, 10604, 10622, 10358, 10996 | `TODO: both labellers' names` |
-| R4 | 2026-10-02 | Credit card definition: prepaid and gift cards sold as cards, and PayPal Credit style accounts, are Credit card. | 10271, 10469, 10653, 10933, 10945, 10951 | `TODO: both labellers' names` |
-| R5 | 2026-10-02 | Consumer loan definition: student loan forgiveness, consolidation, deferment and repayment are Consumer loan, not Debt collection or Credit reporting. | 10045, 10510, 10790, 10467 | `TODO: both labellers' names` |
-| R6 | 2026-10-02 | Bank account and Money transfer definitions: account freezes, closures, and unauthorised transactions on a deposit account are Bank account or service, not Money transfer or service. Money transfer is limited to a specific transfer, wire, payment, deposit or refund that went wrong. | 10381, 10463, 10560 | `TODO: both labellers' names` |
+| R0 | 2026-10-02 | Protocol text completed for the first time: confidence levels, the seven category definitions, E1 to E7, the procedure for uncovered cases and the tie-break ordering. This was written after both sheets were labelled and the disagreements resolved, from the patterns in the resolutions. It was not available to the labellers during independent labelling. | none (whole document) | Wen Xuan & Jolie |
+| R1 | 2026-10-02 | Mortgage definition: escrow handling, loan modification and loss mitigation, payment disputes and unauthorised account changes at a mortgage servicer are Mortgage, not Bank account or service, Consumer loan or Credit reporting. | 10127, 10219, 10454, 10520, 10602, 10827 | Wen Xuan & Jolie |
+| R2 | 2026-10-02 | E7 and Debt collection definition: a collector's conduct (including collecting a settled debt, ignoring validation, or re-reporting after an unanswered validation request) is Debt collection even when the debt is a card debt. | 10666, 10517, 10537, 10178, 10116, 10774, 10575 | Wen Xuan & Jolie |
+| R3 | 2026-10-02 | E1 and Credit reporting definition: a complaint whose only remedy is a change to the credit file (FCRA boilerplate, unauthorised accounts or inquiries, report accuracy) is Credit reporting. | 10120, 10549, 10557, 10887, 10406, 10409, 10210, 10322, 10338, 10497, 10763, 10452, 10604, 10622, 10358, 10996 | Wen Xuan & Jolie |
+| R4 | 2026-10-02 | Credit card definition: prepaid and gift cards sold as cards, and PayPal Credit style accounts, are Credit card. | 10271, 10469, 10653, 10933, 10945, 10951 | Wen Xuan & Jolie |
+| R5 | 2026-10-02 | Consumer loan definition: student loan forgiveness, consolidation, deferment and repayment are Consumer loan, not Debt collection or Credit reporting. | 10045, 10510, 10790, 10467 | Wen Xuan & Jolie |
+| R6 | 2026-10-02 | Bank account and Money transfer definitions: account freezes, closures, and unauthorised transactions on a deposit account are Bank account or service, not Money transfer or service. Money transfer is limited to a specific transfer, wire, payment, deposit or refund that went wrong. | 10381, 10463, 10560 | Wen Xuan & Jolie |
 
 ---
 

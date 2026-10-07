@@ -1,7 +1,6 @@
 # `workload/` — the client's workload model and our performance requirements
 
-**Owner: Part 4 — Teammate C.**
-`TODO(Yeo Kai Yuan): replace "Teammate C" with the real name once the team roles are confirmed.`
+**Owner: Part 4 — Toh Si Pei**
 
 This folder holds Step 3 (model the client's workload) and the requirements half of Step 4
 (set requirements) of the assignment brief, see `../docs/assignment-brief.md`.

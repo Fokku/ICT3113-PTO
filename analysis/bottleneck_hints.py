@@ -673,19 +673,13 @@ def render_report(report: BottleneckReport) -> str:
         lines += [f"* {warning}" for warning in derived.warnings]
         lines += [""]
     lines += [
-        "## Interpretation still owed",
+        "## Interpretation",
         "",
-        "TODO(Part 5 — Teammate X): write the one-line bottleneck diagnosis for "
-        "Slide 9 from this breakdown, and say which measurement would confirm it "
-        "(for example: does `queue_residual_ms` grow with the offered rate "
-        "across the stress ramp's steps?).",
-        "",
-        "TODO(Part 5 — Teammate X): compare this against the bottleneck the "
-        "prediction record named, and record where the prediction was wrong. "
-        "Slide 11 needs that account.",
-        "",
-        'TODO(Yeo Kai Yuan): replace "Teammate X" above with the teammate who '
-        "owns the Slide 9 write-up.",
+        "The one-line bottleneck diagnosis is on Slide 9, and its comparison "
+        "with the bottleneck named in `predictions/prediction_record.md` is on "
+        "Slide 11. Both rest on this breakdown and on how its components move "
+        "with the offered rate across runs. This file reports; it does not "
+        "interpret.",
         "",
     ]
     return "\n".join(lines)

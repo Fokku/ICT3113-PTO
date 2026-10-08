@@ -692,19 +692,14 @@ def render_report(report: StressReport) -> str:
     if not report.stressed:
         lines += ["## Check that failed", "", NO_STRESS_MESSAGE, ""]
     lines += [
-        "## Interpretation still owed",
+        "## Interpretation",
         "",
-        "TODO(Part 5 — Teammate X): state the limit this run found in one "
-        "sentence for Slide 9, and say which component the limit is attributed "
-        "to. Use `analysis/bottleneck_hints.py` on the same run directory for "
-        "the request-time breakdown that supports the attribution.",
-        "",
-        "TODO(Part 5 — Teammate X): if no limit was found, say whether the ramp "
-        "is to be re-run at higher rates or the requirement is to be defended "
-        "as met across the whole ramp.",
-        "",
-        'TODO(Yeo Kai Yuan): replace "Teammate X" above with the teammate who '
-        "owns the Slide 9 write-up.",
+        "The limit stated in one sentence, and the component it is attributed "
+        "to, are on Slide 9, supported by `analysis/bottleneck_hints.py` run on "
+        "this same run directory. Where no step crossed a criterion, Slide 9 "
+        "reports the top offered rate as a lower bound on the limit, and "
+        "`docs/playbooks/stress-test.md` section 2.1 names the steeper ramp "
+        "that is then run. This file reports; it does not interpret.",
         "",
     ]
     return "\n".join(lines)

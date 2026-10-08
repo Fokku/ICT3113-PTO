@@ -1,301 +1,252 @@
 # Prediction record — Group 10
 
-> ## STOP. READ THIS BEFORE YOU TYPE ANYTHING IN THIS FILE.
->
-> 1. **This file cannot be edited after the `golden-freeze` tag.** Once the tag exists, the version of
->    this file inside the tagged commit *is* our prediction record, for good. See "How to freeze" at the
->    bottom.
-> 2. **The commit history is the evidence.** The brief requires that the golden set and the prediction
->    record be committed to the repository *before the first benchmark run*, and states that the commit
->    history is our evidence that the labels and predictions predate the measurements. A prediction
->    written after a measurement is worth nothing, and a prediction record whose commit is newer than the
->    first `.jtl` file actively damages the submission.
-> 3. **Marks are awarded for specificity and for the later account of where we were wrong — not for
->    being right.** The brief says so in plain words: *"Marks are awarded for specificity and for the
->    quality of your later account of where your predictions were wrong, not for being right. A vague
->    prediction that cannot fail earns nothing."* So a hedge earns nothing. Before you write any entry,
->    ask: *what result would prove this entry wrong?* If you cannot answer, the entry is not finished.
-> 4. **Do not let anybody fill this in on the team's behalf.** These are the team's judgements. No tool,
->    no agent and no single member may supply them. Every cell marked `TODO(Whole team)` stays `TODO`
->    until the team has actually decided it.
+**What this is.** The prediction record required by Step 4 of the brief: (1) where we expect the bottleneck
+to be under load and why, (2) for each candidate model the expected golden-set accuracy and expected
+single-request latency on our hardware, and (3) which categories we expect to be hardest and why. It is
+committed, with `../golden/golden_set.csv`, in the commit tagged `golden-freeze`, and that tagged version is
+the prediction of record. It is not edited afterwards; a correction would go in a dated appendix in a new
+commit. Slide 11 compares every entry below with the measurements.
+
+**Conventions.** Paths are relative to this file. Field names are the service log keys in
+`../service/log_schema.py`, the `.jtl` columns read by `../analysis/common.py`, and the components computed
+by `../analysis/bottleneck_hints.py`. "Accuracy" means agreement with the frozen golden labels, scored by
+`../analysis/accuracy.py`, with `UNPARSEABLE` counted as wrong (requirement R3 in
+`../workload/requirements.md`). Arrival rates and load conditions are the ones fixed in
+`../workload/workload_model.md` ("Derived arrival rates for testing").
 
 ---
 
-## About this document
+## 0. How this record came to be written late — read before Slide 11
 
-**What it is for.** The prediction record required by Step 4 of the brief. It states, before any model is
-benchmarked, (a) where we expect the bottleneck to be and why, (b) for each candidate model the expected
-golden-set accuracy and expected single-request latency, and (c) which categories we expect to be hardest
-and why.
+We state this here because the commit history shows it anyway, and an unexplained gap would be worse.
 
-**Owner:** Part 4 — Teammate C holds the pen and chases the team for entries.
-`TODO(Yeo Kai Yuan): replace "Teammate C" with the real name here and in the sign-off table.`
-Every entry is a whole-team judgement, not the pen-holder's. Part 1 — Yeo Kai Yuan owns the freeze
-(the commit, the tag, and the `scripts/freeze_gate.py` check).
-
-**Done when.** Every `TODO(...)` below is replaced by a decision; every prediction names the result that
-would falsify it; the sign-off table is complete with real names and real dates; the file is committed and
-the `golden-freeze` tag points at that commit; and `python scripts/freeze_gate.py --json` prints
-`"ok": true`. Until the gate passes, no benchmark run may be started against team rows.
-
-**Conventions.** A path written `../like/this` is relative to this file (which lives in `predictions/`);
-every command shown is run from the repository root.
-
-**Which slide it feeds.** Slide 11, *Predictions, Recommendation and Defence* — "Your predictions against
-your outcomes, and an account of where and why you were wrong." It is also a **submitted supporting file**
-in its own right, alongside the golden set and the labelling material (see `../slides/outline.md`).
-
-**Order of work.** Fill this in as a team in one sitting, after Part 2 and Part 3 have finished labelling
-(so the edge cases are fresh) and after Part 4 has settled `../workload/requirements.md` (so the peak
-arrival rate exists to predict against). **Each member writes their own figures down privately first, then
-the team agrees the entry.** Otherwise the first figure spoken out loud becomes everybody's figure, the
-disagreement column in the sign-off table comes out empty, and we lose the most interesting material on
-Slide 11.
-
-**Where the evidence will come from later.** Nothing in this file is measured. The fields that will be
-compared against it after the freeze are fixed in advance: the service log schema in
-`../service/log_schema.py`, the JMeter `.jtl` columns listed in `../analysis/common.py`, and the run
-metadata in `results/runs/<run>/metadata.json`. Quoting those field names in a prediction is what makes it
-checkable, so the tables below ask for them.
+1. **The first `golden-freeze` tag froze an empty template.** The tag was first created on 8 October 2026 at
+   12:28 SGT on commit `ef5a1b2`. The golden set in that commit is the golden set in this one (built on
+   2 October, unchanged since). The prediction record in that commit was still the unfilled template: no
+   prediction had been written. `scripts/freeze_gate.py` passed because it checks that the file is committed,
+   not that it says anything.
+2. **One measurement happened before any prediction.** At 13:25 SGT the same day, one golden-set accuracy run
+   of `llama3.2:1b` was made on the original service host (`tw`). Because it predates every prediction, it is
+   not evidence. It has been moved to `../results/excluded/` with an explanation, nothing in it is reported,
+   and the test is repeated after this commit on the new environment.
+3. **The test environment changed.** The original machines (`tw` and `kthgoat`) became unavailable on
+   8 October. Every measurement is now made with the service and Ollama on a separate desktop
+   (⟪HW: service host name, CPU, cores/threads, RAM, OS⟫, captured in `../docs/environment/`), and JMeter on
+   an Apple M3 Pro MacBook. **Every latency prediction below is for that service host.**
+4. **Who wrote this, and what they had seen.** This record was drafted on 8 October by Yeo Kai Yuan with an
+   AI coding assistant (the brief permits AI tools), from: the hardware facts in `../docs/environment/`,
+   the model facts in `../models/candidates.md`, Ollama's documented behaviour, our prompt
+   (`../service/prompt.py`), the ticket-length statistics in `../workload/output/`, and the labelling
+   evidence in `../labelling/`. No measurement of any model on the new service host existed when it was
+   written. One exception must be stated plainly: before drafting, the drafter had seen the
+   **predicted-category counts** of the excluded `llama3.2:1b` run (Credit reporting 100, Bank account or
+   service 85, Consumer loan 10, `UNPARSEABLE` 3, Mortgage 1, Credit card 1, out of 200), though not its
+   accuracy score, and that run's start and end times (about 17 minutes for 200 tickets on `tw`, a
+   different machine). **The `llama3.2:1b` accuracy, hardest-category and `UNPARSEABLE` entries are
+   therefore not blind, and we claim no credit for them.** Knowing that the 1B model leans on the first
+   listed category may also have coloured the error-direction prediction for `llama3.2:3b` (same family);
+   we flag that entry too. While fixing the test harness, the drafter also saw rehearsal timings for
+   `llama3.2:1b` on synthetic tickets on the load-generator MacBook (Apple M3 Pro, Ollama inside Docker
+   Desktop's VM) — a different machine and CPU architecture from the service host, and never team rows. No
+   model had run on the service host when this record was written. Every other entry — the bottleneck,
+   the latency figures for the service host, and the accuracy rows for `llama3.2:3b`, `granite4:3b` and
+   `qwen2.5:7b` — is blind to our own measurements.
+5. **The template's own rule was broken.** The template said no tool and no single member should supply the
+   predictions. Under the deadline, one member drafted with an AI assistant and circulated the draft to the
+   other four before the freeze. Their responses are in the sign-off table exactly as given, including
+   anyone who did not respond in time.
+6. **The tag was moved, deliberately and once.** After this file was committed, `golden-freeze` was moved
+   to this commit with `git tag -f` — the re-cut procedure documented in `../scripts/freeze_gate.py` — and the
+   move is logged in `../docs/run-log.md`. Every run directory carries the freeze it ran under in its
+   `freeze.json`.
 
 ---
 
 ## Section 1 — Where we expect the bottleneck to be under load
 
-The brief asks for *"Where you expect the bottleneck to be under load, and why."* An answer is complete
-only when it has three parts:
+### 1.1 The prediction
 
-* **the named component** — one component, chosen from the candidate list below (or a component not on the
-  list, if the team can justify it);
-* **the mechanism** — what saturates, what queues behind it, and why that shows up as latency or as errors
-  rather than as something else;
-* **the observation that would settle it** — the specific log field, `.jtl` column or metadata value whose
-  behaviour would confirm the claim, *and* what that same evidence would look like if we were wrong.
+**Component: B — Ollama's request admission for the loaded model, i.e. its single parallel slot.** Under
+load, the time that grows is time spent waiting for that slot, not time spent computing.
 
-### The candidate locations — choose from these and justify the choice
+**Mechanism.** `OLLAMA_NUM_PARALLEL` is left unset, and Ollama's documented default is **1** parallel request
+per loaded model (`OLLAMA_MAX_QUEUE` default 512). The runner takes a semaphore of that size before it
+starts work on a request. Our service imposes no limit of its own: each `POST /tickets` is an async handler
+that opens a fresh `httpx` connection to Ollama and awaits it, so every ticket that arrives while another
+is being classified is admitted by the service and then waits inside Ollama. Each request holds the slot
+for its own **CPU-bound prompt evaluation (prefill)** plus a few decoded tokens. A median prompt is about
+330 tokens (≈ 112 tokens of fixed instructions plus a median narrative of 186 approximate tokens, plus the
+chat template), while the reply is a category name of 2–6 tokens. So the per-request **service time S** is
+dominated by `prompt_eval_duration`, and the queue forms when the arrival rate exceeds 1/S.
 
-These are the places the bottleneck could plausibly be, given the baseline we have actually built (one
-uvicorn worker, no concurrency limit in the service, a new `httpx` client and a new SQLite connection per
-request, a full-table `LIKE` scan in `/search`, and Ollama on CPU only). **This table is a menu, not an
-answer.** The "mechanism you would be claiming" column is deliberately terse: if the team picks a row, the
-team writes the mechanism out properly in its own words in Section 1.1.
+**Where in our workload it starts to bind.** The modelled peak (0.024 tickets/minute) never binds anything.
+Among the rates we test (1, 4 and 12 per minute, and the stress ramp 1 → 21 per minute), we expect:
 
-| # | Candidate location | Mechanism you would be claiming | Evidence that would confirm it | Evidence that would refute it |
-|---|---|---|---|---|
-| A | **Ollama's generation loop** (CPU token decoding for the chosen model) | Each request occupies a CPU-bound decode loop; the ceiling is tokens per second on this hardware, so the service rate is fixed and queueing is a consequence, not the cause | `model_latency_ms` tracks Ollama's own `total_duration` (ns) closely all run long; `eval_count` / `eval_duration` per request stays roughly constant while arrival rate rises | `model_latency_ms` drifts far above Ollama's `total_duration`, i.e. most of the time is spent *waiting*, not generating |
-| B | **Ollama's request queue / parallelism admission** (`OLLAMA_NUM_PARALLEL`, recorded in `metadata.json`) | More requests are in flight than Ollama will decode at once — the service imposes no limit of its own — so requests sit in Ollama's queue before decoding starts | The gap between `model_latency_ms` and Ollama's own `total_duration` (converted from nanoseconds to milliseconds) grows through the run while `total_duration` itself stays flat | That gap stays flat as the arrival rate rises |
-| C | **The service's single uvicorn worker** (`UVICORN_WORKERS=1`, in `/health` and `metadata.json`) | One event loop; any blocking or CPU work in the handler (JSON, SQLite, logging) delays every other request, so requests wait before the handler even starts | JMeter `elapsed` minus the service's `total_latency_ms` grows with load — time the request existed but was not being handled. `analysis/reconcile.py --latency-threshold-ms` is the check that surfaces this | That gap stays flat while `model_latency_ms` grows |
-| D | **SQLite writes** (new connection per request, no WAL, no pooling) | Connection setup plus a durable insert per request, serialised by the database write lock, adds a growing non-model component to every POST | `total_latency_ms − model_latency_ms` grows as stored rows accumulate or as concurrency rises | That remainder stays small and flat all run long |
-| E | **The `LIKE` scan in `GET /search`** (full-table scan, no index, no FTS) | Scan cost grows linearly with the number of stored tickets, so `/search` degrades as the run proceeds, independently of the model | In `mixed_load`, `total_latency_ms` on `/search` log lines rises over the run while the row count (from `GET /stats`) grows | `/search` latency stays flat while stored rows grow |
-| F | **The load generator itself** (the JMeter host) | JMeter cannot maintain the scheduled open-model arrival rate — CPU, heap, GC — so part of the "latency" we measure is generator delay, not service delay | Achieved throughput below the configured `rate_per_min` while the service shows no errors; warnings in `jmeter.log`; JMeter's `Latency` / `Connect` columns; load-generator CPU in `docs/environment/` | Achieved arrival rate matches the configured schedule within run-to-run spread |
-| G | **The network between load generator and service** (they are on separate machines, as the brief requires) | Per-request round-trip time or bandwidth adds a roughly constant amount to every sample | A consistent offset between JMeter `elapsed` and service `total_latency_ms` that does **not** grow with load, plus a non-trivial `Connect` time | The offset grows with load — that is queueing somewhere, not the network |
+| Model | Predicted service time S at the median prompt | Predicted saturation rate ≈ 60 / S | First tested rate at which the queue grows without bound |
+|---|---|---|---|
+| `llama3.2:1b` | ⟪HW⟫ | ⟪HW⟫ | ⟪HW⟫ |
+| `llama3.2:3b` | ⟪HW⟫ | ⟪HW⟫ | ⟪HW⟫ |
+| `granite4:3b` | ⟪HW⟫ | ⟪HW⟫ | ⟪HW⟫ |
+| `qwen2.5:7b` | ⟪HW⟫ | ⟪HW⟫ | ⟪HW⟫ |
 
-### 1.1 The team's prediction
+**Where the wait will show up in our own analysis — a deliberate, checkable claim.** Ollama starts its
+`total_duration` clock *before* a request waits for the slot, and only `load_duration`, `prompt_eval_duration`
+and `eval_duration` are broken out. So we predict the queueing time will appear in
+`analysis/bottleneck_hints.py`'s **`ollama_other_ms`** component (`total_duration` minus load, prompt-eval and
+eval), **not** in its `queue_residual_ms` component (`model_latency_ms − total_duration/1e6`), where that
+script's own docstring expects to find it.
 
-`TODO(Whole team): name the ONE component you expect to bind first. Use the letter and the name from the`
-`table above (or name a component not on the list and say why it is not there).`
+**Observation that would confirm it** (for any configuration whose arrival rate is above that model's
+saturation rate, and most clearly for `qwen2.5:7b` at 12/min and the upper steps of the stress ramp):
 
-`TODO(Whole team): write the mechanism in your own words — what saturates, what queues behind it, and at`
-`roughly what point in the workload from ../workload/requirements.md you expect it to start binding.`
-`"Ollama is slow" is not a mechanism.`
+* mean `ollama_other_ms` rises from under 100 ms at 1/min to more than 10 s, and accounts for at least 80% of
+  the increase in mean `total_latency_ms` over the 1/min runs of the same model;
+* the work per request does not change: the median of `(prompt_eval_duration + eval_duration)/1e6` stays
+  within ±25% of the same model's 1/min median;
+* `queue_residual_ms` and `service_overhead_ms` (`total_latency_ms − model_latency_ms`) each stay below
+  100 ms at the median, at every rate;
+* JMeter `elapsed` minus the service's `total_latency_ms` (joined on `request_id` by
+  `analysis/reconcile.py`) stays below 100 ms at the median — the time is spent inside the service host, not
+  on the network or in the load generator;
+* `prompt_eval_duration` exceeds `eval_duration` for the median request of every model, so prefill rather
+  than decoding sets S. (`bottleneck_hints.py` says decoding "is usually the largest term" on CPU; for this
+  workload we predict the opposite.)
 
-`TODO(Whole team): state the observation that would CONFIRM it, naming the exact field(s) — a key from`
-`../service/log_schema.py, a column from the .jtl, or a value from metadata.json.`
+**Observation that would refute it:**
 
-`TODO(Whole team): state the observation that would REFUTE it. If you cannot name one, the prediction is`
-`not specific enough to earn marks — rewrite it until you can.`
+* the per-request work grows with load — median `prompt_eval_duration` at 12/min more than 50% above its
+  1/min median for the same model. That would mean requests are being evaluated concurrently and competing
+  for cores (Ollama chose more than one parallel slot, or the service host is contended), which is
+  mechanism A (CPU saturation) rather than a queue in front of one slot; or
+* the growing wait appears in `queue_residual_ms` or `service_overhead_ms` instead of `ollama_other_ms`
+  (the wait is outside Ollama: in the service's thread pool, its event loop, or connection set-up); or
+* `qwen2.5:7b` holds a flat p95 through 12/min and through the stress ramp's 21/min step — S is much smaller
+  than we think, and our CPU throughput assumptions (Section 2) are wrong.
 
-`TODO(Whole team): name the second most likely location and say why you ranked it below the first. If the`
-`primary prediction turns out wrong, Slide 11 is much stronger if we recorded the runner-up here.`
+**Runner-up: A — the CPU-bound evaluation itself.** With one slot, A and B are two faces of one constraint:
+A sets the capacity (60/S per minute) and B is where the backlog accumulates. We rank B first because B is
+where the latency growth that the requirements measure will be recorded. If Ollama turns out to run
+several requests at once, the same overload would show up as A instead: per-request `prompt_eval_duration`
+stretching with concurrency.
 
-`TODO(Whole team): if you expect the bottleneck to MOVE between models or between plans (load_post_tickets,`
-`mixed_load, stress_ramp), say where and under which plan. A prediction that holds for every configuration`
-`is usually a prediction that says nothing.`
+**Does it move between models or plans?**
+
+* **Between models:** no. The same component binds for all four; only the rate at which it binds changes,
+  in proportion to S (table above).
+* **`mixed_load` (1 ticket/min + 1 search/min):** nothing saturates. `GET /search` never calls the model, and
+  the store holds at most about 10–15 tickets, so the `LIKE` scan (component E) is not a bottleneck: we
+  predict `/search` p95 below 100 ms for every model, and no upward trend in `/search` `total_latency_ms`
+  across the run.
+* **`stress_ramp`, above saturation:** once a request's wait for the slot passes `OLLAMA_TIMEOUT_S` = 120 s,
+  the service returns HTTP 502 with `error` = `ollama_timeout`. JMeter's own response timeout (180 s) is
+  longer, so the first errors are the service's 502s, not load-generator timeouts. The service's thread pool
+  (40) and Ollama's queue limit (512) are never the binding limits, because the 120 s timeout fires first.
 
 ---
 
 ## Section 2 — Per-candidate-model predictions
 
-The brief asks, *"For each candidate model: expected classification accuracy on your golden set, and
-expected single-request latency on your hardware."* One row per candidate model, three to five rows in
-total (the brief's limits). Every cell is a team decision.
+**How the latency figures were derived** (so that a wrong figure can be traced to a wrong assumption).
+Single request, warm (model resident, `load_duration` under 50 ms), measured as the service's
+`total_latency_ms` and as JMeter `elapsed`. Latency ≈ prompt tokens ÷ prefill rate + reply tokens ÷ decode
+rate + about 30 ms of HTTP, JSON and SQLite. We assume a median prompt of ~330 tokens (p95 ~560), a reply of
+~5 tokens, and these CPU rates on the service host — prefill bound by compute, decode by memory bandwidth:
 
-**Model column.** The rows below are pre-filled from `../models/models.yaml` as that file stood when this
-template was generated: `llama3.2:1b`, `llama3.2:3b`, `granite4:3b` and `qwen2.5:7b`, smallest first. That
-file described itself as a **proposal** — the shortlist was still awaiting confirmation and every `pinned:`
-digest was still `null` — so **check every tag against `../models/models.yaml` before you sign this
-document**. If a candidate has been dropped, or a named substitute promoted in its place, correct the row
-here; the brief allows three to five candidates, so add or delete rows as the final shortlist requires.
+| Model | Weights (quantisation, size) | Assumed prefill rate (tokens/s) | Assumed decode rate (tokens/s) |
+|---|---|---|---|
+| `llama3.2:1b` | 1.24B, Q8_0, 1.3 GB | ⟪HW⟫ | ⟪HW⟫ |
+| `llama3.2:3b` | 3.21B, Q4_K_M, 2.0 GB | ⟪HW⟫ | ⟪HW⟫ |
+| `granite4:3b` | 3.4B, Q4_K_M, 2.1 GB | ⟪HW⟫ | ⟪HW⟫ |
+| `qwen2.5:7b` | 7.62B, Q4_K_M, 4.7 GB | ⟪HW⟫ | ⟪HW⟫ |
 
-The tag must match `../models/models.yaml` **character for character**: the same string goes into
-`MODEL_TAG`, into the run directory names under `results/`, and into each `metadata.json`. If the tag here
-differs even in punctuation, the prediction cannot be joined to the measurement on Slide 11.
+The measured rates are `prompt_eval_count / prompt_eval_duration` and `eval_count / eval_duration`, which
+`analysis/bottleneck_hints.py` reports per run.
 
-| Model (exact Ollama tag) | Expected overall accuracy (%) | Expected hardest category | Expected single-request latency (p50, ms) | Expected p95 at the modelled peak rate | Confidence (low/med/high) | Reasoning |
+| Model (exact Ollama tag) | Expected overall accuracy (%) | Expected hardest category | Expected single-request latency (p50, ms, warm) | Expected p95 at the lowest tested rate, 1/min (R1's condition) | Confidence | Reasoning |
 |---|---|---|---|---|---|---|
-| `llama3.2:1b` | `TODO(Whole team)` | `TODO(Whole team)` | `TODO(Whole team)` | `TODO(Whole team)` | `TODO(Whole team)` | `TODO(Whole team)` |
-| `llama3.2:3b` | `TODO(Whole team)` | `TODO(Whole team)` | `TODO(Whole team)` | `TODO(Whole team)` | `TODO(Whole team)` | `TODO(Whole team)` |
-| `granite4:3b` | `TODO(Whole team)` | `TODO(Whole team)` | `TODO(Whole team)` | `TODO(Whole team)` | `TODO(Whole team)` | `TODO(Whole team)` |
-| `qwen2.5:7b` | `TODO(Whole team)` | `TODO(Whole team)` | `TODO(Whole team)` | `TODO(Whole team)` | `TODO(Whole team)` | `TODO(Whole team)` |
-| `TODO(Whole team)`: a fifth candidate, only if one is promoted — otherwise delete this row | `TODO(Whole team)` | `TODO(Whole team)` | `TODO(Whole team)` | `TODO(Whole team)` | `TODO(Whole team)` | `TODO(Whole team)` |
+| `llama3.2:1b` | **38** (accept 33–43) — **not blind, see §0** | Debt collection and Money transfer or service, both near 0% — **not blind** | ⟪HW⟫ | ⟪HW⟫ | latency: med; accuracy: n/a (not blind) | Smallest model; with only category names in the prompt it falls back on the two broadest categories. Q8_0 makes it heavier per parameter than the others, which narrows its speed advantage. |
+| `llama3.2:3b` | **55** (accept 49–61) | Money transfer or service | ⟪HW⟫ | ⟪HW⟫ | accuracy: low; latency: med | Follows the one-line instruction reliably, but with no definitions it over-uses Credit reporting (listed first, mentioned in many complaints) and Bank account or service; the last-listed category, Money transfer or service, is under-predicted. The error direction may be coloured by §0, item 4. |
+| `granite4:3b` | **60** (accept 54–66) | Credit card | ⟪HW⟫ | ⟪HW⟫ | accuracy: low; latency: med | Same size class as `llama3.2:3b` but newer and tuned for instruction following, so slightly fewer broad-category fall-backs. Its hardest category is decided by our protocol, not the model: rule R4 puts prepaid and gift cards and PayPal Credit under Credit card, which no model told only the category names will guess. |
+| `qwen2.5:7b` | **70** (accept 64–76) | Credit card | ⟪HW⟫ | ⟪HW⟫ | accuracy: med; latency: med | More than twice the parameters of the 3B class, so the clear-cut tickets (Mortgage, Debt collection, credit-file disputes) are nearly all right. What remains are the boundaries our protocol drew (R4, R6, R2) that are not visible from category names. About 2.3× the 3B models' latency, because prefill cost scales with parameter count. |
 
-### How to fill the cells so they can be checked later
+**Rows we would call wrong:** any measured overall accuracy outside its accepted band; a different hardest
+category (lowest per-category accuracy in `analysis/output/accuracy/`); a measured warm p50 more than 30%
+away from the predicted figure; a measured p95 at 1/min above the predicted figure.
 
-* **Expected overall accuracy (%)** — against `../golden/golden_set.csv` only. Not against the raw
-  `raw_label` column in `../data/team_rows.csv`: those labels are noisy, which is the whole reason the
-  golden set exists.
-* **Expected hardest category** — one of the seven canonical names, spelled exactly as in
-  `../service/categories.py`. This is the per-model version of Section 3; the two must not contradict each
-  other.
-* **Expected single-request latency (p50, ms)** — one request at a time, no competing load, on the service
-  host described in `../docs/environment/`. This is the figure a warm, unloaded `POST /tickets` produces;
-  say whether you mean it warm (the model already resident, `load_duration` small) or cold, because the two
-  differ and only one of them is what we will measure.
-* **Expected p95 at the modelled peak rate** — a p95 with no load condition attached is untestable. Name
-  the arrival rate you are predicting against and where it comes from, e.g. "at the peak arrival rate
-  stated in `../workload/requirements.md`, section `TODO(Part 4 — Teammate C): section reference`".
-* **Confidence** — `low`, `med` or `high`. Low confidence is respectable and useful; it is the entries
-  marked `high` that later turn out wrong which make the best Slide 11 material.
-* **Reasoning** — one clause is enough, but it must be a *reason*: parameter count, quantisation, CPU
-  tokens per second, prompt length at `NUM_CTX`, the model's instruction-following behaviour on short
-  answers. "It is bigger" is not a reason; "it is bigger, so decoding the same reply costs more CPU
-  seconds" is.
+**Requirement-level predictions** (against `../workload/requirements.md`):
 
-### Ranges are allowed. Wide ranges are not.
-
-A range is acceptable, but it must be narrow enough to be **wrong**. The test is not the width in the
-abstract: it is whether you can name, in advance, an outcome that falls outside it.
-
-*Unacceptably vague — earns nothing (no real figures are used here; N and M stand for whatever you might
-write):*
-
-> "Accuracy will be between N% and M%", where the band is so wide that every candidate we might plausibly
-> pick falls inside it.
-> "p50 latency will be under M ms", with M set so high that failing is inconceivable.
-> "The larger model will be slower and more accurate." — true of almost any pair of models, so it cannot fail.
-
-*Acceptably specific — can be shown wrong:*
-
-> "Accuracy N% (we would accept N% to M%, a band of a few points); hardest category `<canonical name>`;
-> p50 latency N ms warm and single-request on the service host in `../docs/environment/`; p95 no worse than
-> M ms at the peak arrival rate in `../workload/requirements.md`. We would call this row wrong if the
-> measured overall accuracy fell outside N–M%, or if the measured p95 exceeded M ms at that rate."
-
-Apply the test to every row before signing: **name the result that would make this row wrong.** If there is
-no such result, the row is not finished.
+| Requirement | Prediction | Would be wrong if |
+|---|---|---|
+| R1 — `POST /tickets` p95 ≤ 10 s at 1/min | ⟪HW⟫ | ⟪HW⟫ |
+| R2 — ≤ 5% errors and no backlog at 12/min | ⟪HW⟫ | ⟪HW⟫ |
+| R3 — overall accuracy ≥ 90% | **No candidate meets it.** The best, `qwen2.5:7b`, reaches about 70%. Our own two labellers agreed with each other on only 66% of tickets before resolution (κ = 0.599), and a model given no category definitions cannot learn the boundaries our protocol drew. | any candidate reaches 90% |
+| R4 — every category ≥ 80% | **No candidate meets it.** Mortgage clears 80% for `qwen2.5:7b`, `granite4:3b` and `llama3.2:3b`; Credit card and Bank account or service fail for every model. | any candidate has all seven categories at 80% or more |
+| R5 — `GET /search` p95 ≤ 2 s under `mixed_load` | **Every candidate meets it**, with `/search` p95 below 100 ms in every run. | any run's `/search` p95 is above 2 s, or above 100 ms |
 
 ---
 
 ## Section 3 — Which categories we expect to be hardest, and why
 
-The brief asks for *"Which categories you expect to be hardest to classify, and why."* The seven canonical
-categories, in the canonical order used for every confusion-matrix axis (source of truth:
-`../service/categories.py`):
+Canonical order (the confusion-matrix axis, from `../service/categories.py`): 1 Credit reporting, 2 Debt
+collection, 3 Mortgage, 4 Credit card, 5 Bank account or service, 6 Consumer loan, 7 Money transfer or
+service. Golden-set counts: 41, 23, 27, 27, 40, 23, 19.
 
-1. Credit reporting
-2. Debt collection
-3. Mortgage
-4. Credit card
-5. Bank account or service
-6. Consumer loan
-7. Money transfer or service
+**Hardest first, with the direction of the error.** Per-category accuracy here is recall: the share of tickets
+with that golden label that the model labels correctly.
 
-`TODO(Whole team): list the categories you expect to be hardest, hardest first, and for each one give the`
-`mechanism — is it a confusable pair, a thin slice of the data, or a genuine overlap in the definitions?`
+1. **Credit card** — tickets whose true label is Credit card will most often be predicted as **Bank account or
+   service** (prepaid and gift cards, which R4 assigns to Credit card), and secondly as **Credit reporting**
+   (card complaints about late-payment reporting, which the resolutions kept under Credit card in all
+   5 Credit card ↔ Credit reporting disagreements). Mechanism: an *overlap in definitions* that our protocol
+   resolved in a way the category name does not reveal.
+2. **Bank account or service** — true Bank account tickets will most often be predicted as **Money transfer or
+   service**. R6 puts account freezes, closures and unauthorised transactions on a deposit account under
+   Bank account, and 11 of the 13 Bank account ↔ Money transfer disagreements between our labellers were
+   resolved to Bank account. A model sees "Zelle", "transfer" or "wire" and answers Money transfer.
+   Second direction: → **Credit reporting** (12 Bank account ↔ Credit reporting disagreements, 10 resolved to
+   Credit reporting under R3, so the boundary is genuinely blurred).
+3. **Money transfer or service** — the smallest class (19). Its true tickets will be predicted as **Bank
+   account or service** when the narrative is about the customer's bank rather than the transfer. Lower
+   per-category accuracy than the larger classes partly because every miss costs 5 percentage points.
+4. **Debt collection** — true Debt collection predicted as **Credit reporting** when the collector's conduct
+   includes reporting the debt (R2 / E7 put those under Debt collection; a model sees "credit report").
 
-`TODO(Whole team): predict the DIRECTION of the error, not just the category. "Category X will be hard" is`
-`a weak prediction; "tickets whose true label is X will most often be predicted as Y, because ..." is a`
-`prediction a confusion matrix can refute. Use the canonical spellings above so it lines up with the`
-`matrix produced for Slide 10.`
+**Easiest:** Mortgage (distinctive vocabulary: mortgage, escrow, servicer, foreclosure, loan modification),
+then Credit reporting. **Credit reporting will have the highest *false-positive* count of any category for
+every model** — more tickets predicted as Credit reporting than the 41 that are — because so many complaints
+of every product mention a credit report or credit score.
 
-`TODO(Whole team): predict where UNPARSEABLE replies will land. Which category's tickets do you expect to`
-`produce the most unmappable model output, and why? The normaliser rules are listed in the module`
-`docstring of ../service/categories.py — we do no semantic remapping, so a model that answers with a`
-`category name we do not use scores as wrong, and that is deliberate.`
+**Where `UNPARSEABLE` will land.** Most replies will be a single category name. The normaliser maps a reply
+that contains two category names to `UNPARSEABLE` (rule 6), so the few unparseable replies will come from
+tickets on the **Credit reporting ↔ Debt collection** boundary, where a model hedges with both names.
+Predicted counts out of 200: `qwen2.5:7b` 0–1, `granite4:3b` 0–3, `llama3.2:3b` 0–3, `llama3.2:1b` 1–5 (not
+blind). A count above 5 for any 3B-or-larger model would make this entry wrong.
 
-### Tie it to what the labelling work already showed us
+**Tie to the labelling evidence.** The three hardest categories for models are the three with the lowest
+human one-vs-rest agreement in `../labelling/agreement_report.txt`: Bank account or service κ = 0.448, Credit
+reporting 0.523, Credit card 0.542 (Credit reporting is hard for humans in the *other* direction — it is
+where disagreements were resolved *to*). The protocol revisions that resolved them — R3 (16 disagreements),
+R2 (7), R4 (6), R6 (3) — are exactly the boundaries a model cannot see, because the prompt
+(`../service/prompt.py`) lists the category names and nothing else. Worked examples on Slide 6 come from
+`../labelling/resolutions.md`.
 
-Parts 2 and 3 have just labelled the golden set independently, so we already have hard evidence about which
-categories humans confuse — and human confusion is the best prior we have for model confusion. Do not
-predict in the abstract when we have this:
-
-* `../labelling/protocol.md` — the category definitions and the edge-case rules, **including the revisions**.
-  A rule that had to be added mid-labelling marks a real ambiguity.
-* `../labelling/resolutions.csv` — every disagreement and how it was resolved. Which pairs of categories
-  turn up repeatedly?
-* `../labelling/labeller_A.csv` and `../labelling/labeller_B.csv` — the independent label sheets.
-* The inter-annotator agreement statistic produced by `python labelling/scripts/agreement.py` into
-  `../labelling/`.
-
-`TODO(Part 2 — Teammate A) and TODO(Part 3 — Teammate B): name the specific edge cases and resolutions`
-`that support the team's prediction above — cite the protocol rule or the resolution row, not a general`
-`impression. This is also the material Slide 6 needs, so write it once and use it twice.`
-
-### Tie it to the per-category accuracy requirement
-
-The brief requires *"A classification accuracy requirement, overall and per category"*. That per-category
-floor lives in `../workload/requirements.md`.
-
-`TODO(Whole team): for each category you have named as hard, say whether you expect it to meet the`
-`per-category accuracy requirement in ../workload/requirements.md, for which candidate models, and at`
-`what cost to the client if it does not (a misrouted ticket is staff time). Slide 11 must state plainly`
-`any requirement that no candidate meets, so predicting it here — before measuring — is worth real marks.`
+**Against the per-category requirement (R4, ≥ 80% each).** We expect Credit card and Bank account or service
+to fail R4 for every model, and Money transfer or service to fail it for every model except possibly
+`qwen2.5:7b`. Cost to the client: at the modelled ~1,496 tickets a year, Credit card and Bank account
+together are about 34% of tickets (67 of 200 in the golden set). Misrouting a third of those sends roughly
+170 tickets a year to the wrong team, each needing a second hand-off.
 
 ---
 
 ## Sign-off
 
-Every member signs. The fourth column is the important one: **where you did not agree with the entry the
-team wrote above, record what you personally would have predicted instead.** A team-average prediction
-hides the disagreement, and the disagreement is the interesting part — "three of us predicted the
-bottleneck at B and two at C, and the measurement showed ..." is a far better Slide 11 than a single
-consensus line. Leaving this column empty because the team agreed on everything is possible but unusual;
-if that is genuinely the case, write "agreed with the team entry" rather than leaving it blank, so the
-marker can see it was considered.
+Each member's response to the circulated draft, recorded as given. The last column is where a member's own
+prediction differed from the team entry.
 
-| Member | Part | Date signed (YYYY-MM-DD) | Where I disagreed with the team entry, and what I would have predicted instead |
+| Member | Part | Date | Response to the draft, and where they would have predicted differently |
 |---|---|---|---|
-| Yeo Kai Yuan | Part 1 — service, instrumentation, benchmark harness | `TODO(Yeo Kai Yuan): date` | `TODO(Yeo Kai Yuan): your own prediction where it differed, or "agreed with the team entry"` |
-| Teammate A `TODO(Yeo Kai Yuan): replace with real name` | Part 2 — labelling protocol, independent labelling | `TODO(Part 2 — Teammate A): date` | `TODO(Part 2 — Teammate A): your own prediction where it differed, or "agreed with the team entry"` |
-| Teammate B `TODO(Yeo Kai Yuan): replace with real name` | Part 3 — independent labelling, agreement, accuracy results | `TODO(Part 3 — Teammate B): date` | `TODO(Part 3 — Teammate B): your own prediction where it differed, or "agreed with the team entry"` |
-| Teammate C `TODO(Yeo Kai Yuan): replace with real name` | Part 4 — workload model and requirements | `TODO(Part 4 — Teammate C): date` | `TODO(Part 4 — Teammate C): your own prediction where it differed, or "agreed with the team entry"` |
-| Teammate D `TODO(Yeo Kai Yuan): replace with real name` | Part 5 — test environment, playbooks, references | `TODO(Part 5 — Teammate D): date` | `TODO(Part 5 — Teammate D): your own prediction where it differed, or "agreed with the team entry"` |
-
----
-
-## How to freeze
-
-Run these from the repository root, in this order. They are the same commands as README section 9; if the
-two ever disagree, `scripts/freeze_gate.py` is the authority, because it is the thing the benchmark scripts
-actually consult.
-
-```bash
-# 0. Sanity check: the gate must currently FAIL. Expect "ok": false and exit code 3.
-#    It tells you on stderr exactly which condition is not yet met.
-python scripts/freeze_gate.py --json || echo "not frozen yet — as expected at this point"
-
-# 1. Both files go in ONE commit: the golden set and this prediction record.
-#    Nothing else belongs in this commit; it is the commit the marker will look at.
-git add golden/golden_set.csv predictions/prediction_record.md
-git commit -m "Freeze golden test set and prediction record before first benchmark run"
-
-# 2. Tag that commit. The tag name is fixed — the gate looks for exactly "golden-freeze".
-git tag -a golden-freeze -m "Golden set and prediction record frozen (Assignment 1, Step 4)"
-
-# 3. Prove the freeze. Exit code 0 and "ok": true is the green light for Step 5.
-python scripts/freeze_gate.py --json
-
-# 4. Prove both files are in the tagged tree, not merely in the working directory.
-git cat-file -e golden-freeze:predictions/prediction_record.md && echo "prediction record is in the tagged tree"
-git cat-file -e golden-freeze:golden/golden_set.csv && echo "golden set is in the tagged tree"
-
-# 5. Push the commit and the tag, so the dated history is visible to the marker.
-git push --follow-tags
-```
-
-**After the tag exists, this file is closed.** Do not amend the commit, do not move the tag, and do not
-rewrite an entry — all three destroy the only evidence we have that the predictions predate the
-measurements. If something genuinely must be corrected (a tag copied wrongly from
-`../models/models.yaml`, say), leave the original text exactly as it stands, add a new dated appendix
-section below this footer in a **new** commit saying what was wrong and what it should have read, and treat
-the tagged version as the prediction of record when writing Slide 11.
+| Yeo Kai Yuan | Part 1 — service, instrumentation, benchmark harness | 2026-10-08 | Drafted the record (with an AI assistant, see §0). |
+| Loh Wen Xuan | Part 2 — labelling protocol, labeller A | ⟪SIGN⟫ | ⟪SIGN⟫ |
+| Jolie Ngai Ning Li | Part 3 — labeller B, accuracy results | ⟪SIGN⟫ | ⟪SIGN⟫ |
+| Toh Si Pei | Part 4 — workload model and requirements | ⟪SIGN⟫ | ⟪SIGN⟫ |
+| Koh Tong Wei | Part 5 — test environment, playbooks, references | ⟪SIGN⟫ | ⟪SIGN⟫ |

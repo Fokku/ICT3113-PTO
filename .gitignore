@@ -15,7 +15,9 @@ ict3113_tickets.csv
 # Python
 .venv/
 venv/
+.venv-wsl/
 __pycache__/
+*.pyc
 *.py[cod]
 *.egg-info/
 .pytest_cache/

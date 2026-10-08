@@ -1,0 +1,89 @@
+============================================================================
+ICT3113 Assignment 1 (Team 10) -- test environment capture
+============================================================================
+Host                    : tw
+Declared role           : ollama
+Captured at (UTC)       : 2026-10-02T18:35:55Z
+Captured by             : scripts/capture_env.sh
+
+This file is generated evidence for Slide 7 (Test Environment) and for the
+service_host_info / load_generator_host_info fields of every run's
+metadata.json. It is regenerated in place, so do NOT hand-edit it: record
+the narrative (network between the machines, anything that could make the
+measurements unrepresentative, how results scale to the client) in the Part 5
+test-environment playbook and cite this file from there.
+
+-- 1. Operating system -----------------------------------------------------
+uname -s                : Linux
+uname -r (kernel)       : 5.15.167.4-microsoft-standard-WSL2
+uname -m (arch)         : x86_64
+Distribution            : Ubuntu 24.04.1 LTS
+libc                    : glibc 2.39
+
+-- 2. CPU ------------------------------------------------------------------
+Model name              : Intel(R) Core(TM) Ultra 7 155H
+Vendor                  : GenuineIntel
+Architecture            : x86_64
+Sockets                 : 1
+Cores per socket        : 11
+Threads per core        : 2
+Logical CPUs            : 22
+CPU max MHz             : unknown
+L3 cache                : 24 MiB (1 instance)
+Virtualisation          : Microsoft
+Vector extensions       : avx avx2 avx_vnni f16c fma 
+nproc (online CPUs)     : 22
+/proc/cpuinfo model     : Intel(R) Core(TM) Ultra 7 155H
+
+-- 3. Memory and storage ---------------------------------------------------
+Total RAM               : 15.3 GiB (16052156 kB)
+Total swap              : 4.0 GiB (4194304 kB)
+Repo filesystem         : 952G total, 570G free on C:\ (/mnt/c)
+
+-- 4. Software versions ----------------------------------------------------
+python3                 : Python 3.12.3
+repo .venv python       : not present on this machine
+docker                  : Docker version 29.5.3, build d1c06ef
+docker server           : 29.5.3
+docker compose          : Docker Compose version v5.1.4
+curl                    : curl 8.5.0 (x86_64-pc-linux-gnu) libcurl/8.5.0 OpenSSL/3.0.13 zlib/1.3 brotli/1.1.0 zstd/1.5.5 libidn2/2.3.7 libpsl/0.21.2 (+libidn2/2.3.7) libssh/0.10.6/openssl/zlib nghttp2/1.59.0 librtmp/2.3 OpenLDAP/2.6.7
+git                     : git version 2.43.0
+
+-- 5. Model backend (Ollama) -----------------------------------------------
+ollama CLI              : not installed (normal on a machine that only runs the container)
+OLLAMA_BASE_URL         : http://localhost:11434
+ollama /api/version     : {"version":"0.35.0"}
+OLLAMA_NUM_PARALLEL     : unset (Ollama default)
+OLLAMA_MAX_LOADED_MODELS: unset (Ollama default)
+OLLAMA_NUM_THREADS      : unset (Ollama default)
+OLLAMA_KEEP_ALIVE       : unset (Ollama default)
+Note: the candidate model tags and digests are pinned in models/models.yaml
+and are recorded again in every run's metadata.json; they are not captured
+here, because this file describes the machine and not the experiment.
+
+-- 6. Load generator (JMeter) ----------------------------------------------
+jmeter binary           : not installed
+jmeter version          : not installed
+java                    : scripts/capture_env.sh: line 372: java: command not found
+not installed
+JMETER_HOME             : unset
+
+-- 7. Network ---------------------------------------------------------------
+IPv4 address            : 10.255.255.254/32 on lo
+IPv4 address            : 172.31.32.112/20 on eth0
+
+TODO(Part 5 -- Teammate D): describe the network between the machines
+  (link speed, switch or Wi-Fi, same subnet or not, anything shared with
+  other traffic) and anything that could make these measurements
+  unrepresentative of the client's deployment. Put it in the Part 5
+  test-environment section and cite this file. Do not write it here: this
+  file is regenerated.
+
+-- 8. Repository state -----------------------------------------------------
+Repository path         : /mnt/c/SIT/Y3T1/ICT 3113 Performance Testing and Optimisation/ICT3113-PTO
+Commit                  : e80d3f9f1b1b5cb4e1bfb98b35cc6f3dbb157f94
+Branch                  : main
+Working tree            : DIRTY (uncommitted changes at capture time)
+golden-freeze tag       : not created yet
+
+-- end of capture ----------------------------------------------------------

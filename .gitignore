@@ -44,3 +44,7 @@ jmeter.log
 *.tmp
 *.bak
 scratch/
+
+# Deck builder dependencies (slides/package.json)
+node_modules/
+.playwright-mcp/

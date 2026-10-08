@@ -38,7 +38,7 @@ from service.prompt import PROMPT_HASH
 # Keep the three in step: a default that exists only here is invisible.
 # ---------------------------------------------------------------------------
 DEFAULT_OLLAMA_BASE_URL = "http://ollama:11434"
-DEFAULT_MODEL_TAG = "llama3.2:1b"
+DEFAULT_MODEL_TAG = "llama3.2:1b-instruct-q4_K_M"
 DEFAULT_NUM_CTX = 4096
 DEFAULT_OLLAMA_TIMEOUT_S = 120.0
 DEFAULT_OLLAMA_SEED = 42

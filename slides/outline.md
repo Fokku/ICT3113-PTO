@@ -8,7 +8,8 @@ generated artefacts supply the content, and what "done" looks like. Work slide b
 checklists are the marking scheme restated, so an unticked box is a lost mark.
 
 **Owner:** Part 1 — Yeo Kai Yuan assembles the deck and owns Slides 1, 2, 5 and 9. Every other slide has a
-named owner below, and the owner — not the assembler — writes the content.
+named owner below, and the owner — not the assembler — writes the content. The team: Part 1 — Yeo Kai Yuan;
+Part 2 — Loh Wen Xuan; Part 3 — Jolie Ngai Ning Li; Part 4 — Toh Si Pei; Part 5 — Koh Tong Wei.
 
 **Done when.** Every checkbox below is ticked against the actual deck; every number on every slide names the
 file it came from (see *Traceability rule* at the end); the deck is exactly twelve slides or fewer; and the
@@ -39,11 +40,11 @@ from the repository root with the project virtual environment active.
 
 | Supporting file required by the brief | What we submit | Owner |
 |---|---|---|
-| The golden test set — final labels, identified by row number | `golden/golden_set.csv` (keeps the `row_number` column, so each label is traceable to the course CSV row) | Parts 2 and 3 — Teammates A and B |
+| The golden test set — final labels, identified by row number | `golden/golden_set.csv` (keeps the `row_number` column, so each label is traceable to the course CSV row). Committed: 200 rows | Part 2 — Loh Wen Xuan built it, from disagreements resolved with Part 3 — Jolie Ngai Ning Li |
 | The prediction record — the three items listed in Step 4 | `predictions/prediction_record.md`, **as frozen at the `golden-freeze` tag** (`git show golden-freeze:predictions/prediction_record.md`) | Part 4 — Toh Si Pei holds the pen; whole team signs |
 | The labelling protocol **with its revisions** | `labelling/protocol.md` (the revision history is part of the document) | Part 2 — Loh Wen Xuan |
-| The independent label sheets | `labelling/labeller_A.csv` and `labelling/labeller_B.csv` | Parts 2 and 3 — Teammates A and B |
-| The agreement statistic | The output written into `labelling/` by `python labelling/scripts/agreement.py --a labelling/labeller_A.csv --b labelling/labeller_B.csv` | Part 3 — Jolie Ngai Ning Li |
+| The independent label sheets | `labelling/labeller_A.csv` and `labelling/labeller_B.csv` | Sheet A: Part 2 — Loh Wen Xuan. Sheet B: Part 3 — Jolie Ngai Ning Li |
+| The agreement statistic | `labelling/agreement_report.txt`, the output of `python labelling/scripts/agreement.py --a labelling/labeller_A.csv --b labelling/labeller_B.csv` (committed in 5fa583d: Cohen's kappa 0.599, 68 disagreements, all resolved) | Part 2 — Loh Wen Xuan ran it |
 
 * **Repository evidence, not submitted but examined.** *"The golden test set and the prediction record must
   also be committed to your repository before your first benchmark run. The commit history is your evidence
@@ -62,7 +63,7 @@ from the repository root with the project virtual environment active.
 | 3 | Workload Model | Part 4 | Toh Si Pei |
 | 4 | Performance and Accuracy Requirements | Part 4 | Toh Si Pei |
 | 5 | Candidate Models | Part 1 | Yeo Kai Yuan |
-| 6 | Golden Test Set | Parts 2 and 3 | Teammates A and B |
+| 6 | Golden Test Set | Parts 2 and 3 | Loh Wen Xuan and Jolie Ngai Ning Li |
 | 7 | Test Environment | Part 5 | Koh Tong Wei |
 | 8 | Playbook (Testing Procedure) | Part 5 | Koh Tong Wei |
 | 9 | Load and Stress Test Results | Part 1 | Yeo Kai Yuan |
@@ -90,9 +91,10 @@ filename you assumed.
 **Sources:**
 
 * Group number: **10** (the registered team number that selects our dataset slice, rows 10000–10999).
-* `TODO(Yeo Kai Yuan): names and student IDs of all five members, spelled as registered on xSiTe.`
+* Names: Yeo Kai Yuan, Loh Wen Xuan, Jolie Ngai Ning Li, Toh Si Pei, Koh Tong Wei.
+  `TODO(Yeo Kai Yuan): the five student IDs, and a check that each name is spelled as registered on xSiTe.`
 * `TODO(Whole team): project title — concise and descriptive, naming the system, not the assignment.`
-* `TODO(Yeo Kai Yuan): the GitHub repository URL.`
+* Repository: <https://github.com/Fokku/ICT3113-PTO>.
 * `README.md` and `docker-compose.yml` (plus `.env.example`) are what make the "sufficient to rebuild and
   run it with docker compose" claim true — the link is only as good as those files.
 
@@ -123,7 +125,8 @@ starts with the `docker compose` command given in `README.md`.
 * The `service/` package: the FastAPI application and its endpoints, `service/prompt.py` (the one fixed
   prompt template and its `PROMPT_HASH`), `service/categories.py` (the seven categories and the reply
   normaliser), `service/log_schema.py` (the per-request log line).
-  `TODO(Part 1 — Yeo Kai Yuan): cite the exact module path of the FastAPI application — the module uvicorn is pointed at in docker-compose.yml.`
+  The FastAPI application is `service.main:app` (`service/main.py`) — the module uvicorn is pointed at by the
+  `CMD` in `Dockerfile`; `docker-compose.yml` does not override it.
 * `docker-compose.yml` — shows the two containers, the named volume holding the SQLite file (`DB_PATH`), and
   the bind mount for `logs/service/`, which is the "storage" and "instrumentation" of the diagram.
 * `.env.example` — the configuration actually in force: `MODEL_TAG`, `NUM_CTX`, `OLLAMA_TIMEOUT_S`,
@@ -160,8 +163,9 @@ rather than left to be inferred from the diagram.
 
 **Sources:**
 
-* `workload/requirements.md` — the workload model and the requirements it justifies.
-  `TODO(Part 4 — Toh Si Pei): if the workload model is a separate document from the requirements, name its path here.`
+* `workload/workload_model.md` — the workload model: volumes, search rate, peak versus non-peak, the length
+  distribution, and the "Sources" list that Slide 12 carries in full.
+* `workload/requirements.md` — the requirements the model justifies (Slide 4).
 * `workload/output/` — written by
   `python workload/scripts/ticket_length_stats.py --team-rows data/team_rows.csv --out-dir workload/output`.
   The ticket-length distribution is **measured from our own 1000 team rows**, so it is evidence rather than
@@ -200,7 +204,7 @@ conclusion is stated and justified rather than omitted.
   not restate it differently.
 * Slide 3's workload model — each requirement must point at the figure it derives from.
 * The analysis flags that consume these numbers, so that the deck and the scripts cannot drift apart:
-  `python analysis/stress_summary.py --p95-limit-ms <the requirement> --error-rate-limit <the requirement>`
+  `python analysis/stress_summary.py --p95-limit-ms 10000 --error-rate-limit 0.05` (R1's 10 s p95 and R2's 5%)
   and `python analysis/reconcile.py --latency-threshold-ms <the requirement>`. Whatever number appears on
   this slide is the number passed to those flags.
 * `golden/golden_set.csv` — the accuracy requirement is defined against this set, not against the noisy
@@ -256,8 +260,8 @@ popular.
 
 ## Slide 6 — Golden Test Set
 
-**Owner:** Parts 2 and 3 — Teammates A and B (Loh Wen Xuan: protocol and revisions; Jolie Ngai Ning Li: agreement
-statistic and resolutions).
+**Owner:** Parts 2 and 3 — Loh Wen Xuan and Jolie Ngai Ning Li (Loh Wen Xuan: protocol and revisions, sheet A,
+the agreement statistic and the golden set; Jolie Ngai Ning Li: sheet B; both: the resolutions).
 
 **The brief requires (verbatim):**
 
@@ -318,8 +322,9 @@ protocol revisions are summarised as what changed and why; and the freeze commit
 **Sources:**
 
 * `docs/environment/` — written by
-  `scripts/capture_env.sh --role all --out-dir docs/environment` (run it with `--role service`,
-  `--role ollama` and `--role loadgen` on the respective machines). Copy CPU, memory and OS onto the slide
+  `scripts/capture_env.sh --out-dir docs/environment`, run once on each machine with its role: `--role service`
+  on machine 1 (Yeo Kai Yuan's desktop, which also runs Ollama) and `--role loadgen` on machine 2 (the
+  load-generator laptop). Never `--role all`. Copy CPU, memory and OS onto the slide
   from these captured files rather than from memory.
 * `results/runs/<run>/metadata.json` — `service_host_info`, `load_generator_host_info`, `jmeter_version`,
   `ollama_num_parallel`, `ollama_max_loaded_models`: the per-run record that the environment on the slide is
@@ -402,8 +407,9 @@ run and the stress run from this slide plus `docs/playbooks/` with no further qu
 * `analysis/output/load/` — written by `python analysis/summarise_load.py --runs results/runs`: the
   per-configuration percentile, throughput and error-rate tables, with mean and spread across the three runs.
 * `analysis/output/stress/` — written by
-  `python analysis/stress_summary.py --run-dir results/runs/<stress run> --step-seconds <from docs/playbooks/stress-test.md>`:
-  the per-step table that identifies the limit.
+  `python analysis/stress_summary.py --run-dir results/runs/<stress run> --step-seconds 120 --offered-rates 1,5,9,13,17,21 --p95-limit-ms 10000 --error-rate-limit 0.05 --out-dir analysis/output/stress/<stress run>`:
+  the per-step table that identifies the limit. One ramp per candidate model (the team's decision, recorded in
+  `docs/playbooks/stress-test.md` section 4), so Slide 9 can compare where each model stops coping.
 * `analysis/output/bottleneck/` — written by
   `python analysis/bottleneck_hints.py --run-dir results/runs/<run>`: the decomposition of total latency into
   model time and the rest, which is the evidence behind the diagnosed bottleneck.
@@ -510,11 +516,12 @@ with the evidence; and no number on the slide fails the traceability rule below.
 - [ ] Slide 3 defers here: "Cite the source of every figure; state clearly which figures are estimates and how you estimated them (see Slide 12)." Every workload source cited in short form on Slide 3 appears here in full.
 - [ ] "The Consumer Complaint Database is published by a US government agency; acknowledge the source in your final document." The brief gives the original database as www.consumerfinance.gov/data-research/consumer-complaints/, and notes the narratives are "published with consumer consent and with personal information removed at source".
 - [ ] "Ollama and your candidate models each carry their own licences; place any acknowledgements they require in your final document. Failing to comply with a licence may be an infringement of copyright."
+- [ ] The line **"Built with Llama"**, because two candidates are Llama 3.2 models — the team decided to comply with the Llama 3.2 Community License's attribution clause (see `docs/references.md` section 8 and `NOTICE`). `granite4:3b` and `qwen2.5:7b` are Apache-2.0 and are attributed to the IBM Granite Team and the Qwen Team, Alibaba Cloud.
 
 **Sources:**
 
-* `docs/references.md` — the reference list the slide is built from.
-  `TODO(Part 5 — Koh Tong Wei): confirm this path if the references live in a different file.`
+* `docs/references.md` — the reference list the slide is built from, including the attribution each licence
+  requires (its section 8).
 * `docs/assignment-brief.md` — the Consumer Complaint Database attribution and URL as the brief states them.
 * `models/models.yaml` and `models/candidates.md` — the candidate tags, the licence recorded for each
   (`licence` and `licence_url`), and the citations behind every factual claim made about a model.

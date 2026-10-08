@@ -39,7 +39,7 @@ services:
     environment:
       # Model backend. Point this at an external host to run form (2) above.
       OLLAMA_BASE_URL: "${OLLAMA_BASE_URL:-http://ollama:11434}"
-      MODEL_TAG: "${MODEL_TAG:-llama3.2:1b}"
+      MODEL_TAG: "${MODEL_TAG:-llama3.2:1b-instruct-q4_K_M}"
       # Empty means "resolve the digest from /api/tags at start-up and log it".
       MODEL_DIGEST: "${MODEL_DIGEST:-}"
       # Set explicitly: see the rationale in .env.example. Logged per request.

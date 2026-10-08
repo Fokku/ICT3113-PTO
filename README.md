@@ -9,8 +9,23 @@
 (Part 4), Koh Tong Wei (Part 5).
 **Repository:** <https://github.com/Fokku/ICT3113-PTO>
 **Owner of this file and of the technical core:** Yeo Kai Yuan (Part 1).
-**Built with Llama.** Two of the four candidate models are Llama 3.2; see [`NOTICE`](NOTICE) and
-[`docs/references.md`](docs/references.md) for every model's licence.
+**Repository:** <https://github.com/Fokku/ICT3113-PTO>.
+
+| Part | Role label | Name | What they own |
+|---|---|---|---|
+| 1 | Technical core | Yeo Kai Yuan | the service, the scripts, the plans, the freeze gate, the candidate shortlist |
+| 2 | Teammate A | Loh Wen Xuan | golden-set lead and labeller A: `labelling/protocol.md`, the agreement run, the golden set |
+| 3 | Teammate B | Jolie Ngai Ning Li | labeller B, co-resolution of disagreements, accuracy results |
+| 4 | Teammate C | Toh Si Pei | workload model and requirements |
+| 5 | Teammate D | Koh Tong Wei | test environment, playbooks and the deck |
+
+`TODO(Yeo Kai Yuan): add the five student IDs, as registered on xSiTe.`
+
+**Licences and attribution.** Built with Llama. Two of our four candidate models, `llama3.2:1b-instruct-q4_K_M`
+and `llama3.2:3b`, are Meta Llama 3.2 models under the Llama 3.2 Community License; the required notice is in
+[`NOTICE`](NOTICE) at the repository root. The other two, `granite4:3b` and `qwen2.5:7b`, are under the
+Apache License 2.0. Every licence and its obligations are set out in
+[`docs/references.md`](docs/references.md) section 8.
 
 This README is written for a teammate opening a fresh clone who has never seen the repository. Follow it in
 order and you will not have to ask anyone a question. Every script and file it names exists, and every
@@ -102,7 +117,7 @@ normaliser.
 │   ├── environment/         one generated capture file per machine (Slide 7 evidence)
 │   ├── test-environment.md  the Slide 7 template: machines, network, biases, scaling argument
 │   └── references.md        pre-seeded reference list and licence obligations (Slide 12)
-├── golden/                  golden_set.csv, once Part 2 has built it. Empty until then
+├── golden/                  golden_set.csv: the 200-row golden set built by Part 2 from the resolved sheets
 ├── jmeter/                  the three open-loop plans, plus the pinned .jtl column set
 │   ├── load_post_tickets.jmx   steady state: POST /tickets at a fixed rate
 │   ├── mixed_load.jmx          interference: POST /tickets and GET /search concurrently
@@ -154,6 +169,7 @@ normaliser.
 ├── requirements.txt         service runtime only (installed in the image)
 ├── requirements-dev.txt     host tooling: pytest, pandas, matplotlib, PyYAML
 ├── TODO.md                  the team's working agreement and the internal deadlines
+├── NOTICE                   the Llama 3.2 Community License notice
 └── ict3113_tickets.csv      the full course CSV. GITIGNORED — place it here yourself
 ```
 
@@ -320,12 +336,12 @@ The client's hardware is *"commodity CPU servers with no GPUs"*, so ours must be
 [`docker-compose.yml`](docker-compose.yml), deliberately. **Do not add one** — a GPU measurement would not
 describe the client's deployment and the brief does not permit it.
 
-**Disk.** The four proposed candidates' download sizes, as displayed on ollama.com on 23 September 2026 and
-cited in [`models/candidates.md`](models/candidates.md), are:
+**Disk.** The four candidates' download sizes, as displayed on ollama.com (23 September 2026; 2 October 2026
+for the 1B build) and cited in [`models/candidates.md`](models/candidates.md), are:
 
-| Candidate | Default quantisation | Approximate download |
+| Candidate | Quantisation | Approximate download |
 |---|---|---|
-| `llama3.2:1b` | Q8_0 | 1.3 GB |
+| `llama3.2:1b-instruct-q4_K_M` | Q4_K_M | 808 MB |
 | `llama3.2:3b` | Q4_K_M | 2.0 GB |
 | `granite4:3b` | Q4_K_M | 2.1 GB |
 | `qwen2.5:7b` | Q4_K_M | 4.7 GB |
@@ -457,7 +473,7 @@ scripts/pull_and_pin_models.sh --ollama-url http://ollama:11434
 scripts/pull_and_pin_models.sh --transport api --ollama-url http://<ollama-host>:11434
 
 # One candidate only:
-scripts/pull_and_pin_models.sh --model llama3.2:1b
+scripts/pull_and_pin_models.sh --model llama3.2:1b-instruct-q4_K_M
 ```
 
 The script pulls each candidate listed in `models/models.yaml` and writes the **exact digest**, byte size,
@@ -746,9 +762,9 @@ configuration with complete evidence for the current freeze is skipped, and a pa
 
 ```bash
 export SERVICE_SSH=<user>@<machine-1> TARGET_HOST=<machine-1> JMETER_HOME=$HOME/tools/apache-jmeter-5.6.3
-STRESS_MODELS="llama3.2:1b llama3.2:3b granite4:3b qwen2.5:7b" scripts/run_campaign.sh
+STRESS_MODELS="llama3.2:1b-instruct-q4_K_M llama3.2:3b granite4:3b qwen2.5:7b" scripts/run_campaign.sh
 # rehearsal on synthetic tickets, no freeze needed, writes only under results/dev/:
-DURATION_S=45 RUNS=1 RATES=30 scripts/run_campaign.sh --dev --models llama3.2:1b
+DURATION_S=45 RUNS=1 RATES=30 scripts/run_campaign.sh --dev --models llama3.2:1b-instruct-q4_K_M
 ```
 
 The sections below are the same steps, one at a time.
@@ -820,6 +836,11 @@ scripts/run_load_test.sh \
     --runs 1 \
     --host <machine-1> --port 8000 --yes
 ```
+
+**The ramp is run once per candidate model** (four ramps of 14 minutes, about an hour). That is the team's
+decision, recorded in [`docs/playbooks/stress-test.md`](docs/playbooks/stress-test.md) section 4: the ramp's
+purpose is to locate each model's limit, and the brief's three-run rule applies to the load configurations
+above. If time allows, the ramp is repeated for the recommended model.
 
 Only an **arithmetic** staircase is reachable through the harness: `ramp_rate_1`…`ramp_rate_6` and
 `ramp_drain_s` are not passed by the script. Confirm the resolved rates before trusting the run — this is the
@@ -1004,7 +1025,8 @@ is what a response-time requirement is about — reported alongside the service'
     --step-seconds 120 \
     --offered-rates 1,5,9,13,17,21 \
     --p95-limit-ms 10000 \
-    --error-rate-limit 0.05
+    --error-rate-limit 0.05 \
+    --out-dir analysis/output/stress/<stress-run-dir>
 ```
 
 Writes into `analysis/output/stress/`: `stress_steps.csv/.md` (per-step arrival rate, latency percentiles and
@@ -1014,9 +1036,8 @@ monotonically across the last `--monotonic-steps`, default 3). Report whichever 
 say which one it was. Read the warnings the report prints — a step reported as empty, or dropped as partial,
 means the boundaries do not match the schedule. **Feeds:** Slide 9.
 
-The output filenames are fixed, so **a second stress run overwrites the first**. If more than one ramp is to
-be kept — a second candidate, or a repeat — give each a distinct destination:
-`--out-dir analysis/output/stress/<run-dir-name>`.
+The output filenames are fixed, so **a second stress run overwrites the first** unless each has its own
+`--out-dir`, as above. We run one ramp per candidate, so always pass it.
 
 ### Step 4 — diagnose where the time went.
 
@@ -1077,18 +1098,17 @@ slide requirements are in [`slides/outline.md`](slides/outline.md).
 **Scripts:** all of `scripts/` and `analysis/`.
 **Slides:** 1 (cover), 2 (architecture), 5 (candidate models), 9 (load and stress results). Assembles the deck.
 
-1. Work through the confirmation block at the top of `models/candidates.md` — confirm the four-candidate
-   shortlist, and settle the Q8_0 quantisation question, which decides whether `MODEL_TAG` stays
-   `llama3.2:1b` or becomes `llama3.2:1b-instruct-q4_K_M`. Then run
-   `scripts/pull_and_pin_models.sh` and commit the digests.
+1. ~~Confirm the four-candidate shortlist and settle the Q8_0 quantisation question.~~ Done on 2 October
+   2026 and recorded in `models/candidates.md`: the floor candidate is `llama3.2:1b-instruct-q4_K_M`, so all
+   four candidates share Q4_K_M. Next, run `scripts/pull_and_pin_models.sh` on the service host and commit
+   the digests.
 2. Decide which two machines we use, stand the stack up on machine 1, confirm `/health`, and run
    `scripts/smoke_test.sh --count 5`. Rehearse the cross-machine plumbing of
    [section 5.3](#53-the-cross-machine-plumbing) with `--dev` before the freeze, not after.
-3. Collect the four real names and student IDs, replace every `Loh Wen Xuan/B/C/D` placeholder in this
-   repository, and hand the list to Part 5 for Slide 1.
+3. ~~Replace every `Teammate A/B/C/D` placeholder with the real names.~~ Done. Still to do: collect the five
+   student IDs and hand the list to Part 5 for Slide 1.
 
-### Part 2 — Loh Wen Xuan (golden set lead, labeller 1; Slide 6)
-
+### Part 2 — Loh Wen Xuan (Teammate A: golden set lead, labeller 1; Slide 6)
 
 **Folder:** [`labelling/`](labelling/), and `golden/` once the set is built.
 **Documents:** [`labelling/README.md`](labelling/README.md) (read this first — it is two pages),

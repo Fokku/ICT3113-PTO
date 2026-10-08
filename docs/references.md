@@ -65,7 +65,9 @@ nowhere else:
 
 **[1]** US Consumer Financial Protection Bureau, "Consumer Complaint Database." [Online]. Available:
 <https://www.consumerfinance.gov/data-research/consumer-complaints/>.
-[Accessed: `TODO(Part 5 — Koh Tong Wei)`].
+[Accessed: 28 September 2026].
+
+*Accessed date from `../workload/workload_model.md`, "Sources", entry 1, where Part 4 read this page.*
 
 *This is the reference the brief names explicitly, and it is not optional: "The Consumer Complaint Database is
 published by a US government agency; acknowledge the source in your final document." The brief gives the
@@ -138,7 +140,8 @@ a cited tool and not an implementation detail.*
 Docker Engine and Docker Compose are open-source projects with their own repository licences, while Docker
 Desktop is distributed under Docker's own subscription terms — so if any team machine used Docker Desktop
 rather than the engine alone, that is a different licence and it must be named. Check section 4 of each
-capture file to see which was installed on which machine.`
+capture file to see which was installed on which machine.` The service host runs Docker Engine natively on
+Arch Linux, with no Docker Desktop and no VM; this is to be confirmed by its capture file.
 
 **[10]** S. Ramírez, "FastAPI," version `TODO(Part 5 — Koh Tong Wei): from pip freeze in the container`.
 [Online]. Available: <https://fastapi.tiangolo.com/>. [Accessed: `TODO(Part 5 — Koh Tong Wei)`].
@@ -183,10 +186,11 @@ The four candidates, their licences and their URLs are carried across **exactly*
 and `../models/models.yaml`, which record where each fact was read and on what date. Slide 5 reports the tag
 and digest; this section reports the licence.
 
-> `TODO(Part 5 — Koh Tong Wei): verify against ../models/candidates.md` before submission. That file is the
-> authority for every licence claim below, and it may have moved on — the shortlist itself is still marked
-> **PROPOSAL** there pending Yeo Kai Yuan's confirmation, and the Q8_0 quantisation decision for
-> `llama3.2:1b` is still open. If anything below no longer matches that file, change **this** file, and do not
+> **The shortlist is confirmed.** Yeo Kai Yuan confirmed the four candidates on 2 October 2026 and settled
+> the quantisation question by pinning the 4-bit 1B build, `llama3.2:1b-instruct-q4_K_M`, in place of the bare
+> `llama3.2:1b` tag (which Ollama ships at Q8_0). All four candidates now share Q4_K_M quantisation, so the
+> within-family comparison on Slide 5 varies size alone. `../models/candidates.md` remains the authority for
+> every licence claim below: if anything here no longer matches that file, change **this** file, and do not
 > let the two diverge silently.
 
 > `TODO(Part 5 — Koh Tong Wei): the digests are not pinned yet.` Every `pinned:` block in
@@ -194,10 +198,14 @@ and digest; this section reports the licence.
 > measure on. Slide 5 must report the digests from that file, not the short web digests in
 > `../models/candidates.md`, which are cross-checks only.
 
-### 6.1 Meta Llama 3.2 1B Instruct and 3B Instruct — `llama3.2:1b`, `llama3.2:3b`
+### 6.1 Meta Llama 3.2 1B Instruct and 3B Instruct — `llama3.2:1b-instruct-q4_K_M`, `llama3.2:3b`
 
-**[14]** Ollama, "llama3.2:1b" (Meta Llama 3.2 1B Instruct; 1.24B parameters; default quantisation Q8_0).
-[Online]. Available: <https://ollama.com/library/llama3.2:1b>. [Accessed: 23 September 2026].
+**[14]** Ollama, "llama3.2:1b-instruct-q4_K_M" (Meta Llama 3.2 1B Instruct; 1.24B parameters; quantisation
+Q4_K_M; 808 MB; short digest 22bc6b92eb01). [Online]. Available:
+<https://ollama.com/library/llama3.2:1b-instruct-q4_K_M>. [Accessed: 2 October 2026].
+
+*This is an explicit quantisation tag, not the family's default 1B tag: the bare `llama3.2:1b` is Q8_0. The full
+list of builds is on the tags page, <https://ollama.com/library/llama3.2/tags> [Accessed: 2 October 2026].*
 
 **[15]** Ollama, "llama3.2:3b" (Meta Llama 3.2 3B Instruct; 3.21B parameters; default quantisation Q4_K_M).
 [Online]. Available: <https://ollama.com/library/llama3.2:3b>. [Accessed: 23 September 2026].
@@ -293,20 +301,49 @@ Slide 3 defers to this slide: *"Cite the source of every figure; state clearly w
 how you estimated them (see Slide 12)."* So every published statistic behind the workload model belongs here in
 full, and the short form on Slide 3 must match it.
 
-`TODO(Part 4 — Toh Si Pei): list every published figure the workload model uses — complaint volumes, search
-rates, peak and non-peak periods — as an IEEE entry in the style of section 1, and name which figures are
-estimates rather than published. They are collected in ../workload/workload_model.md; this section is where
-they become citations.`
+The entries below are transcribed from the "Sources" list at the end of `../workload/workload_model.md`
+(Part 4 — Toh Si Pei), with the accessed dates recorded there. Source 1 of that list is the Consumer Complaint
+Database, already entry [1] above.
 
-`TODO(Part 5 — Koh Tong Wei): after Part 4 supplies them, check that no figure cited on Slide 3 is missing here
-and that no entry here is unused. Then renumber the whole list in one pass.`
-
-One source is already fixed, because our own ticket-length distribution is measured rather than cited:
+One source is our own, because the ticket-length distribution is measured rather than cited:
 
 **[26]** This work, "Ticket length distribution of team 10's 1,000 rows," produced by
 `python workload/scripts/ticket_length_stats.py --team-rows data/team_rows.csv`, output under
 `../workload/output/`. *Not an external source. Cite it as our own measurement so the slide distinguishes it
 from the published figures around it.*
+
+**[27]** US Consumer Financial Protection Bureau, "Consumer Response Annual Report: January 1 – December 31,
+2025," March 2026. [Online]. Available:
+<https://www.consumerfinance.gov/data-research/research-reports/2025-consumer-response-annual-report/>.
+[Accessed: 28 September 2026].
+
+*Published figures used: about 5,984,100 complaints sent to companies in 2025; "more than 4,000 companies";
+about 5.1 million of 6.6 million complaints concerning three nationwide consumer reporting agencies.*
+
+**[28]** CNA, "IN FOCUS: What happens when you contact a bank or telco customer care centre?," 2024. [Online].
+Available:
+<https://www.channelnewsasia.com/singapore/in-focus-what-happens-when-you-contact-bank-or-telco-customer-care-centre-4735346>.
+[Accessed: 28 September 2026].
+
+*Used only as an analogous proxy for agent activity pace (30–40 calls per officer per day, at one Singapore
+bank). It does not measure searches against a ticket system.*
+
+**[29]** W. Whitt, "What You Should Know About Queueing Models To Set Staffing Requirements in Service
+Systems," Columbia University, 2007. [Online]. Available: <https://www.columbia.edu/~ww2040/shorter041907.pdf>.
+[Accessed: 28 September 2026].
+
+*Used only as evidence that a financial-services call centre has time-of-day variation in arrivals. It does
+not support any particular peak multiplier.*
+
+**Which workload figures are estimates rather than published.** Only the base complaint volume (5,984,100 per
+year, [27]) is read directly from a source. The modelled firm's share (0.025%, an equal share across 4,000
+companies), the derived volumes (1,496 tickets per year, 0.719 per opening hour), the search rate (5 searches
+per agent per hour, so 0.167 per minute) and the peak factor (2×, giving 0.024 tickets per minute at peak) are
+all estimates with stated methods in `../workload/workload_model.md`. Slide 3 must say so.
+
+`TODO(Part 5 — Koh Tong Wei): once Slide 3 is drafted, check that no figure cited on Slide 3 is missing here
+and that no entry here is unused. Then renumber the whole list in one pass.`
+
 
 ---
 
@@ -328,20 +365,18 @@ said so rather than resolved by assertion.
 | CFPB Consumer Complaint Database [1] | `TODO(Part 5 — Koh Tong Wei): whatever the CFPB's own terms page asks for — check it.` The **brief** requires the source to be acknowledged regardless of what the licence says, so the acknowledgement is mandatory for us either way | Naming the extract and our row range (10000–10999); stating that the narratives are published with consumer consent and with personal information removed at source. Both are honesty about provenance rather than licence compliance |
 | Apache JMeter [3] | Nothing, as we neither modify nor redistribute it | A correct citation with the version we ran |
 | Ollama [5], [6] | The MIT licence requires its copyright and permission notice to be included in copies or substantial portions of the software. We ship neither, so nothing is triggered | Crediting Ollama by name — which the brief requires of us anyway — and recording the exact version with the results |
-| Docker [8], [9] | `TODO(Part 5 — Koh Tong Wei): confirm, and note separately if any machine used Docker Desktop, which carries different terms` | A correct citation with the version |
+| Docker [8], [9] | The service host uses Docker Engine natively on Arch Linux, not Docker Desktop. `TODO(Part 5 — Koh Tong Wei): confirm the Engine and Compose licences, and note separately if the load generator has Docker Desktop installed, which carries different terms` | A correct citation with the version |
 | `granite4:3b` [19], `qwen2.5:7b` [21] — Apache-2.0 [23] | Section 4 of the licence binds a **redistributor**: retain copyright, patent, trademark and attribution notices; include a copy of the licence; carry forward any `NOTICE` file; and state significant changes. We redistribute neither model and modify neither, so what we owe in practice is a **correct citation** | Attributing the models to their publishers — the **IBM Granite Team** and the **Qwen Team, Alibaba Cloud**. IBM's model card asks for this explicitly. It costs nothing; do it |
-| `llama3.2:1b`, `llama3.2:3b` [14]–[18] — Llama 3.2 Community License [16] | On distributing the Llama Materials **or "a product or service that contains any of them"** (section 1.b): (1) provide a copy of the agreement to the recipient; (2) **prominently display "Built with Llama"** on a related website, user interface, blogpost, about page or product documentation; (3) retain, in a `NOTICE` text file distributed with the copies, the notice `Llama 3.2 is licensed under the Llama 3.2 Community License, Copyright © Meta Platforms, Inc. All Rights Reserved.`; (4) prefix the name of any *distributed* model created, trained or fine-tuned from the Materials with `Llama`; (5) comply with applicable law and the Acceptable Use Policy [18]. Clause 2 additionally requires a separate licence from Meta for a licensee with more than 700 million monthly active users in the month before the Llama 3.2 release date | Clause (4) plainly does not apply: we neither train nor distribute a derivative model. Whether (1)–(3) bind a public repository for a service that *calls* a Llama model is the genuinely unclear part — it turns on the phrase "a product or service that contains any of them", which is a lawyer's question and not ours. **The cheap precaution is to comply anyway**: a `NOTICE` file with the sentence above, and a "Built with Llama" line in the repository README. One file, and the question goes away |
+| `llama3.2:1b-instruct-q4_K_M`, `llama3.2:3b` [14]–[18] — Llama 3.2 Community License [16] | On distributing the Llama Materials **or "a product or service that contains any of them"** (section 1.b): (1) provide a copy of the agreement to the recipient; (2) **prominently display "Built with Llama"** on a related website, user interface, blogpost, about page or product documentation; (3) retain, in a `NOTICE` text file distributed with the copies, the notice `Llama 3.2 is licensed under the Llama 3.2 Community License, Copyright © Meta Platforms, Inc. All Rights Reserved.`; (4) prefix the name of any *distributed* model created, trained or fine-tuned from the Materials with `Llama`; (5) comply with applicable law and the Acceptable Use Policy [18]. Clause 2 additionally requires a separate licence from Meta for a licensee with more than 700 million monthly active users in the month before the Llama 3.2 release date | Clause (4) plainly does not apply: we neither train nor distribute a derivative model. Whether (1)–(3) bind a public repository for a service that *calls* a Llama model is the genuinely unclear part — it turns on the phrase "a product or service that contains any of them", which is a lawyer's question and not ours. **The cheap precaution is to comply anyway**: a `NOTICE` file with the sentence above, and a "Built with Llama" line in the repository README. One file, and the question goes away |
 
-`TODO(Yeo Kai Yuan): decide whether to add the NOTICE file and the "Built with Llama" line to the repository
-root. ../models/candidates.md records this as an open decision (item 3 of its confirmation block) and
-recommends doing it. If the answer is yes, ask the owner of the repository root to add them — this file must not
-add them, and neither must candidates.md. If the answer is no, record the reason here in one sentence, because
-"we thought about it and decided not to" is a defensible position and silence is not.`
+**Decision: we comply.** Yeo Kai Yuan decided on 2 October 2026 to take the cheap precaution rather than argue
+the ambiguity. The repository root carries a `NOTICE` file with the Llama 3.2 notice above, and the README's
+"Licences and attribution" note carries the line "Built with Llama" and points at it.
 
-`TODO(Part 5 — Koh Tong Wei): if the Llama models are still candidates at submission, put the "Built with Llama"
-attribution on Slide 12 itself. The clause names "a related website, user interface, blogpost, about page or
-product documentation"; a submitted report is the closest thing we have to product documentation, and the
-slide costs one line.`
+**Slide 12 carries the "Built with Llama" line too**, because both Llama models are candidates. The clause names
+"a related website, user interface, blogpost, about page or product documentation"; a submitted report is the
+closest thing we have to product documentation, and the slide costs one line. See `../slides/outline.md`,
+Slide 12.
 
 ---
 
@@ -378,15 +413,18 @@ section.`
 
 ### 9.2 Team and data
 
-`TODO(Part 5 — Koh Tong Wei): acknowledge the course teaching team for the dataset extract, and state the team
-number (10) and the row range used (10000–10999). Slide 1 carries the names and student IDs; do not duplicate
-them here.`
+We thank the ICT3113 teaching team for preparing and releasing the ticket extract [2] from the US Consumer
+Financial Protection Bureau's Consumer Complaint Database [1]. We are Team 10, and every labelled ticket and
+every test request in this work comes from rows 10000–10999 of that extract. (Slide 1 carries the names and
+student IDs; they are not duplicated here.)
 
 ### 9.3 Everything the deck rests on that is not a citation
 
-`TODO(Part 5 — Koh Tong Wei): if any hardware was borrowed, or any machine belongs to someone outside the team,
-say so here. It costs a line and it is part of describing the test environment honestly — see
-../test-environment.md.`
+No hardware was borrowed from outside the team. The service host — the triage service and Ollama, in Docker —
+is Yeo Kai Yuan's own desktop, and the load generator is a team member's laptop. Both are personal machines,
+not lab or server hardware, which is part of describing the test environment honestly — see
+`../test-environment.md`. `TODO(Part 5 — Koh Tong Wei): name whose laptop the load generator was, once
+scripts/capture_env.sh --role loadgen has been run on it.`
 
 ---
 
@@ -405,6 +443,6 @@ say so here. It costs a line and it is part of describing the test environment h
       not disagree.
 - [ ] Every candidate that was dropped from the set has been removed from section 6, and every substitute that
       was promoted into the set has been added.
-- [ ] The Llama `NOTICE` / "Built with Llama" decision has been made and recorded either way.
+- [x] The Llama `NOTICE` / "Built with Llama" decision has been made and recorded either way (section 8: yes).
 - [ ] Nothing cited on Slide 3 or Slide 7 is missing from this list, and nothing in this list is uncited.
 - [ ] The AI-tool-use statement is written, specific, and names what the tools did **not** do.

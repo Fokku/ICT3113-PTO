@@ -48,7 +48,7 @@ look them up:
 | `POST /tickets` threshold | **p95 ≤ 10 s at 1/min** | requirement R1 |
 | Capacity criterion | **≤ 5% errors, and each run finishes within 660 s, at 12/min** | requirement R2 |
 | `GET /search` threshold | **p95 ≤ 2 s under the mixed test** | requirement R5 |
-| Models | `llama3.2:1b`, `llama3.2:3b`, `granite4:3b`, `qwen2.5:7b`, by the digests in `../../models/models.yaml` | `../../models/candidates.md` |
+| Models | `llama3.2:1b-instruct-q4_K_M`, `llama3.2:3b`, `granite4:3b`, `qwen2.5:7b`, by the digests in `../../models/models.yaml` | `../../models/candidates.md` |
 
 This playbook produces the numbers; it does not decide whether they pass — `../../workload/requirements.md`
 does. Do not invent any of these. A run at a made-up rate is a run nobody can defend on Slide 9.

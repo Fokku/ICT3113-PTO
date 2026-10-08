@@ -1,6 +1,6 @@
-# Candidate models — proposed shortlist
+# Candidate models — confirmed shortlist
 
-**What this document is for.** It proposes the three-to-five candidate models required by Step 4 of the
+**What this document is for.** It sets out the three-to-five candidate models required by Step 4 of the
 brief, records the evidence behind each choice (tag, parameter count, default quantisation, download size,
 licence and the URL each fact came from), and records the candidates we looked at and rejected. Slide 5
 ("Candidate Models") and the model half of Slide 12 ("References and Acknowledgements") are built from this
@@ -10,7 +10,7 @@ file together with the digests in `models.yaml`.
 The other two halves of Step 4 (the requirements and the prediction record) are owned elsewhere; see
 `../workload/requirements.md` and `../predictions/prediction_record.md`.
 
-**What "done" looks like.** Yeo Kai Yuan has struck out the confirmation marker below; every row of the
+**What "done" looks like.** The decision record below is complete; every row of the
 shortlist table has a digest in `models.yaml` written by `../scripts/pull_and_pin_models.sh`; and every
 licence named here appears in `../docs/references.md`.
 
@@ -18,21 +18,30 @@ licence named here appears in `../docs/references.md`.
 
 ---
 
-> ## Decisions — confirmed by Yeo Kai Yuan, 8 October 2026
->
-> 1. **The set: confirmed as proposed.** Four candidates in three size classes (~1B, ~3B twice, ~7.6B):
->    `llama3.2:1b`, `llama3.2:3b`, `granite4:3b`, `qwen2.5:7b`. Four models times three arrival rates times
->    three runs, plus the mixed-load and accuracy tests, fits one overnight campaign on the service host.
-> 2. **The 1B quantisation asymmetry: accepted and stated, not corrected.** We pin the default
->    `llama3.2:1b` build (**Q8_0**), not `llama3.2:1b-instruct-q4_K_M`. The default build is what a client
->    gets when they ask Ollama for "llama3.2:1b", so it is the honest thing to measure; the cost is that the
->    1B-versus-3B comparison varies bits per weight as well as parameter count. Slide 5 says so in one line,
->    and the effect is predicted in `../predictions/prediction_record.md`: the 1B model is heavier per
->    parameter than the others, which narrows its speed advantage.
-> 3. **The Llama notice: added as a precaution.** `../NOTICE` carries the Llama 3.2 notice sentence, and the
->    README carries "Built with Llama". It costs one file and removes the question.
-> 4. **Substitutions: none.** All four candidates serve on the service host; neither substitute was needed.
->    The pins are the digests that `../scripts/pull_and_pin_models.sh` wrote into `models.yaml`.
+## Decision record — confirmed 2 October 2026 (Yeo Kai Yuan, Part 1)
+
+The shortlist was proposed on 23 September and is now **final**. The four decisions that were open:
+
+1. **The set: all four candidates are kept** — `llama3.2:1b-instruct-q4_K_M`, `llama3.2:3b`,
+   `granite4:3b`, `qwen2.5:7b`; three size classes (~1B, ~3B twice, ~7.6B). The campaign that Part 4's
+   hand-off implies — three load rates × three runs, three mixed-load runs, one stress ramp and one accuracy
+   pass per model — is about 3 hours of machine time per model, so about 12 hours for four: one overnight
+   campaign on the service host. If the campaign overruns, `granite4:3b` is dropped first, as argued below;
+   three candidates still satisfy the brief.
+2. **Quantisation: matched.** We pin **`llama3.2:1b-instruct-q4_K_M`** instead of the bare `llama3.2:1b`
+   tag (Q8_0). (A note drafted on 8 October briefly proposed keeping the Q8_0 default instead; it was
+   withdrawn the same day in favour of this decision, before the freeze and before any reported run. The
+   one `llama3.2:1b` Q8_0 run that exists is excluded — see `../results/excluded/EXCLUDED.md`.)
+   Every candidate is now Q4_K_M, so the Llama 1B/3B pair varies parameter count alone, which
+   is the comparison that pair exists to make. The cost is a longer tag on Slide 5; `MODEL_TAG` in
+   `../.env.example`, the default in `../service/config.py` and `../docker-compose.yml`, and `models.yaml`
+   all carry the new tag.
+3. **The Llama notice: added.** The repository now carries a `../NOTICE` file with the Llama 3.2 notice,
+   and the README says "Built with Llama". It costs one file and removes the question argued under
+   "Licences and attribution" below.
+4. **Substitutions: none needed.** All four tags pulled and pinned on the service host (Ollama 0.34.3) on
+   2 October 2026; the digests are in `models.yaml`. The named substitutes (`mistral:7b`, `qwen2.5:1.5b`)
+   stay on file, unused.
 
 ---
 
@@ -46,7 +55,7 @@ is in it for one reason:
 
 | Slot | Candidate | The question this member exists to answer |
 |---|---|---|
-| Floor | `llama3.2:1b` | How cheap can we go before instruction-following collapses? This is the fast end of the trade-off and the member most likely to fail the accuracy requirement. |
+| Floor | `llama3.2:1b-instruct-q4_K_M` | How cheap can we go before instruction-following collapses? This is the fast end of the trade-off and the member most likely to fail the accuracy requirement. |
 | Middle | `llama3.2:3b` | Same family, same tokeniser, same chat template, same licence as the floor — so the difference between these two rows is (almost) size alone. This is the controlled comparison in the set. |
 | Middle, licence-clean | `granite4:3b` | What does a permissively-licensed alternative cost us in the *same* size class? If it matches `llama3.2:3b`, the client's licence problem disappears for free. |
 | Ceiling | `qwen2.5:7b` | The largest model that is honestly servable on commodity CPU. It is in the set to be slow. If it is not materially more accurate than the 3B class, the recommendation writes itself. |
@@ -78,15 +87,17 @@ real byte counts into `models.yaml`.
 
 | Model | Ollama tag | Parameters | Default quantisation | Approx. download size | Licence | Where published (URL) | Why this candidate (one line) |
 |---|---|---|---|---|---|---|---|
-| Meta Llama 3.2 1B Instruct | `llama3.2:1b` | 1.24B | **Q8_0** | 1.3 GB | Llama 3.2 Community License (custom; not OSI-approved) | <https://ollama.com/library/llama3.2:1b> | The floor of the trade-off: the fastest thing we will serve, and the member most exposed to short-output disobedience. |
+| Meta Llama 3.2 1B Instruct | `llama3.2:1b-instruct-q4_K_M` | 1.24B | Q4_K_M (pinned build; the bare `llama3.2:1b` default is Q8_0) | 808 MB | Llama 3.2 Community License (custom; not OSI-approved) | <https://ollama.com/library/llama3.2:1b-instruct-q4_K_M> | The floor of the trade-off: the fastest thing we will serve, and the member most exposed to short-output disobedience. |
 | Meta Llama 3.2 3B Instruct | `llama3.2:3b` | 3.21B | Q4_K_M | 2.0 GB | Llama 3.2 Community License (custom; not OSI-approved) | <https://ollama.com/library/llama3.2:3b> | Same family as the floor, one size class up, so the pair isolates the effect of size within a fixed prompt and template. |
 | IBM Granite 4.0 Micro | `granite4:3b` | 3.4B | Q4_K_M | 2.1 GB | Apache License 2.0 | <https://ollama.com/library/granite4:3b> | The licence-clean comparator in the 3-4B class: tells the client what Apache-2.0 costs them, if anything. |
 | Alibaba Qwen2.5 7B Instruct | `qwen2.5:7b` | 7.62B | Q4_K_M | 4.7 GB | Apache License 2.0 | <https://ollama.com/library/qwen2.5:7b> | The ceiling: the largest CPU-feasible candidate, instruction-tuned and with no thinking mode to disable. |
 
 Sources for the table, per row:
 
-* `llama3.2:1b` — parameters 1.24B, quantisation Q8_0, 1.3 GB, licence "LLAMA 3.2 COMMUNITY LICENSE
-  AGREEMENT": <https://ollama.com/library/llama3.2:1b>
+* `llama3.2:1b-instruct-q4_K_M` — parameters 1.24B, quantisation Q4_K_M, 808 MB, short digest
+  `22bc6b92eb01`: <https://ollama.com/library/llama3.2/tags> (re-checked 2 October 2026). The default
+  `llama3.2:1b` build is Q8_0, 1.3 GB, licence "LLAMA 3.2 COMMUNITY LICENSE AGREEMENT":
+  <https://ollama.com/library/llama3.2:1b>
 * `llama3.2:3b` — parameters 3.21B, quantisation Q4_K_M, 2.0 GB, same licence:
   <https://ollama.com/library/llama3.2:3b>
 * `granite4:3b` — parameters 3.4B, quantisation Q4_K_M, 2.1 GB, licence "Apache License Version 2.0",
@@ -97,12 +108,13 @@ Sources for the table, per row:
   <https://ollama.com/library/qwen2.5:7b>; upstream card confirming 7.61B and apache-2.0:
   <https://huggingface.co/Qwen/Qwen2.5-7B-Instruct>
 
-### Digests are not pinned yet
+### Digests
 
 **No digest in this document is a pin.** The only digests that count are the ones
 `../scripts/pull_and_pin_models.sh` writes into `models.yaml` after pulling against the Ollama host we
-actually measure on, and those are what Slide 5 reports. Until that script has run, every download size
-and every digest in this repository is unverified.
+actually measure on, and those are what Slide 5 reports. That script ran on the service host on
+2 October 2026 (Ollama 0.34.3) and pinned all four candidates; read the full digests and exact byte sizes
+from `models.yaml`.
 
 For cross-checking only, these are the short manifest digests displayed on ollama.com on 23 September
 2026. If the script writes a digest whose first twelve characters differ from these, the library has moved
@@ -110,7 +122,7 @@ since we wrote this file — which is useful to know, but is not by itself a pro
 
 | Tag | Short digest observed on ollama.com, 23 Sep 2026 | Source |
 |---|---|---|
-| `llama3.2:1b` | `baf6a787fdff` | <https://ollama.com/library/llama3.2/tags> |
+| `llama3.2:1b-instruct-q4_K_M` | `22bc6b92eb01` | <https://ollama.com/library/llama3.2/tags> |
 | `llama3.2:3b` | `a80c4f17acd5` | <https://ollama.com/library/llama3.2/tags> |
 | `granite4:3b` | `89962fcc7523` | <https://ollama.com/library/granite4/tags> |
 | `qwen2.5:7b` | `845dbda0ea48` | <https://ollama.com/library/qwen2.5:7b> |
@@ -133,8 +145,9 @@ There is a four-bit build of the 1B available: `llama3.2:1b-instruct-q4_K_M`, 80
 `22bc6b92eb01` (<https://ollama.com/library/llama3.2/tags>). Pinning that instead would hold quantisation
 constant across the Llama pair at the cost of a less obvious tag on the slide.
 
-**Decision (8 October 2026):** we keep the default `llama3.2:1b` (Q8_0) and state the asymmetry on Slide 5;
-`MODEL_TAG` in `.env.example`, `models.yaml` and Slide 5 all name `llama3.2:1b`.
+**Decision (2 October 2026):** we pin `llama3.2:1b-instruct-q4_K_M`, so all four candidates are Q4_K_M
+and the 1B/3B comparison varies size alone; `MODEL_TAG` in `.env.example`, `models.yaml` and Slide 5 use
+that tag.
 
 ### What we are *not* writing here
 
@@ -158,7 +171,7 @@ and not offering the model to third parties. Most attribution clauses are writte
 so whether they bite at all depends on that distinction. Where it is genuinely unclear we say so; it is
 not our call to make.
 
-### 1. Llama 3.2 Community License — `llama3.2:1b`, `llama3.2:3b`
+### 1. Llama 3.2 Community License — `llama3.2:1b-instruct-q4_K_M`, `llama3.2:3b`
 
 * **Licence name:** LLAMA 3.2 COMMUNITY LICENSE AGREEMENT, dated 25 September 2024.
 * **Text (canonical, accessible):**
@@ -193,8 +206,7 @@ not our call to make.
   counts as making available "a product or service that contains any of them" is a lawyer's question.
   **Recommended precaution:** add a `NOTICE` file with the sentence above and a "Built with Llama" line to
   the README. It costs one file and removes the question.
-  **Decision (8 October 2026): yes.** `../NOTICE` and a "Built with Llama" line in `../README.md` were
-  added.
+  **Decided 2 October 2026: done.** `../NOTICE` carries the notice and the README carries the line.
 * **Could not verify:** the canonical licence URL printed in the licence text itself,
   <https://www.llama.com/llama3_2/license/>, redirected on 23 September 2026 through
   `developer.meta.com` to a Meta developer **login page**, so the licence text is not publicly readable
@@ -281,7 +293,7 @@ padding, and it is deliberately longer than the shortlist.
 |---|---|
 | `qwen3:8b`, `qwen3:4b`, `qwen3:1.7b` | Apache-2.0 and otherwise the strongest available choices, but thinking mode is **on by default** and the model emits a `<think>...</think>` block before the answer (<https://huggingface.co/Qwen/Qwen3-8B>). Our prompt is fixed, does not set `think: false`, and `NUM_CTX` is 4096; `service/categories.py` performs no semantic recovery, so those replies would land in `UNPARSEABLE` while burning the most CPU of any candidate. |
 | `qwen2.5:3b` | **Qwen Research License, non-commercial only** — disqualified by the client's constraint, even though it is the same family as a candidate we did take. See "the trap we avoided" above. |
-| `qwen2.5:1.5b` | Apache-2.0 and a perfectly legitimate sub-2B option. Dropped only because the sub-2B slot is better spent on `llama3.2:1b`, which buys us a controlled within-family comparison against `llama3.2:3b` that this would not. Named substitute if the Llama licence is judged unacceptable. |
+| `qwen2.5:1.5b` | Apache-2.0 and a perfectly legitimate sub-2B option. Dropped only because the sub-2B slot is better spent on the Llama 3.2 1B (pinned as `llama3.2:1b-instruct-q4_K_M`), which buys us a controlled within-family comparison against `llama3.2:3b` that this would not. Named substitute if the Llama licence is judged unacceptable. |
 | `qwen3.5` (0.8b–9b) | Newest family on the library (<https://ollama.com/search?q=qwen>), 256K context, multimodal at 9B. Rejected as too new to pin confidently for a six-week assignment, and because we **could not verify its licence** from its Ollama page on 23 September 2026. |
 | `qwen3.6`, `qwen3.8`, `qwen3-next:80b`, `qwen3:14b`/`30b`/`32b`/`235b` | Smallest published size is 27B or above (or a 14B+ dense build). Not CPU-feasible on commodity hardware. |
 | `gemma3:1b`, `gemma3:4b` | Gemma Terms of Use: not OSI-approved, use restrictions must be passed downstream as enforceable terms, Prohibited Use Policy incorporated (<https://ai.google.dev/gemma/terms>). An extra compliance conversation for a measurement the existing four already give us. `gemma3:4b` is additionally multimodal (<https://ollama.com/library/gemma3>), which is dead weight for a text-only task. |

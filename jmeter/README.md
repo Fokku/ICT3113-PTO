@@ -382,7 +382,7 @@ Two consequences, both already applied:
 ### Normal use
 
 ```
-scripts/run_load_test.sh --plan load_post_tickets --model llama3.2:1b \
+scripts/run_load_test.sh --plan load_post_tickets --model llama3.2:1b-instruct-q4_K_M \
     --rate 60 --duration 300 --runs 3 --host <service-host> --port 8000
 ```
 

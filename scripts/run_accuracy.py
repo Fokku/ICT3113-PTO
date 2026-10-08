@@ -34,8 +34,8 @@ for evidence.
 
 Usage
 -----
-    python scripts/run_accuracy.py --model llama3.2:1b
-    python scripts/run_accuracy.py --model llama3.2:1b --dev        # pre-freeze
+    python scripts/run_accuracy.py --model llama3.2:1b-instruct-q4_K_M
+    python scripts/run_accuracy.py --model llama3.2:1b-instruct-q4_K_M --dev        # pre-freeze
 
 Exit codes: 0 done, 1 a failure that invalidates the run, 2 misuse, 3 the freeze
 gate blocked the run.
@@ -475,7 +475,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument(
         "--model",
         required=True,
-        help="The Ollama tag the service is currently serving, e.g. llama3.2:1b. "
+        help="The Ollama tag the service is currently serving, e.g. llama3.2:1b-instruct-q4_K_M. "
              "Refused if /health disagrees.",
     )
     parser.add_argument("--host", default="127.0.0.1", help="Service host (default 127.0.0.1).")

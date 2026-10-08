@@ -40,7 +40,7 @@
 #                         contract specifies.
 #
 # Usage:
-#   scripts/run_load_test.sh --plan load_post_tickets --model llama3.2:1b \
+#   scripts/run_load_test.sh --plan load_post_tickets --model llama3.2:1b-instruct-q4_K_M \
 #        --rate 60 --duration 300 [--runs 3] [--host H] [--port P] \
 #        [--search-rate N] [--jmeter-home PATH] [--out-root results/runs] \
 #        [--dev] [--yes]
@@ -106,7 +106,7 @@ Usage:
 Required:
   --plan PLAN        load_post_tickets | mixed_load | stress_ramp
                      (the .jmx of the same name in jmeter/)
-  --model TAG        Ollama tag to serve, e.g. llama3.2:1b. The triage container
+  --model TAG        Ollama tag to serve, e.g. llama3.2:1b-instruct-q4_K_M. The triage container
                      is recreated with MODEL_TAG set to this, and /health must
                      confirm it before anything is measured.
   --rate N           Arrival rate in requests per minute (open loop). For
@@ -219,7 +219,7 @@ done
 # service, so --help and a bad argument set are both harmless.
 # ---------------------------------------------------------------------------
 [[ -n "$PLAN" ]]     || die_usage "--plan is required (load_post_tickets|mixed_load|stress_ramp)"
-[[ -n "$MODEL" ]]    || die_usage "--model is required (an Ollama tag, e.g. llama3.2:1b)"
+[[ -n "$MODEL" ]]    || die_usage "--model is required (an Ollama tag, e.g. llama3.2:1b-instruct-q4_K_M)"
 [[ -n "$RATE" ]]     || die_usage "--rate is required (requests per minute)"
 [[ -n "$DURATION" ]] || die_usage "--duration is required (seconds)"
 

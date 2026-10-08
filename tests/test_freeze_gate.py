@@ -292,6 +292,44 @@ def test_blocks_when_prediction_record_is_modified_after_commit(tmp_path: Path) 
     assert "uncommitted modifications" in status.reasons[0]
 
 
+UNFINISHED_PREDICTION_MD = (
+    "# Prediction record\n\n"
+    "| Model | Accuracy |\n|---|---|\n"
+    "| llama3.2:3b | `TODO(Whole team)` |\n"
+)
+
+
+def test_blocks_when_the_tagged_prediction_record_is_still_a_template(tmp_path: Path) -> None:
+    """Committing and tagging the untouched template must not count as a freeze."""
+    repo = new_repo(tmp_path)
+    write_golden(repo)
+    write_prediction(repo, UNFINISHED_PREDICTION_MD)
+    commit_all(repo, "Freeze golden set and prediction record")
+    tag_freeze(repo)
+
+    status = freeze_gate.check_freeze(repo)
+    assert not status.ok
+    assert len(status.reasons) == 1, reasons_text(status)
+    assert PREDICTION in status.reasons[0]
+    assert "TODO(" in status.reasons[0]
+    assert "line(s): lines 5" in status.reasons[0]
+    assert "in the commit tagged" in status.reasons[0]
+
+
+def test_warns_about_an_unfinished_prediction_record_before_tagging(tmp_path: Path) -> None:
+    """With no tag yet, the working file is checked so nobody tags it unfinished."""
+    repo = new_repo(tmp_path)
+    write_golden(repo)
+    write_prediction(repo, UNFINISHED_PREDICTION_MD)
+    commit_all(repo)
+
+    status = freeze_gate.check_freeze(repo)
+    assert not status.ok
+    assert len(status.reasons) == 2, reasons_text(status)
+    assert any("does not exist" in r and TAG in r for r in status.reasons)
+    assert any("on disk" in r and "TODO(" in r for r in status.reasons)
+
+
 def test_blocks_when_the_tag_is_missing(tmp_path: Path) -> None:
     repo = new_repo(tmp_path)
     write_golden(repo)

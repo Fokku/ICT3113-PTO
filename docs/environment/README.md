@@ -111,5 +111,10 @@ capture file, and the `service_url` field of every run's `metadata.json`, which 
 actually posted to and must not be `localhost` or `127.0.0.1`. Say in the write-up which of the two you are
 relying on.
 
-`TODO(Part 5 — Koh Tong Wei): after the captures are committed, list the machines and their roles in the table
-at the top of ../test-environment.md, and check that no two rows share a hostname.`
+**Our two machines, and the capture each needs.** Machine 1, the service host, is Yeo Kai Yuan's desktop and
+runs both the triage service and Ollama: capture it with `--role service` and say on Slide 7 that it is also
+the Ollama host. Machine 2, the load generator, is a team member's laptop: capture it with `--role loadgen`.
+Neither capture exists yet.
+
+`TODO(Part 5 — Koh Tong Wei): after the two captures are committed, copy their hostnames and figures into the
+table at the top of ../test-environment.md, and check that the two hostnames differ.`

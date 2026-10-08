@@ -42,6 +42,10 @@ What "frozen" means (all of these must hold)
    and not a warning. If a freeze genuinely has to be re-cut, move the tag
    deliberately (``git tag -f golden-freeze <commit>``) and say so in the
    report; that action stays visible in the history, which is the point.
+6. (Also ours.) The prediction record -- as recorded in the tagged commit, or on
+   disk while there is no tag yet -- contains no ``TODO(`` placeholder. The
+   template ships full of them, so without this check an untouched template
+   could be committed and tagged and every other condition above would pass.
 
 Exit codes (CLI)
 ----------------
@@ -72,6 +76,10 @@ REQUIRED_PATHS: tuple[str, ...] = (GOLDEN_SET_PATH, PREDICTION_RECORD_PATH)
 
 #: The tag that marks the freeze commit.
 FREEZE_TAG = "golden-freeze"
+
+#: The placeholder the templates use for an undecided entry. A prediction record
+#: still carrying one is unfinished, and an unfinished record is not a freeze.
+UNFINISHED_MARKER = "TODO("
 
 #: Exit code used everywhere for "the gate blocked you". Distinct from 1 (an
 #: internal error) and from 2 (a misuse of a script's arguments) so a caller can
@@ -322,6 +330,43 @@ def check_freeze(repo: Path) -> FreezeStatus:
             if blob.returncode == 0:
                 golden_rows = _count_csv_data_rows(blob.stdout)
 
+    # --- condition 6: the prediction record is actually filled in ----------
+    # Checked on the tagged blob when there is a tag (that is the record of
+    # evidence), otherwise on the working file, so the gate says so *before*
+    # anyone tags an unfinished record.
+    record_text: str | None = None
+    record_where = ""
+    if prediction_sha:
+        blob = _git(repo, "cat-file", "blob", prediction_sha)
+        if blob.returncode == 0:
+            record_text = blob.stdout
+            record_where = f"in the commit tagged '{FREEZE_TAG}'"
+    elif not freeze_commit and (repo / PREDICTION_RECORD_PATH).is_file():
+        record_text = (repo / PREDICTION_RECORD_PATH).read_text(
+            encoding="utf-8", errors="replace"
+        )
+        record_where = "on disk"
+    if record_text is not None:
+        unfinished = _unfinished_lines(record_text)
+        if unfinished:
+            shown = ", ".join(str(n) for n in unfinished[:10])
+            more = f" (and {len(unfinished) - 10} more)" if len(unfinished) > 10 else ""
+            failures.append(
+                _Failure(
+                    reason=(
+                        f"{PREDICTION_RECORD_PATH} {record_where} still contains "
+                        f"{len(unfinished)} unfinished '{UNFINISHED_MARKER}' "
+                        f"placeholder line(s): lines {shown}{more}."
+                    ),
+                    fix=(
+                        f"Replace every {UNFINISHED_MARKER}...) in the prediction record "
+                        f"with the team's decision (sign-off included), commit it, and "
+                        f"only then tag:\n"
+                        f"       grep -n '{UNFINISHED_MARKER}' {PREDICTION_RECORD_PATH}"
+                    ),
+                )
+            )
+
     if failures:
         return FreezeStatus(
             ok=False,
@@ -340,6 +385,15 @@ def check_freeze(repo: Path) -> FreezeStatus:
         prediction_sha=prediction_sha,
         golden_rows=golden_rows,
     )
+
+
+def _unfinished_lines(text: str) -> list[int]:
+    """1-based line numbers of ``text`` that still carry the unfinished marker."""
+    return [
+        number
+        for number, line in enumerate(text.splitlines(), start=1)
+        if UNFINISHED_MARKER in line
+    ]
 
 
 def _check_working_file(repo: Path, rel: str, *, has_head: bool) -> list[_Failure]:

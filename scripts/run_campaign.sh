@@ -31,7 +31,7 @@
 #
 # Usage (from the load generator, after the freeze gate passes):
 #   SERVICE_SSH=user@service-host TARGET_HOST=service-host \
-#       scripts/run_campaign.sh [--models "llama3.2:1b qwen2.5:7b"] [--only accuracy|load|mixed|stress]
+#       scripts/run_campaign.sh [--models "llama3.2:1b-instruct-q4_K_M qwen2.5:7b"] [--only accuracy|load|mixed|stress]
 #   Rehearsal on synthetic tickets (no freeze needed, writes only under results/dev):
 #   TARGET_HOST=... DURATION_S=60 RUNS=1 scripts/run_campaign.sh --dev
 #

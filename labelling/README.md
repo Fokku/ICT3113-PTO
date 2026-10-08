@@ -8,11 +8,13 @@ disagreement was resolved, and the script that turns all of that into
 
 **Owners.**
 
+This is who actually did each piece; the git history (`git log -- labelling/ golden/`) is the evidence.
+
 | Part | Person | Responsible for |
 |---|---|---|
-| Part 2 | Loh Wen Xuan | `protocol.md`, labelling sheet A, any protocol revision |
-| Part 3 | Jolie Ngai Ning Li | labelling sheet B, running `agreement.py`, writing up `resolutions.md` / `resolutions.csv`, running `build_golden_set.py` |
-| Technical core | **Yeo Kai Yuan** — `TODO(Yeo Kai Yuan): replace with real name` | the three scripts, the freeze gate, the commit and the tag |
+| Part 2 | Loh Wen Xuan (labeller A) | `protocol.md` and its revisions, labelling sheet A, running `agreement.py` (commit `5fa583d`), writing up `resolutions.md` / `resolutions.csv` together with Jolie Ngai Ning Li, and building `../golden/golden_set.csv` |
+| Part 3 | Jolie Ngai Ning Li (labeller B) | labelling sheet B, and co-resolving every disagreement with Loh Wen Xuan |
+| Part 1 — technical core | **Yeo Kai Yuan** | the three scripts, the freeze gate, the commit and the tag |
 
 **"Done" looks like:** `../golden/golden_set.csv` exists with 150–200 rows, it and
 `../predictions/prediction_record.md` are committed, and the commit is tagged
@@ -49,9 +51,14 @@ Work backwards from 29 September:
 | Mon 28 Sep | `resolutions.md` and `resolutions.csv` written up; protocol revisions logged; `build_golden_set.py` run and the golden set reviewed by both labellers |
 | Tue 29 Sep | freeze commit + `golden-freeze` tag + `scripts/freeze_gate.py` passes |
 
-`TODO(Yeo Kai Yuan): confirm these interim dates with the team, or replace them
-with the dates the team actually agrees. The 29 September gate is the one that
-must not move.`
+**What actually happened**, from the commit dates: the scaffolding was committed
+on 24 September; both completed label sheets on 28 September; the agreement
+report and disagreement list on 30 September (kappa 0.599, 68 disagreements);
+and `protocol.md`, the resolutions (all 68 disagreements resolved) and the
+200-row `golden_set.csv` on 2 October. The `golden-freeze` tag does not exist yet,
+so the 29 September gate slipped, and nothing may be benchmarked until the tag is
+in place and `scripts/freeze_gate.py` passes.
+`TODO(Yeo Kai Yuan): record the date of the freeze commit and the golden-freeze tag here once they exist.`
 
 ---
 
@@ -91,9 +98,9 @@ independent label sheets, and the agreement statistic".
 | `labeller_A.csv`, `labeller_B.csv` | `row_number,narrative,label,confidence,notes` | the sampler creates them blank; the labellers fill them in |
 | `scripts/agreement.py` | Cohen's kappa, per-category kappa, confusion matrix, disagreement list | Yeo Kai Yuan |
 | `disagreements.csv` | the rows the two labellers differ on, least-confident first | `agreement.py` |
-| `agreement_report.txt` | the printed output of `agreement.py`, redirected and committed | Part 3 — Jolie Ngai Ning Li |
-| `resolutions.md` | the narrative record of each resolution — **what Slide 6 quotes** | Part 3 — Jolie Ngai Ning Li |
-| `resolutions.csv` | the same resolutions in machine-readable form — **what the build script consumes** | Part 3 — Jolie Ngai Ning Li |
+| `agreement_report.txt` | the printed output of `agreement.py`, redirected and committed | Part 2 — Loh Wen Xuan |
+| `resolutions.md` | the narrative record of each resolution — **what Slide 6 quotes** | Loh Wen Xuan with Jolie Ngai Ning Li |
+| `resolutions.csv` | the same resolutions in machine-readable form — **what the build script consumes** | Loh Wen Xuan with Jolie Ngai Ning Li |
 | `scripts/build_golden_set.py` | merges sheets + resolutions into the golden set | Yeo Kai Yuan |
 
 ### Why the resolutions live in two files
@@ -159,7 +166,7 @@ Re-running the sampler is refused (exit 3) once either sheet contains any label,
 confidence or note — regenerating would destroy a labeller's work. `--force`
 overrides that, and should only ever be used on sheets that are committed.
 
-### Step 3 — label independently (Teammates A and B)
+### Step 3 — label independently (Loh Wen Xuan and Jolie Ngai Ning Li)
 
 Each labeller fills in `label` and `confidence` (and `notes` where the row was
 not obvious) in **their own sheet only**. Allowed labels are the seven exact
@@ -177,7 +184,7 @@ back as CSV. Do not edit it in a plain text editor, and do not re-sort, rename o
 add columns — the downstream scripts check the header and will refuse a sheet
 whose shape has changed.
 
-### Step 4 — compute the agreement statistic (Part 3 — Jolie Ngai Ning Li)
+### Step 4 — compute the agreement statistic (Part 2 — Loh Wen Xuan)
 
 ```
 python labelling/scripts/agreement.py \
@@ -220,7 +227,7 @@ revision in its Revision log naming that row.
 * `protocol_revision` is the revision id from `protocol.md` (for example `R2`),
   or `none`.
 
-### Step 6 — build the golden set (Part 3 — Jolie Ngai Ning Li)
+### Step 6 — build the golden set (Part 2 — Loh Wen Xuan)
 
 ```
 python labelling/scripts/build_golden_set.py \

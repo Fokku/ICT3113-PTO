@@ -7,7 +7,7 @@ model."* It is also the **authoritative record of the ramp's step boundaries**, 
 
 **Owner:** Part 5 — Koh Tong Wei.
 
-**What "done" looks like.** One completed stress run directory under `../../results/runs/`, reconciling
+**What "done" looks like.** One completed stress run directory per candidate model under `../../results/runs/`, reconciling
 cleanly with the service log; a per-step table under `../../analysis/output/stress/` that names the first step
 at which the system breached the limit; and a one-sentence statement of the limit with the criterion that
 defines it.
@@ -31,12 +31,12 @@ The brief allows any meaningful limit. **Ours is: the highest ticket arrival rat
 answers within the response-time requirement and without an unacceptable error rate.** The last step that
 still met both criteria is the answer; the first step that breached either one is the limit.
 
-Two criteria, both set by Part 4 rather than by this playbook:
+Two criteria, both set by Part 4 — Toh Si Pei rather than by this playbook:
 
 | Criterion | Value | Source |
 |---|---|---|
-| p95 response-time limit | **10 000 ms** | `../../workload/requirements.md`, requirement **R1**. Passed to the analysis as `--p95-limit-ms 10000` |
-| Error-rate limit | **5%** | `../../workload/requirements.md`, requirement **R2** (≤ 5% errors). Passed as `--error-rate-limit 0.05` |
+| p95 response-time limit | **10 s** — passed as `--p95-limit-ms 10000` | `../../workload/requirements.md`, requirement **R1** (`POST /tickets` p95 ≤ 10 s). Passed to the analysis as `--p95-limit-ms` |
+| Error-rate limit | **5%** — passed as `--error-rate-limit 0.05` (the analysis's own default of `0.01` is **not** used) | `../../workload/requirements.md`, requirement **R2** (≤ 5% errors), and the stress-ramp command in `../../workload/workload_model.md`, "Derived arrival rates for testing". Passed as `--error-rate-limit` |
 
 `analysis/stress_summary.py` also reports an **unbounded-growth signal**: whether the p95 rises monotonically
 across the last few steps (`--monotonic-steps`, default 3). That is the "latency grows without bound" version
@@ -99,9 +99,11 @@ above the highest steady-state load rate (12/min), so the ramp brackets requirem
 Arrivals are a **Poisson** process (`random_arrivals`), so the per-step counts vary around those figures. That
 is the arrival process, not a fault.
 
-> **The same table exists in three places:** here, in `../../jmeter/README.md` section 3, and in the
-> `TestPlan.comments` of `../../jmeter/stress_ramp.jmx`. Change one and you must change all three. This copy
-> is the one the analysis command in section 6 is written against.
+> **A boundary table also exists in two other places:** `../../jmeter/README.md` section 3 and the
+> `TestPlan.comments` of `../../jmeter/stress_ramp.jmx`. Those two document the **plan's defaults** (30, 60 …
+> 180 per minute), which still apply when the plan is run with no properties. Our runs override the defaults
+> through the environment variables in section 5, so **this** copy is the one the analysis command in
+> section 5, step 6, is written against.
 
 ### 2.1 Where the rates came from, and the pre-registered contingency
 
@@ -297,8 +299,12 @@ python analysis/stress_summary.py \
     --step-seconds 120 \
     --offered-rates 1,5,9,13,17,21 \
     --p95-limit-ms 10000 \
-    --error-rate-limit 0.05
+    --error-rate-limit 0.05 \
+    --out-dir analysis/output/stress/<run-dir-name>
 ```
+
+`--out-dir` matters because we run one ramp per candidate: the output filenames are fixed, so without a
+distinct destination each model's summary would overwrite the previous one.
 
 Equivalently, for an arithmetic staircase, `--ramp-start-per-min` with `--ramp-step-per-min` instead of
 `--offered-rates`. Give one or the other, not both — the explicit list wins and the script warns.
@@ -307,7 +313,7 @@ Omit `--p95-limit-ms` and only the error-rate criterion is assessed; omit the of
 offered-versus-achieved saturation signal cannot be assessed at all and the offered column reads `n/a`. Both
 degradations are stated in the report, which is why they are safe but not acceptable: supply the numbers.
 
-Writes the per-step table, the chart and the report into `analysis/output/stress/`.
+Writes the per-step table, the chart and the report into `analysis/output/stress/<run-dir-name>/`.
 
 **7. Diagnose where the time went (load generator).**
 
@@ -344,7 +350,7 @@ get six windows. If a boundary effect gives you seven, the script will say
 `--offered-rates has 6 value(s) but the data covers 7 step(s)`. Append a trailing `0` for the drain window:
 
 ```
---offered-rates 30,60,90,120,150,180,0
+--offered-rates 1,5,9,13,17,21,0
 ```
 
 An offered rate of `0` makes the tracking ratio `n/a` for that window rather than inventing one, and

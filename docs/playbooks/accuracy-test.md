@@ -36,9 +36,9 @@ every threshold is the team's decided value, with its source named next to it.
 
 | What | Where it lives |
 |---|---|
-| The overall accuracy requirement | **R3: ≥ 90% overall accuracy**, measured serially on the golden set, once per candidate model. See [requirements](../../workload/requirements.md). |
-| The per-category accuracy requirement | **R4: ≥ 80% recall for every category**, measured serially on the golden set, once per candidate model. Recall is correct predictions divided by golden tickets in that category. See [requirements](../../workload/requirements.md). |
-| How `UNPARSEABLE` counts towards accuracy | **Counts as incorrect** for both R3 and R4; it remains in the denominator and is reported separately as a predicted-only confusion-matrix column. This is the policy already stated in [requirements](../../workload/requirements.md), and must also be stated on Slide 10. |
+| The overall accuracy requirement | **≥ 90%** on the golden set, measured serially, not under load, once per model — `../../workload/requirements.md`, requirement **R3** (Part 4 — Toh Si Pei). |
+| The per-category accuracy requirement | **≥ 80% for every category**, same conditions — `../../workload/requirements.md`, requirement **R4**. With 200 golden tickets across seven categories, some categories hold only a few tens of tickets, so each per-category figure is a coarse fraction. |
+| How `UNPARSEABLE` counts towards accuracy | **As incorrect**, for both overall and per-category accuracy — decided in `../../workload/requirements.md` under R3, before any numbers were seen. A reply the parser could not map is a *wrong routing decision* in production, even though it is a different failure from a confident wrong category, so Slide 10 states the rule and reports the `UNPARSEABLE` count alongside. |
 | Which models to test | `../../models/candidates.md` and `../../models/models.yaml`. Every candidate, one run each. Use the exact tag, never `latest`. |
 
 This playbook produces the numbers; it does not decide whether they pass.
@@ -93,7 +93,7 @@ access to the service and read access to the service's log directory.
 | The service log reaches the driver machine | with `SERVICE_SSH` set (remote mode, `load-test.md` section 2.3) the driver mirrors the service host's `logs/service` with `rsync` before slicing it; otherwise `SERVICE_LOG_DIR` must be a live view of it | The run directory must contain the service's own record of the same requests |
 | Time budget | see below | This is the step people underestimate |
 
-**Time budget.** One golden-set run is one sequential model call per golden ticket, 150 to 200 of them, on CPU.
+**Time budget.** One golden-set run is one sequential model call per golden ticket, 200 of them, on CPU.
 Multiply by the number of candidates. Plan for it, run the largest candidate when nobody needs the machine,
 and do not interrupt a run to save time — a partial `responses.csv` fails `analysis/accuracy.py`'s coverage
 check, which is the correct behaviour.

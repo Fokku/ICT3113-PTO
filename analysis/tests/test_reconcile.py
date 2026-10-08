@@ -509,3 +509,23 @@ def test_reports_for_different_runs_do_not_overwrite_each_other(tmp_path: Path) 
     assert run_cli(second.path, out_dir) == 0
     reports = sorted(p.name for p in out_dir.glob("*__report.md"))
     assert reports == [f"{first.path.name}__report.md", f"{second.path.name}__report.md"]
+
+
+def test_mixed_run_with_blank_search_source_rows_reconciles(tmp_path: Path) -> None:
+    """GET /search samples carry no source_row; the POST rows must still match.
+
+    Regression: with any blank cell in the .jtl's source_row column, pandas typed
+    the column as float, 10000 became "10000.0", and every POST /tickets sample
+    of a mixed_load run was reported as naming a different course row (found in
+    the 8 October 2026 dev rehearsal).
+    """
+    pairs = healthy_pairs(6)
+    pairs += [
+        Pair(request_id=f"search-{index:04d}", jtl_source_row="", log_source_row="")
+        for index in range(4)
+    ]
+    run_dir = write_pair_run(tmp_path / "runs", pairs, plan="mixed_load", rate="1pm")
+    out_dir = tmp_path / "out"
+
+    assert run_cli(run_dir, out_dir) == 0
+    assert checks(out_dir, run_dir)["source_row_disagreements"]["value"] == "0"

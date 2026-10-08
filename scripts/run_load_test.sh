@@ -84,10 +84,13 @@ COMPOSE_FILE="${COMPOSE_FILE:-${REPO_ROOT}/docker-compose.yml}"
 TRIAGE_SERVICE="${TRIAGE_SERVICE:-triage}"
 OLLAMA_SERVICE="${OLLAMA_SERVICE:-ollama}"
 SERVICE_LOG_DIR="${SERVICE_LOG_DIR:-${REPO_ROOT}/logs/service}"
+SERVICE_SSH="${SERVICE_SSH:-}"
+SERVICE_REPO="${SERVICE_REPO:-ICT3113-PTO}"
 HEALTH_TIMEOUT_S="${HEALTH_TIMEOUT_S:-240}"
 WARMUP_TIMEOUT_S="${WARMUP_TIMEOUT_S:-600}"
 SLICE_MARGIN_S="${SLICE_MARGIN_S:-5}"
 SETTLE_S="${SETTLE_S:-5}"
+DRAIN_S="${DRAIN_S:-150}"
 RUN_NOTES="${RUN_NOTES:-}"
 
 usage() {
@@ -140,6 +143,14 @@ Environment variables:
   DOCKER_HOST             set this (e.g. ssh://user@service-host) when the load
                           generator is a different machine from the service --
                           which the brief requires
+  SERVICE_SSH             user@service-host. Remote mode: docker compose and
+                          scripts/reset.sh run in the service host's own
+                          checkout over ssh (so its bind mounts resolve on that
+                          machine), and its logs/service is mirrored into
+                          SERVICE_LOG_DIR with rsync before every read. The
+                          remote checkout must be at the same commit as this one.
+  SERVICE_REPO            the service host's checkout, relative to its home
+                          directory or absolute (default ICT3113-PTO)
   SERVICE_LOG_DIR         where <date>.jsonl is readable (default logs/service)
   HEALTH_TIMEOUT_S        wait for /health after a model switch (default 240)
   WARMUP_TIMEOUT_S        curl timeout for the single warm-up POST (default 600)
@@ -147,6 +158,13 @@ Environment variables:
                           clock skew between machines (default 5)
   SETTLE_S                pause between the warm-up and the measured window
                           (default 5)
+  DRAIN_S                 seconds after the last arrival during which no new
+                          request is sent but those in flight may finish
+                          (default 150, longer than the service's 120 s model
+                          timeout). Without it JMeter interrupts every request
+                          still in flight when the schedule ends and records it
+                          as a failure, cutting the slowest tail off the
+                          percentiles; the stress plan gets it as ramp_drain_s
   RAMP_START_PER_MIN, RAMP_STEP_PER_MIN, RAMP_STEPS, RAMP_STEP_DURATION_S
                           passed to stress_ramp.jmx when set; otherwise the
                           plan's own documented defaults apply
@@ -254,7 +272,12 @@ else
     die_usage "JMeter not found. Install Apache JMeter 5.6+ and either put jmeter on PATH or pass --jmeter-home /path/to/apache-jmeter-5.6.3."
 fi
 
-command -v docker >/dev/null 2>&1 || die_usage "docker not found. The model switch recreates the triage container; run this on the service host, or set DOCKER_HOST (e.g. ssh://user@service-host)."
+if [[ -n "$SERVICE_SSH" ]]; then
+    command -v ssh   >/dev/null 2>&1 || die_usage "ssh not found (needed because SERVICE_SSH is set)"
+    command -v rsync >/dev/null 2>&1 || die_usage "rsync not found (needed to mirror the service host's logs/service)"
+else
+    command -v docker >/dev/null 2>&1 || die_usage "docker not found. The model switch recreates the triage container; run this on the service host, set SERVICE_SSH=user@service-host, or set DOCKER_HOST (e.g. ssh://user@service-host)."
+fi
 
 # --- paths ----------------------------------------------------------------
 PLAN_FILE="${REPO_ROOT}/jmeter/${PLAN}.jmx"
@@ -304,8 +327,11 @@ if (( DEV )); then
     esac
 fi
 
-if [[ ! -d "$SERVICE_LOG_DIR" ]]; then
-    die_usage "service log directory $SERVICE_LOG_DIR does not exist. The run directory must contain the service's own record of every request. Run this on the service host, or mount/sync its ./logs/service and set SERVICE_LOG_DIR."
+if [[ -n "$SERVICE_SSH" ]]; then
+    # Remote mode: SERVICE_LOG_DIR is a local mirror that rsync fills.
+    mkdir -p "$SERVICE_LOG_DIR"
+elif [[ ! -d "$SERVICE_LOG_DIR" ]]; then
+    die_usage "service log directory $SERVICE_LOG_DIR does not exist. The run directory must contain the service's own record of every request. Run this on the service host, set SERVICE_SSH so the log is mirrored, or mount/sync its ./logs/service and set SERVICE_LOG_DIR."
 fi
 
 # The model tag, made safe for a directory name. This mirrors
@@ -329,12 +355,62 @@ SERVICE_URL="http://${HOST}:${PORT}"
 # Helpers
 # ---------------------------------------------------------------------------
 
+# remote <command words...> -- run one command inside the service host's checkout.
+# Each word is quoted locally, so narratives, tags and paths survive the remote
+# shell unchanged.
+remote() {
+    ssh -o BatchMode=yes -o ConnectTimeout=15 "$SERVICE_SSH" \
+        "cd $(printf '%q' "$SERVICE_REPO") && $(printf '%q ' "$@")"
+}
+
 compose() {
+    if [[ -n "$SERVICE_SSH" ]]; then
+        # The compose file is the service host's own copy, so ./logs/service and
+        # the build context resolve on that machine, not on this one.
+        local -a remote_cmd=(env "MODEL_TAG=${MODEL_TAG:-}" docker compose -f docker-compose.yml)
+        if [[ -n "${COMPOSE_PROJECT_NAME:-}" ]]; then
+            remote_cmd+=(-p "$COMPOSE_PROJECT_NAME")
+        fi
+        remote "${remote_cmd[@]}" "$@"
+        return
+    fi
     local -a cmd=(docker compose -f "$COMPOSE_FILE")
     if [[ -n "${COMPOSE_PROJECT_NAME:-}" ]]; then
         cmd+=(-p "$COMPOSE_PROJECT_NAME")
     fi
     "${cmd[@]}" "$@"
+}
+
+# reset_service -- empty the database and bring triage back up on MODEL_TAG.
+reset_service() {
+    if [[ -n "$SERVICE_SSH" ]]; then
+        remote env "MODEL_TAG=${MODEL_TAG:-}" scripts/reset.sh --yes
+    else
+        "$RESET_SCRIPT" --yes
+    fi
+}
+
+# sync_service_logs -- in remote mode, mirror the service host's logs/service into
+# SERVICE_LOG_DIR. Never deletes anything on either side: the logs are evidence.
+sync_service_logs() {
+    [[ -n "$SERVICE_SSH" ]] || return 0
+    rsync -a -e "ssh -o BatchMode=yes -o ConnectTimeout=15" \
+        "${SERVICE_SSH}:${SERVICE_REPO%/}/logs/service/" "${SERVICE_LOG_DIR%/}/"
+}
+
+# wait_for_log_line <request id> -- in remote mode, re-sync until the line has
+# arrived (the service writes it as the response is sent, so it can trail).
+wait_for_log_line() {
+    [[ -n "$SERVICE_SSH" ]] || return 0
+    local attempt
+    for attempt in 1 2 3 4 5 6 7 8 9 10; do
+        sync_service_logs || true
+        if grep -qs -- "$1" "${SERVICE_LOG_DIR%/}"/*.jsonl; then
+            return 0
+        fi
+        sleep 2
+    done
+    return 1
 }
 
 now_iso_ms() {
@@ -769,6 +845,22 @@ log "Output root   : $OUT_ROOT"
 log "JMeter        : $JMETER_BIN (version $JMETER_VERSION)"
 log "Service log   : $SERVICE_LOG_DIR"
 
+if [[ -n "$SERVICE_SSH" ]]; then
+    log "Service host  : $SERVICE_SSH (checkout $SERVICE_REPO; compose and reset run there)"
+    REMOTE_HEAD="$(remote git rev-parse HEAD 2>/dev/null || true)"
+    [[ -n "$REMOTE_HEAD" ]] || die_usage "cannot run git in $SERVICE_REPO on $SERVICE_SSH (check ssh access and SERVICE_REPO)"
+    LOCAL_HEAD="$(git -C "$REPO_ROOT" rev-parse HEAD 2>/dev/null || true)"
+    if [[ "$REMOTE_HEAD" != "$LOCAL_HEAD" ]]; then
+        # metadata.json records THIS checkout's commit, so the service host must
+        # be running the same code or the record would be wrong.
+        if (( DEV )); then
+            warn "service host checkout is at ${REMOTE_HEAD:0:12}, this checkout at ${LOCAL_HEAD:0:12}"
+        else
+            die_usage "service host checkout is at ${REMOTE_HEAD:0:12} but this checkout is at ${LOCAL_HEAD:0:12}. Push, then 'git pull' on the service host and rebuild (docker compose build triage) before measuring."
+        fi
+    fi
+fi
+
 if (( ! ASSUME_YES )); then
     log ""
     log "Each run calls scripts/reset.sh --yes, which DESTROYS every ticket stored in"
@@ -824,6 +916,15 @@ fi
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 FAILED_RUNS=()
 
+# The stress plan's step rates are not visible in the .jtl, so the effective
+# staircase is written into metadata.json for analysis/stress_summary.py
+# (scripts/run_analysis.sh reads it back). Defaults are the plan's own:
+# ramp_start_per_min falls back to --rate, the others to the .jmx defaults.
+RAMP_NOTE=""
+if [[ "$PLAN" == "stress_ramp" ]]; then
+    RAMP_NOTE="ramp_start_per_min=${RAMP_START_PER_MIN:-$RATE}; ramp_step_per_min=${RAMP_STEP_PER_MIN:-30}; ramp_steps=6; ramp_step_duration_s=${RAMP_STEP_DURATION_S:-120}; "
+fi
+
 # ---------------------------------------------------------------------------
 # Steps 2-6, once per run
 # ---------------------------------------------------------------------------
@@ -842,7 +943,7 @@ for (( RUN_INDEX = 1; RUN_INDEX <= RUNS; RUN_INDEX++ )); do
     # model we asked for rather than on the compose file's default, and the
     # forced recreate below is then only a guarantee rather than a correction.
     export MODEL_TAG="$MODEL"
-    "$RESET_SCRIPT" --yes
+    reset_service
     # The backend is brought up but NOT force-recreated: recreating Ollama would
     # throw away an already-resident model for no benefit, and the warm-up below
     # pays the load cost deliberately.
@@ -875,6 +976,7 @@ for (( RUN_INDEX = 1; RUN_INDEX <= RUNS; RUN_INDEX++ )); do
         die_fail "the warm-up POST returned HTTP ${WARMUP_CODE}. Measuring now would charge the first sample with the model-load cost. Response: $(head -c 400 "$WARMUP_RESPONSE" 2>/dev/null || true)"
     fi
     log "      warm-up request_id ${WARMUP_REQUEST_ID} (dev row ${WARMUP_ROW}), HTTP 200"
+    wait_for_log_line "$WARMUP_REQUEST_ID" || warn "the warm-up log line has not reached the mirror in $SERVICE_LOG_DIR yet"
     if ! collect_warmup_log "$SERVICE_LOG_DIR" "$WARMUP_REQUEST_ID" "${RUN_DIR}/warmup.jsonl"; then
         die_fail "the warm-up request produced no usable log line; the service log is not readable at $SERVICE_LOG_DIR"
     fi
@@ -895,6 +997,7 @@ for (( RUN_INDEX = 1; RUN_INDEX <= RUNS; RUN_INDEX++ )); do
         "-Jduration_s=${DURATION}"
         "-Jinput_csv=${INPUT_CSV}"
         "-Jsearch_terms_file=${SEARCH_TERMS_FILE}"
+        "-Jdrain_s=${DRAIN_S}"
     )
     if [[ -n "$SEARCH_RATE" ]]; then
         JMETER_PROPS+=("-Jsearch_rate_per_min=${SEARCH_RATE}")
@@ -907,11 +1010,16 @@ for (( RUN_INDEX = 1; RUN_INDEX <= RUNS; RUN_INDEX++ )); do
         [[ -n "${RAMP_STEP_PER_MIN:-}" ]]      && JMETER_PROPS+=("-Jramp_step_per_min=${RAMP_STEP_PER_MIN}")
         [[ -n "${RAMP_STEPS:-}" ]]             && JMETER_PROPS+=("-Jramp_steps=${RAMP_STEPS}")
         [[ -n "${RAMP_STEP_DURATION_S:-}" ]]   && JMETER_PROPS+=("-Jramp_step_duration_s=${RAMP_STEP_DURATION_S}")
+        JMETER_PROPS+=("-Jramp_drain_s=${DRAIN_S}")
     fi
 
     STARTED_AT="$(now_iso_ms)"
     set +e
+    # -q jmeter/user.properties fixes the .jtl column set and turns off
+    # HttpClient retries, so the file does not depend on this machine's JMeter
+    # install (see jmeter/README.md).
     "$JMETER_BIN" -n \
+        -q "${REPO_ROOT}/jmeter/user.properties" \
         -t "$PLAN_FILE" \
         -l "${RUN_DIR}/results.jtl" \
         -j "${RUN_DIR}/jmeter.log" \
@@ -930,7 +1038,10 @@ for (( RUN_INDEX = 1; RUN_INDEX <= RUNS; RUN_INDEX++ )); do
     # The .jtl must be CSV and must carry the two sample-variable columns, or the
     # run cannot be reconciled and is not evidence.
     if [[ -s "${RUN_DIR}/results.jtl" ]]; then
-        JTL_HEADER="$(head -n 1 "${RUN_DIR}/results.jtl")"
+        # JMeter 5.6 writes the sample_variables column names quoted
+        # ("request_id","source_row"); CSV readers strip the quotes, so this
+        # check does too.
+        JTL_HEADER="$(head -n 1 "${RUN_DIR}/results.jtl" | tr -d '"')"
         case "$JTL_HEADER" in
             timeStamp,*) : ;;
             *) warn "${RUN_ID}: results.jtl does not start with a CSV header ('${JTL_HEADER:0:40}'). Check jmeter.save.saveservice.output_format in jmeter.properties."
@@ -955,6 +1066,10 @@ for (( RUN_INDEX = 1; RUN_INDEX <= RUNS; RUN_INDEX++ )); do
 
     # --- Step 5: the service's own record of the same window --------------
     log "  [5/6] slice the service log into the run directory"
+    if [[ -n "$SERVICE_SSH" ]]; then
+        sleep 2
+        sync_service_logs || warn "${RUN_ID}: rsync of the service host's logs/service failed"
+    fi
     if ! slice_service_log "$SERVICE_LOG_DIR" "$STARTED_AT" "$ENDED_AT" "$SLICE_MARGIN_S" \
             "${RUN_DIR}/service.jsonl" "${RUN_DIR}/warmup.jsonl"; then
         warn "${RUN_ID}: no service log lines fall inside the measured window. Check SERVICE_LOG_DIR and that both machines' clocks are in sync (NTP)."
@@ -984,7 +1099,7 @@ for (( RUN_INDEX = 1; RUN_INDEX <= RUNS; RUN_INDEX++ )); do
     META_HEALTH_JSON="$HEALTH_FILE" \
     META_SERVICE_JSONL="${RUN_DIR}/service.jsonl" \
     META_REPO="$REPO_ROOT" \
-    META_NOTES="${RUN_NOTES:+${RUN_NOTES}; }${RUN_NOTE_EXTRA}rate label=${RATE_LABEL}; warm-up excluded from service.jsonl; slice margin ${SLICE_MARGIN_S}s" \
+    META_NOTES="${RUN_NOTES:+${RUN_NOTES}; }${RUN_NOTE_EXTRA}${RAMP_NOTE}drain_s=${DRAIN_S}; rate label=${RATE_LABEL}; warm-up excluded from service.jsonl; slice margin ${SLICE_MARGIN_S}s" \
         write_metadata "${RUN_DIR}/metadata.json"
     log "      ${RUN_DIR}/metadata.json"
 done

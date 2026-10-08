@@ -107,7 +107,7 @@ defaults above gives 30, 60, 90, 120, 150, 180 per minute. So:
   * -Jramp_start_per_min=12 -Jramp_step_per_min=12  gives 12/24/36/48/60/72;
   * -Jramp_rate_6=240 raises only the top step and leaves the rest alone.
 
-TODO(Part 4 — Teammate C): the defaults above are a placeholder staircase, not a
+TODO(Part 4 — Toh Si Pei): the defaults above are a placeholder staircase, not a
 workload figure. The rates that matter are the ones that bracket the throughput
 requirement — you want steps below it, one at it, and steps above it, so that the
 test actually demonstrates where the baseline stops meeting it. Choose them from

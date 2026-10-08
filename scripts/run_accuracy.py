@@ -50,6 +50,7 @@ import os
 import socket
 import subprocess
 import sys
+import time
 import urllib.error
 import urllib.request
 import uuid
@@ -400,6 +401,33 @@ def slice_service_log(
     return measured, warmup, problems
 
 
+def sync_remote_logs(log_dir: Path) -> str | None:
+    """Mirror the service host's logs/service into ``log_dir`` when SERVICE_SSH is set.
+
+    Remote mode, the same contract as scripts/run_load_test.sh: the service runs on
+    another machine, whose checkout is SERVICE_REPO (default ``ICT3113-PTO`` under
+    its home directory), and its request log is copied here with rsync before it
+    is sliced. Nothing is deleted on either side. Returns a problem string, or None.
+    """
+    target = os.environ.get("SERVICE_SSH", "")
+    if not target:
+        return None
+    repo = os.environ.get("SERVICE_REPO", "ICT3113-PTO").rstrip("/")
+    log_dir.mkdir(parents=True, exist_ok=True)
+    proc = subprocess.run(
+        [
+            "rsync", "-a", "-e", "ssh -o BatchMode=yes -o ConnectTimeout=15",
+            f"{target}:{repo}/logs/service/", f"{log_dir}/",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        return f"rsync from {target}:{repo}/logs/service failed: {proc.stderr.strip()[:300]}"
+    return None
+
+
 def write_jsonl(path: Path, records: list[dict]) -> None:
     with path.open("w", encoding="utf-8") as handle:
         for record in records:
@@ -437,6 +465,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         ),
         epilog=(
             "Environment variables: SERVICE_LOG_DIR (default logs/service), "
+            "SERVICE_SSH and SERVICE_REPO (remote mode: mirror the service host's "
+            "logs/service with rsync before slicing it), "
             "ACCURACY_TIMEOUT_S (default %d), SLICE_MARGIN_S (default %d), "
             "RUN_NOTES (free text copied into metadata.json)."
             % (DEFAULT_REQUEST_TIMEOUT_S, DEFAULT_SLICE_MARGIN_S)
@@ -608,7 +638,12 @@ def main(argv: list[str] | None = None) -> int:
     ended = datetime.now(timezone.utc)
 
     # --- the service's own record of the same requests --------------------
+    if os.environ.get("SERVICE_SSH"):
+        time.sleep(2)              # the last line is written as the response leaves
+    sync_problem = sync_remote_logs(log_dir)
     measured, warmup, problems = slice_service_log(log_dir, started, ended, margin_s)
+    if sync_problem:
+        problems.insert(0, sync_problem)
     write_jsonl(run_dir / "service.jsonl", measured)
     if warmup:
         write_jsonl(run_dir / "warmup.jsonl", warmup)

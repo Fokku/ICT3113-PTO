@@ -88,12 +88,12 @@ we report would depend on when the first failure happened.
 random_seed = ${__P(random_seed,0)}: 0 means JMeter picks a fresh seed per run,
 so the three repeat runs of a configuration see three different arrival patterns
 and the spread we report across runs includes arrival variability.
-TODO(Part 5 — Teammate D): if you would rather hold the arrival pattern fixed
+TODO(Part 5 — Koh Tong Wei): if you would rather hold the arrival pattern fixed
 across the three runs so that the spread reflects only the service, pass a
 non-zero -Jrandom_seed and say so in the playbook. Do not change the default
 here without recording the decision.</stringProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <stringProp name="OpenModelThreadGroup.schedule">rate(${__P(rate_per_min,60)}/min) random_arrivals(${__P(duration_s,300)} sec)</stringProp>
+        <stringProp name="OpenModelThreadGroup.schedule">rate(${__P(rate_per_min,60)}/min) random_arrivals(${__P(duration_s,300)} sec) pause(${__P(drain_s,150)} sec)</stringProp>
         <stringProp name="OpenModelThreadGroup.random_seed">${__P(random_seed,0)}</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="org.apache.jmeter.threads.openmodel.OpenModelThreadGroupController"/>
       </org.apache.jmeter.threads.openmodel.OpenModelThreadGroup>

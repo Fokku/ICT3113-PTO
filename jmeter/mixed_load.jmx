@@ -75,7 +75,7 @@ If a fixed pattern is wanted for reproducibility, pass -Jrandom_seed AND
 that two thread groups sharing one non-zero seed can fire their samples at the
 same instants, which would manufacture a collision that no real workload has.</stringProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <stringProp name="OpenModelThreadGroup.schedule">rate(${__P(rate_per_min,60)}/min) random_arrivals(${__P(duration_s,300)} sec)</stringProp>
+        <stringProp name="OpenModelThreadGroup.schedule">rate(${__P(rate_per_min,60)}/min) random_arrivals(${__P(duration_s,300)} sec) pause(${__P(drain_s,150)} sec)</stringProp>
         <stringProp name="OpenModelThreadGroup.random_seed">${__P(random_seed,0)}</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="org.apache.jmeter.threads.openmodel.OpenModelThreadGroupController"/>
       </org.apache.jmeter.threads.openmodel.OpenModelThreadGroup>
@@ -233,7 +233,7 @@ start together and stop together and every search happens while tickets are bein
 classified. Do not give the search stream its own duration: a search stream that
 outlives the intake would contribute uncontended samples to the same percentile.
 
-TODO(Part 4 — Teammate C): set the search rate from the workload model. The
+TODO(Part 4 — Toh Si Pei): set the search rate from the workload model. The
 default of 60/min is deliberately the same number as rate_per_min's default so
 that it is visibly a placeholder and not a measured agent-to-ticket ratio. The
 brief requires the workload model to estimate "the rate of agent-side searches"
@@ -245,7 +245,7 @@ stream's on purpose. If reproducible arrival patterns are wanted, the two stream
 must be given DIFFERENT non-zero seeds; JMeter's documentation warns that two
 thread groups sharing one non-zero seed can fire at the same instants.</stringProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <stringProp name="OpenModelThreadGroup.schedule">rate(${__P(search_rate_per_min,60)}/min) random_arrivals(${__P(duration_s,300)} sec)</stringProp>
+        <stringProp name="OpenModelThreadGroup.schedule">rate(${__P(search_rate_per_min,60)}/min) random_arrivals(${__P(duration_s,300)} sec) pause(${__P(drain_s,150)} sec)</stringProp>
         <stringProp name="OpenModelThreadGroup.random_seed">${__P(search_random_seed,0)}</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="org.apache.jmeter.threads.openmodel.OpenModelThreadGroupController"/>
       </org.apache.jmeter.threads.openmodel.OpenModelThreadGroup>
@@ -387,7 +387,7 @@ iteration's term, whereas an iterationStart listener could fire before it.</stri
 only stops a comment line in a hand-maintained file from being sent as a query.
 
 Why it exists: ../data/search_terms.txt is edited by hand and its format allows
-'#' comment lines and blank lines — the file is headed by a TODO block for Part 4.
+'#' comment lines and blank lines.
 JMeter's CSV Data Set Config has no concept of a comment, so it hands those lines
 to this sampler as though an agent had typed them.
 
@@ -407,14 +407,10 @@ and no row in the .jtl. This script therefore names no Java type at all and uses
 only JMeter's own bindings. Keep it that way.
 
 The consequence, stated plainly: at the very start of a run the pool is empty, so
-the leading '#' lines of the terms file that ignoreFirstLine did not skip are sent
-as queries. With the file as committed that is the first few searches of a run —
-about 2% of a 300 s run at 60/min, all of them at the beginning. They are real
-requests that cost the service a real full-table scan and match nothing, so they
-are not excluded from the results; they are simply not realistic queries. If that
-matters for a reported run, move the comment block to the END of the terms file:
-by the time JMeter reaches it the pool holds every term and no query is ever a
-comment.
+any leading '#' line of the terms file that ignoreFirstLine did not skip would be
+sent as a query. Since 8 October 2026 the committed file has exactly one leading
+comment line (line 1, which ignoreFirstLine skips) and keeps its notes at the END,
+where the pool already holds every term, so no query is ever a comment.
 
 A blank line in the terms file arrives as JMeter's &lt;EOF&gt; marker rather than as an
 empty string, because splitting an empty line yields no fields at all and

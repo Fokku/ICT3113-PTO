@@ -160,7 +160,11 @@ def read_jtl(path: Path) -> pd.DataFrame:
     """
     if not path.is_file():
         raise AnalysisError(f"No such .jtl file: {path}")
-    frame = pd.read_csv(path)
+    # The sample-variable columns are identifiers, so they are read as text. Left
+    # to type inference, a source_row column with any blank cell (every GET
+    # /search sample in mixed_load carries none) becomes float, and 900000
+    # turns into "900000.0" -- which no service log line would ever match.
+    frame = pd.read_csv(path, dtype={column: "string" for column in JTL_SAMPLE_VARIABLES})
     if frame.empty:
         raise AnalysisError(f"{path} has a header but no samples.")
 

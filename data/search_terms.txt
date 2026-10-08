@@ -1,7 +1,4 @@
-# TODO(Part 4 — Teammate C): review these against the workload model.
-# Part 4 owns two things here, not Part 1: the SEARCH RATE, which nothing in this
-# file sets and whose default in jmeter/mixed_load.jmx is a visible placeholder;
-# and whether this list is realistic for a complaints desk. Notes at end of file.
+# search_term: one agent query per line. The plan skips this line; notes are at the END of the file.
 overdraft fee
 late fee
 minimum payment
@@ -42,7 +39,7 @@ account frozen
 # blank line with one of the terms above. That pre-processor can only substitute a
 # term it has already seen, so comment lines placed at the TOP of the file are
 # queried for real during the first pass of a run, whereas comment lines down
-# here never are. Hence the split: a short TODO header, and the prose down here.
+# here never are. Hence the split: one header line, and the prose down here.
 # Full explanation: jmeter/README.md, section "The search terms file".
 #
 # Format: one term per line, and the whole line is the term — the plan reads the
@@ -64,8 +61,14 @@ account frozen
 # agent's query would. Repository prose stays in British English; query strings
 # match the data they are searching.
 #
-# TODO(Part 4 — Teammate C): if the workload model concludes that agents mostly
-# search for a reference number, a surname or an account number rather than for
-# subject-matter phrases, replace the list above and say so in
-# ../workload/requirements.md with the figure the search rate comes from.
+# Who owns what: Part 4 (Toh Si Pei) owns the search RATE — workload/workload_model.md
+# models 0.167 searches/minute (2 agents x 5 searches/hour) and the mixed test runs at
+# the lowest runnable rate, 1/minute (requirement R5). This list of subject-matter
+# phrases is the query MIX; with ~10 tickets stored, every query is a full-table
+# LIKE scan whatever it matches, so the mix affects what is returned, not the cost.
+#
+# Why only ONE comment line at the top (8 October 2026): the plan's comment filter can
+# only substitute a term it has already seen, so leading comment lines after line 1
+# were sent as real queries at the start of every run (seen in the dev rehearsal).
+# Line 1 is skipped by "Use first line as Variable Names"; everything else is here.
 # ---------------------------------------------------------------------------

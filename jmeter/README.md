@@ -7,8 +7,6 @@ uses a closed-loop thread group. Read it before running a test and before editin
 a `.jmx`.
 
 **Owner:** Part 1 — Yeo Kai Yuan (test harness).
-`TODO(Yeo Kai Yuan): replace with real name` if the repository should carry a
-different owner for this directory.
 
 **Done looks like:** a teammate who has never opened JMeter can run any of the
 three plans from `scripts/run_load_test.sh`, and can say what every number in the
@@ -110,6 +108,7 @@ a relative CSV path — it resolves against the directory holding the `.jmx`.
 |---|---|---|
 | `rate_per_min` | `60` | Ticket arrival rate, tickets per minute. |
 | `duration_s` | `300` | Length of the measured window, seconds. Both of `mixed_load.jmx`'s streams use this same property so they start and stop together. |
+| `drain_s` | `150` | Trailing `pause(...)` after the last arrival: no new requests, but those in flight may finish. `run_load_test.sh` passes its `DRAIN_S` (150). See "The drain on the steady-state plans" below. |
 
 Expected samples per run is `rate_per_min / 60 * duration_s`. Because arrivals are
 Poisson the actual count varies around that, and at a very low rate over a very
@@ -121,7 +120,7 @@ plan.
 
 | Property | Default | Meaning |
 |---|---|---|
-| `search_rate_per_min` | `60` | Agent search rate, searches per minute. `TODO(Part 4 — Teammate C)`: this is a workload figure and Part 1 has not invented one. The default is deliberately the same number as `rate_per_min`'s default so that it is visibly a placeholder rather than a measured agent-to-ticket ratio. |
+| `search_rate_per_min` | `60` | Agent search rate, searches per minute. Part 4's workload model gives 0.167/min (2 agents × 5 searches/hour); the mixed test runs at **1/min**, the lowest whole rate the harness accepts (requirement R5), passed as `--search-rate 1`. The plan default of 60 only matters when a plan is run by hand. |
 | `search_terms_file` | `../data/search_terms.txt` | The query strings. See section 6. |
 | `search_random_seed` | `0` | Seed for the search stream, separate from `random_seed`. If you want reproducible arrival patterns, give the two streams **different** non-zero seeds: JMeter's documentation warns that two thread groups sharing one non-zero seed can fire their samples at the same instants, which would manufacture a collision no real workload has. |
 
@@ -146,7 +145,21 @@ So `-Jramp_start_per_min=12 -Jramp_step_per_min=12` gives 12/24/36/48/60/72 per
 minute, while `-Jramp_rate_6=240` raises only the top step and leaves the rest
 alone.
 
-**The step boundaries.** With every property at its default:
+**The step boundaries we run** (Part 4's staircase, passed by the harness as
+`RAMP_START_PER_MIN=1 RAMP_STEP_PER_MIN=4 RAMP_STEP_DURATION_S=120`, drain 150 s):
+
+| Step | Offered rate | Window (s from test start) | Expected arrivals |
+|---|---|---|---|
+| 1 | 1 / min | 0 – 120 | 2 |
+| 2 | 5 / min | 120 – 240 | 10 |
+| 3 | 9 / min | 240 – 360 | 18 |
+| 4 | 13 / min | 360 – 480 | 26 |
+| 5 | 17 / min | 480 – 600 | 34 |
+| 6 | 21 / min | 600 – 720 | 42 |
+| drain | no arrivals | 720 – 870 | 0 |
+| | | **total** | **132 tickets** |
+
+**The plan's own defaults**, used only when the plan is run by hand with no properties:
 
 | Step | Offered rate | Window (s from test start) | Expected arrivals |
 |---|---|---|---|
@@ -180,16 +193,26 @@ are recorded as the latencies they really were. Note that JMeter always honours 
 pause in full, so the thread group lasts `6 × ramp_step_duration_s + ramp_drain_s`
 seconds even if every request has already finished.
 
-**The same artefact exists, unfixed, in the other two plans.** Their schedule
-string is fixed by the build contract as
-`rate(...) random_arrivals(... sec)` with no trailing pause, so the handful of
-requests still in flight when the window closes are recorded as failures. At
-60 tickets/min with a two-second service time that is on the order of two samples
-in three hundred, well under a one-percent error rate, but it is a real floor on
-the error rate a load run can report.
-`TODO(Yeo Kai Yuan): decide whether to add pause(...) to the two steady-state
-plans as well. It would deviate from the contract's literal schedule string, so it
-needs a recorded decision, and the same decision must apply to every reported run.`
+### The drain on the steady-state plans (decided 8 October 2026, before any real run)
+
+The same artefact existed in the other two plans, whose schedule string was
+`rate(...) random_arrivals(... sec)` with no trailing pause. It is not small. In a
+dev rehearsal at an overload rate, JMeter interrupted **every** request still in
+flight when the window closed ("Socket closed"): 46 of 80 samples were recorded as
+failures that the service went on to answer. Under overload that would (a) invent
+an error rate the service never had, (b) cut the slowest requests out of p95 and p99,
+and (c) fail reconciliation, because the service finishes those requests after
+JMeter has gone.
+
+**Decision:** both steady-state plans now end with `pause(${drain_s} sec)`, and
+`scripts/run_load_test.sh` passes `drain_s` = `DRAIN_S` = **150 s** to every run,
+and the same value to the stress plan as `ramp_drain_s`. 150 s is longer than the
+service's 120 s model timeout, so every request in flight at the end of the window
+either completes or receives the service's own 502 before JMeter stops. With the
+drain, the same overload rehearsal recorded 0 interrupted samples. The cost is
+150 s of wall-clock per run; latency, throughput (`span_s` is measured from the
+samples themselves) and the arrival pattern are unchanged. One rule for every
+reported run.
 
 ---
 
@@ -299,12 +322,12 @@ have. It invents nothing: the substitute always comes from the file.
 
 Its one limitation, stated plainly: the pre-processor can only substitute a term it
 has already seen, so `#` lines near the **top** of the file are queried for real
-during the first pass of a run. That is why `data/search_terms.txt` keeps a short
-TODO header at the top and puts its prose notes at the **bottom**, where they are
-never queried. With the file as committed, three searches at the very start of a
-run carry header text as their query. They are real requests that cost the service
-a real full-table scan and match nothing, so they are not excluded from the
-results; they are simply not realistic queries.
+during the first pass of a run. That is why `data/search_terms.txt` keeps exactly one
+header line at the top (line 1, which "Use first line as Variable Names" skips) and
+puts its prose notes at the **bottom**, where they are never queried. Until
+8 October 2026 the file had three more comment lines at the top, and the dev
+rehearsal showed them being sent as the first searches of a run; they were moved
+before any real run.
 
 Two traps for whoever edits the plan:
 

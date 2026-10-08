@@ -48,3 +48,4 @@ scratch/
 # Deck builder dependencies (slides/package.json)
 node_modules/
 .playwright-mcp/
+slides/build/

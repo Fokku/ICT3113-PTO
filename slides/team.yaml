@@ -1,0 +1,24 @@
+# Slide 1 (cover) inputs. The deck builder reads this file; nothing else on the
+# cover is typed by hand. `scripts/build_deck.sh --final` refuses to build while
+# any student_id below is still empty.
+group: 10
+title: "Ticket Triage Service on CPU-Only LLMs"
+subtitle: "Performance requirements, a golden test set and baseline measurements for a complaint-routing service"
+course: "ICT3113 Performance Optimisation and Design — Assignment 1"
+repository: "https://github.com/Fokku/ICT3113-PTO"
+members:
+  - name: "Yeo Kai Yuan"
+    student_id: "2403201"
+    role: "Service, test harness, analysis (Part 1)"
+  - name: "Loh Wen Xuan"
+    student_id: ""
+    role: "Labelling protocol, labeller A (Part 2)"
+  - name: "Jolie Ngai Ning Li"
+    student_id: ""
+    role: "Labeller B, accuracy results (Part 3)"
+  - name: "Toh Si Pei"
+    student_id: ""
+    role: "Workload model and requirements (Part 4)"
+  - name: "Koh Tong Wei"
+    student_id: "2402162"
+    role: "Test environment, playbooks, references (Part 5)"

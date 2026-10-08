@@ -551,6 +551,19 @@ def narrative() -> dict:
     return data
 
 
+def _finite(value):
+    """NaN and infinities become null: JSON has no NaN, and the deck shows null as a dash."""
+    if isinstance(value, float):
+        return value if value == value and value not in (float("inf"), float("-inf")) else None
+    if isinstance(value, dict):
+        return {k: _finite(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_finite(v) for v in value]
+    if hasattr(value, "item") and not isinstance(value, (str, bytes)):  # numpy scalars
+        return _finite(value.item())
+    return value
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--final", action="store_true", help="fail on any missing input")
@@ -570,7 +583,7 @@ def main() -> int:
     }
     data["missing"] = MISSING
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(data, indent=2, default=str), encoding="utf-8")
+    OUT.write_text(json.dumps(_finite(data), indent=2, default=str, allow_nan=False), encoding="utf-8")
     print(f"wrote {OUT.relative_to(REPO)}")
     for item in MISSING:
         print(f"  missing: {item}")

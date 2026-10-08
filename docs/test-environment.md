@@ -51,7 +51,9 @@ shell's `PATH`. JMeter itself runs on OpenJDK 21: its `bin/setenv.sh` sets `JAVA
 **CPU only.** The service host has an NVIDIA GeForce GTX 1660 (`lspci`: `TU116 [GeForce GTX 1660]`), and it is
 deliberately **not** passed to the container: `docker inspect ict3113-ollama` shows `DeviceRequests: null`, there
 is no GPU device in [`../docker-compose.yml`](../docker-compose.yml), and the `ollama/ollama` container has no
-NVIDIA runtime. Ollama therefore runs on the CPU, as the client's hardware would.
+NVIDIA runtime. Ollama therefore runs on the CPU, as the client's hardware would. During the campaign, `docker exec ict3113-ollama ollama ps`
+reported the loaded model with `PROCESSOR 100% CPU` (checked 2026-10-08 13:15 UTC, `llama3.2:1b-instruct-q4_K_M`
+loaded, 1.0 GB, context 4096).
 
 ### 2.1 Software configuration in force
 

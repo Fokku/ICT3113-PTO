@@ -647,7 +647,7 @@ machine 2 except key-based SSH and `rsync`:
 
 ```bash
 # On machine 2, before the run.
-export SERVICE_SSH=<user>@<machine-1>      # key-based SSH (we use Tailscale SSH)
+export SERVICE_SSH=<user>@<machine-1>      # key-based SSH (ours: OpenSSH over machine 1's Tailscale address)
 export SERVICE_REPO=ICT3113-PTO            # machine 1's checkout, relative to its home directory
 ```
 
@@ -663,6 +663,15 @@ With `SERVICE_SSH` set, both drivers behave as follows:
 
 `scripts/run_campaign.sh` (section 6.0) uses the same two variables, plus `TARGET_HOST`, the address JMeter
 sends to.
+
+**If machine 2 is a Mac, keep the SSH session open for the whole run.** macOS 15's Local Network privacy blocks
+a process that has left its login session from connecting to LAN addresses unless its app has "Local Network"
+access, so a campaign started with `nohup … &` over an SSH session that then closes records every JMeter sample
+as `NoRouteToHostException` (curl and Python are unaffected, which makes it confusing). Grant Java access in
+System Settings → Privacy & Security → Local Network, or start the campaign from another machine with an SSH
+session that stays open, as we did — see `docs/run-log.md`, 8 October, and `docs/playbooks/load-test.md` 2.3.
+On a Linux machine 1 running `ufw`, note that Docker-published ports (8000, 11434) bypass `ufw` while SSH does
+not, which is why our SSH went over the tailnet and the measured traffic over the LAN.
 
 ### 5.4 Verify reachability from machine 2 before a run
 

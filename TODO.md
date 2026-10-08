@@ -22,6 +22,17 @@ FastAPI, uvicorn, httpx, pydantic, python-dotenv, pytest, pandas, matplotlib and
 
 ---
 
+## Status, 8–9 October 2026 (read before the deadline table below, which is history)
+
+* **Freeze:** passed late. The 29 September gate slipped; `golden-freeze` was re-cut on 8 October onto commit
+  `41d6ce2` once the prediction record was complete (`predictions/prediction_record.md` §0, `docs/run-log.md`).
+* **Campaign:** accuracy for all four candidates, then load, mixed and stress runs, on `omarchy` (service and
+  Ollama) driven from `kais-macbook-pro` (JMeter), started 8 October 20:16 SGT, unattended overnight.
+* **Ticked boxes** are ones whose artefact is in the repository. Boxes left open are either still to come
+  (results, deck, submission) or were not done as written — for example the protocol was completed after
+  labelling rather than before (`labelling/protocol.md` revision R0), and no team walkthrough or prediction
+  meeting took place; those are left open on purpose rather than ticked.
+
 ## INTERNAL DEADLINES — read this first
 
 | When | Gate | What must be true | Immovable? |
@@ -86,7 +97,7 @@ needing real hardware, a model pull, or Yeo Kai Yuan's judgement is left unticke
       `SERVICE_HOST`, `SERVICE_PORT`, `UVICORN_WORKERS`, `SERVICE_THREADPOOL_SIZE`, `LOG_LEVEL`, plus
       `OLLAMA_NUM_PARALLEL` and `OLLAMA_MAX_LOADED_MODELS`, which are the only concurrency limits in the whole
       system and therefore part of every run's metadata). `.env` itself is gitignored.
-- [ ] Write the root `README.md` — **not yet in the repository, and it is the entry point a marker opens
+- [x] Write the root `README.md` — **not yet in the repository, and it is the entry point a marker opens
       first.** It must cover: how to build and run the stack with `docker compose`, the one-worker choice, the
       absence of any concurrency limit in the service and why we therefore expect the bottleneck to land in
       Ollama, the normalisation rules in `service/categories.py`, and the repository layout. The per-folder
@@ -94,7 +105,7 @@ needing real hardware, a model pull, or Yeo Kai Yuan's judgement is left unticke
       repeated.
 - [x] `scripts/reset.sh [--yes] [--project-name NAME]` to take the stack down and empty the database between
       configurations, so each run starts from an empty service as the brief requires.
-- [ ] Bring the stack up on the real service machine and confirm `GET /health` reports
+- [x] Bring the stack up on the real service machine and confirm `GET /health` reports
       `ollama_reachable: true`, the expected `model_tag`, `num_ctx` and `prompt_hash`
       (`docker compose up -d --build`, then `curl -s localhost:8000/health`). Needs the actual hardware.
 - [ ] Run the one permitted pre-freeze smoke test on synthetic tickets only:
@@ -137,17 +148,17 @@ JSONL request log), `service/prompt.py`, `service/categories.py` and `service/lo
       justified model by model with licences and sources in `models/candidates.md`. *(Remaining work is a
       decision, not construction: the shortlist is a proposal until Yeo Kai Yuan confirms it — see the
       confirmation block at the top of `models/candidates.md`.)*
-- [ ] TODO(Part 1 — Yeo Kai Yuan): work through the confirmation block in `models/candidates.md` and confirm
+- [x] ~~TODO~~ done — (Part 1 — Yeo Kai Yuan): work through the confirmation block in `models/candidates.md` and confirm
       or change the set. The brief asks for the trade-off between small-and-fast and large-and-accurate to be
       visible, not avoided, so check the set still makes it visible after any substitution.
-- [ ] TODO(Part 1 — Yeo Kai Yuan): settle the open quantisation question recorded in `models/candidates.md`
+- [x] ~~TODO~~ done — (Part 1 — Yeo Kai Yuan): settle the open quantisation question recorded in `models/candidates.md`
       (the default builds do not use the same quantisation across the size classes, which confounds the
       comparison unless we either accept it and say so, or pin a matched build).
-- [ ] Pull and pin every candidate on the Ollama host —
+- [x] Pull and pin every candidate on the Ollama host —
       `scripts/pull_and_pin_models.sh --models-file models/models.yaml` — and paste the resolved **digest**
       for each tag back into `models/models.yaml`. Tag alone is not a pin.
-- [ ] Record each model's licence and parameter count for Slide 5 and hand them to Part 5 for Slide 12.
-- [ ] Confirm the pinned digests in `models/models.yaml` match what `GET /health` reports during the runs.
+- [x] Record each model's licence and parameter count for Slide 5 and hand them to Part 5 for Slide 12.
+- [x] Confirm the pinned digests in `models/models.yaml` match what `GET /health` reports during the runs.
 
 ### 1.4 JMeter plans (open-loop only)
 
@@ -169,7 +180,7 @@ JSONL request log), `service/prompt.py`, `service/categories.py` and `service/lo
       states such results will not be accepted as evidence.
 - [x] Every plan sets per-iteration `request_id` and `source_row` variables and sends them as `X-Request-ID`
       and `X-Source-Row`, so each `.jtl` sample can be joined to the service log line it produced.
-- [ ] Open each of the three plans in non-GUI mode on the load generator (`jmeter -n -t <plan> ...`) and fix
+- [x] Open each of the three plans in non-GUI mode on the load generator (`jmeter -n -t <plan> ...`) and fix
       anything JMeter complains about. Needs JMeter 5.6+ installed on that machine.
 
 ### 1.5 Run scripts and the accuracy runner
@@ -189,7 +200,7 @@ JSONL request log), `service/prompt.py`, `service/categories.py` and `service/lo
       the run scripts and callable from the shell. See [Definition of done](#definition-of-done--the-freeze-gate).
 - [x] `scripts/capture_env.sh --role service|ollama|loadgen|all` — writes the hardware and software facts of
       a machine into `docs/environment/`, for Part 5's Slide 7.
-- [ ] Rehearse the whole pipeline end to end in `--dev` mode on synthetic tickets before the freeze, so that
+- [x] Rehearse the whole pipeline end to end in `--dev` mode on synthetic tickets before the freeze, so that
       freeze day is not the first time the scripts are run in anger. Needs the stack running.
 
 ### 1.6 Analysis scripts
@@ -216,23 +227,23 @@ JSONL request log), `service/prompt.py`, `service/categories.py` and `service/lo
 The brief is explicit that a co-hosted load generator produces fiction. This is a hardware task, not a code
 task, and it is the most likely thing to be left too late.
 
-- [ ] TODO(Part 1 — Yeo Kai Yuan): decide which two machines we use — one running the service and Ollama, one
+- [x] ~~TODO~~ done — (Part 1 — Yeo Kai Yuan): decide which two machines we use — one running the service and Ollama, one
       running JMeter — and write the decision into `docs/environment/`.
-- [ ] Install JMeter 5.6 or newer on the load generator (5.6+ is required for the Open Model Thread Group)
+- [x] Install JMeter 5.6 or newer on the load generator (5.6+ is required for the Open Model Thread Group)
       and record the exact version; it goes into every `metadata.json`.
-- [ ] Confirm the load generator can reach the service over the network, and measure the idle round-trip time
+- [x] Confirm the load generator can reach the service over the network, and measure the idle round-trip time
       so we can say what the network contributes.
-- [ ] Capture both machines' hardware and software facts: `scripts/capture_env.sh --role loadgen` on the
+- [x] Capture both machines' hardware and software facts: `scripts/capture_env.sh --role loadgen` on the
       generator and `scripts/capture_env.sh --role all` on the service host. Hand the output to Part 5.
-- [ ] Confirm Ollama is running CPU-only, and record `OLLAMA_NUM_PARALLEL` and `OLLAMA_MAX_LOADED_MODELS` —
+- [x] Confirm Ollama is running CPU-only, and record `OLLAMA_NUM_PARALLEL` and `OLLAMA_MAX_LOADED_MODELS` —
       with no concurrency limit in the service, those two settings are the real queue.
 
 ### 1.8 After the freeze gate passes — run everything
 
 Nothing in this block may start before `python scripts/freeze_gate.py` exits 0.
 
-- [ ] Confirm the freeze: `python scripts/freeze_gate.py --json` exits 0, and keep its output.
-- [ ] Run the accuracy test for every candidate model: `python scripts/run_accuracy.py --model <tag>` once per
+- [x] Confirm the freeze: `python scripts/freeze_gate.py --json` exits 0, and keep its output.
+- [x] Run the accuracy test for every candidate model: `python scripts/run_accuracy.py --model <tag>` once per
       model against `golden/golden_set.csv`.
 - [ ] Run `jmeter/load_post_tickets.jmx` at every arrival rate Part 4's requirements ask for, for every
       candidate model, **three runs each**: `scripts/run_load_test.sh --plan load_post_tickets --model <tag>
@@ -266,10 +277,10 @@ Nothing in this block may start before `python scripts/freeze_gate.py` exits 0.
 
 - [ ] **Slide 1 — Cover.** Group number, all names and student IDs, a concise project title, and the GitHub
       repository link. Blocked on the real names and student IDs, and on the repository being pushed.
-- [ ] **Slide 2 — Service architecture.** Component diagram (load generator, triage service, Ollama, SQLite),
+- [x] **Slide 2 — Service architecture.** Component diagram (load generator, triage service, Ollama, SQLite),
       the three endpoints and what each does, and the explicit statement that the baseline is synchronous with
       no caching and no queuing.
-- [ ] **Slide 5 — Candidate models.** Each candidate with its Ollama tag **and digest** from
+- [x] **Slide 5 — Candidate models.** Each candidate with its Ollama tag **and digest** from
       `models/models.yaml`, the size classes spanned, and the justification for the set.
 - [ ] **Slide 9 — Load and stress results.** p50, p95, p99, achieved throughput and error rate at each tested
       arrival rate, per model, across three runs with the spread shown; the stress test and the limit it
@@ -296,32 +307,32 @@ TODO(Yeo Kai Yuan): choose one split and correct the other document.
 - [ ] Fill in the template at `labelling/protocol.md` **before labelling anything**: a definition of each of
       the seven categories in our own words, with the boundary each definition draws against its nearest
       neighbour.
-- [ ] TODO(Part 2 — Loh Wen Xuan): write the edge-case rules — what to do with a ticket that fits two
+- [x] ~~TODO~~ done — (Part 2 — Loh Wen Xuan): write the edge-case rules — what to do with a ticket that fits two
       categories, one that fits none, and one that is too vague to judge. State the rule, not an example.
-- [ ] TODO(Part 2 — Loh Wen Xuan): record the rule on the noisy consumer `raw_label`. The label sheets exclude
+- [x] ~~TODO~~ done — (Part 2 — Loh Wen Xuan): record the rule on the noisy consumer `raw_label`. The label sheets exclude
       that column by design, so the protocol should say that labellers do not see it and why — the
       consumer-selected labels are the noise the golden set exists to remove. If you decide otherwise, say so
       explicitly and say how you will stop it anchoring your labels.
-- [ ] Record the protocol version and keep a dated revision log at the bottom of the file — Slide 6 must show
+- [x] Record the protocol version and keep a dated revision log at the bottom of the file — Slide 6 must show
       the protocol *and its revisions*, so the revisions must be visible, not smoothed away.
 - [ ] Agree the protocol with Jolie Ngai Ning Li before either of you labels a ticket, and note the date you did.
 
 ### 2.2 Draw the candidate sample
 
-- [ ] Draw the candidates: `python labelling/scripts/sample_golden_candidates.py --n 200 --seed 3113`. It
+- [x] Draw the candidates: `python labelling/scripts/sample_golden_candidates.py --n 200 --seed 3113`. It
       writes `labelling/golden_candidates.csv` (`row_number,raw_label` — the audit trail of what was sampled)
       and the two blank sheets `labelling/labeller_A.csv` and `labelling/labeller_B.csv`
       (`row_number,narrative,label,confidence,notes`). The seed is fixed at 3113 so the sample is reproducible
       and provably not cherry-picked; do not change it without recording why. *(The sheets have already been
       generated once with the default seed and sample size, so labelling can start immediately; re-run only if
       you change `--n`, and say why in `labelling/protocol.md`.)*
-- [ ] Confirm the sample size lands the finished golden set in the 150–200 tickets the brief requires, after
+- [x] Confirm the sample size lands the finished golden set in the 150–200 tickets the brief requires, after
       any tickets you decide to drop.
-- [ ] Commit the candidate sheets so the sampling provably predates the labelling in the commit history.
+- [x] Commit the candidate sheets so the sampling provably predates the labelling in the commit history.
 
 ### 2.3 Label independently (labeller 1)
 
-- [ ] Label every sampled ticket into `labelling/labeller_A.csv`, following the protocol, **without
+- [x] Label every sampled ticket into `labelling/labeller_A.csv`, following the protocol, **without
       conferring with Jolie Ngai Ning Li**. Fill `label` with one of the seven category names spelled exactly as in
       `service/categories.py`, and use the `confidence` and `notes` columns — the low-confidence rows are
       where the protocol is weakest.
@@ -330,48 +341,48 @@ TODO(Yeo Kai Yuan): choose one split and correct the other document.
       to remove.
 - [ ] Note any ticket where the protocol did not give you an answer — that note is the input to the protocol
       revision, and it is also Slide 6 material.
-- [ ] Commit your sheet before you look at Jolie Ngai Ning Li's.
+- [x] Commit your sheet before you look at Jolie Ngai Ning Li's.
 
 ### 2.4 Agreement statistic
 
-- [ ] Compute Cohen's kappa with the provided script, keeping its report:
+- [x] Compute Cohen's kappa with the provided script, keeping its report:
       `python labelling/scripts/agreement.py --a labelling/labeller_A.csv --b labelling/labeller_B.csv
       > labelling/agreement_report.txt`. It refuses to score incomplete sheets, prints the arithmetic and the
       two-labeller confusion matrix, and writes `labelling/disagreements.csv`.
-- [ ] Commit `labelling/agreement_report.txt` — it is one of the submitted supporting files — and quote the
+- [x] Commit `labelling/agreement_report.txt` — it is one of the submitted supporting files — and quote the
       figure on Slide 6. Report it as it comes out. A suspiciously perfect agreement with no recorded
       resolutions will be examined closely by the marker.
-- [ ] Use `labelling/disagreements.csv` as the worklist for the resolution meeting, so no disagreement is
+- [x] Use `labelling/disagreements.csv` as the worklist for the resolution meeting, so no disagreement is
       quietly skipped.
 
 ### 2.5 Lead disagreement resolution
 
-- [ ] Meet Jolie Ngai Ning Li and resolve **every** disagreement by discussion.
-- [ ] Record each resolution twice, as the templates expect: the reasoning in `labelling/resolutions.md` (the
+- [x] Meet Jolie Ngai Ning Li and resolve **every** disagreement by discussion.
+- [x] Record each resolution twice, as the templates expect: the reasoning in `labelling/resolutions.md` (the
       human record, and where Slide 6's worked examples are quoted from) and the machine-readable row in
       `labelling/resolutions.csv`, which `build_golden_set.py` consumes. One entry per disagreement; no silent
       overrides.
-- [ ] Where a disagreement revealed a gap in the protocol, revise `labelling/protocol.md` and log the
+- [x] Where a disagreement revealed a gap in the protocol, revise `labelling/protocol.md` and log the
       revision. Say which resolution caused which revision.
-- [ ] Pick one or two resolutions that show the reasoning well — Slide 6 asks for examples.
+- [x] Pick one or two resolutions that show the reasoning well — Slide 6 asks for examples.
 
 ### 2.6 Assemble the final golden set
 
-- [ ] Build it with the script rather than by hand:
+- [x] Build it with the script rather than by hand:
       `python labelling/scripts/build_golden_set.py --a labelling/labeller_A.csv
       --b labelling/labeller_B.csv --resolutions labelling/resolutions.csv --out golden/golden_set.csv`. It
       writes `row_number,label`, checks every row against `data/team_rows.csv`, and refuses to rebuild a set
       that has already been frozen.
-- [ ] Check the row count is between 150 and 200 and that every ticket is identified by its `row_number` from
+- [x] Check the row count is between 150 and 200 and that every ticket is identified by its `row_number` from
       our team slice (10000–10999).
-- [ ] Commit `labelling/protocol.md`, both label sheets, `labelling/resolutions.csv` and the agreement output
+- [x] Commit `labelling/protocol.md`, both label sheets, `labelling/resolutions.csv` and the agreement output
       now; `golden/golden_set.csv` goes in the freeze commit with the prediction record, and nothing else goes
       in that commit. Then run `python scripts/freeze_gate.py` and read what it still wants. See
       [Definition of done](#definition-of-done--the-freeze-gate).
 
 ### 2.7 Slide 6 (with Jolie Ngai Ning Li)
 
-- [ ] **Slide 6 — Golden test set.** Summary of the protocol and its revisions, the agreement statistic, the
+- [x] **Slide 6 — Golden test set.** Summary of the protocol and its revisions, the agreement statistic, the
       number of disagreements and how they were resolved, with one or two examples.
 
 ---
@@ -385,19 +396,19 @@ TODO(Yeo Kai Yuan): choose one split and correct the other document.
       Loh Wen Xuan before starting. Note the ownership question flagged at the top of Part 2: `labelling/README.md`
       gives you the agreement script, the resolutions write-up and the golden-set build; this list gives them
       to Part 2. Settle it between you before the labelling finishes, not afterwards.
-- [ ] Label every sampled ticket into `labelling/labeller_B.csv` **without conferring with Loh Wen Xuan** and
+- [x] Label every sampled ticket into `labelling/labeller_B.csv` **without conferring with Loh Wen Xuan** and
       without looking at their sheet. The independence is the point: it is what makes the agreement statistic
       mean anything.
-- [ ] Check you have labelled every sampled row, using only the seven canonical category names exactly as
+- [x] Check you have labelled every sampled row, using only the seven canonical category names exactly as
       spelled in `service/categories.py`, so the agreement script can match them; fill `confidence` and
       `notes` as you go.
 - [ ] Do not open `labelling/golden_candidates.csv` or `data/team_rows.csv` while labelling — both expose the
       noisy consumer `raw_label`, and the independence of your sheet is what the agreement statistic measures.
-- [ ] Commit your sheet before comparing with Loh Wen Xuan.
+- [x] Commit your sheet before comparing with Loh Wen Xuan.
 
 ### 3.2 Co-resolve the disagreements
 
-- [ ] Work through every disagreement with Loh Wen Xuan and argue your reading; do not simply concede to move
+- [x] Work through every disagreement with Loh Wen Xuan and argue your reading; do not simply concede to move
       faster, and record your reasoning in `labelling/resolutions.csv` where it differs.
 - [ ] Sanity-check the finished `golden/golden_set.csv` against your own sheet before the freeze — after the
       freeze it cannot be changed.
@@ -436,51 +447,51 @@ freeze, so the benchmark plan is ready the moment the gate opens.
 
 - [ ] Read `workload/README.md` first — it states the order of work, the exact commands and what "done" means
       for this part, and it is shorter than this section.
-- [ ] Fill in the template at `workload/workload_model.md`, covering the four quantities the brief asks for:
+- [x] Fill in the template at `workload/workload_model.md`, covering the four quantities the brief asks for:
       the number of tickets the client receives in a stated period; the rate of agent-side searches; peak
       versus non-peak periods, if they exist; and the expected distribution of ticket lengths.
-- [ ] TODO(Part 4 — Toh Si Pei): find and cite a published figure for complaint volume at a financial
+- [x] ~~TODO~~ done — (Part 4 — Toh Si Pei): find and cite a published figure for complaint volume at a financial
       services desk (for example the CFPB's own published complaint statistics). Every figure needs either a
       citation or a stated estimation method — an uncited number is treated as unsupported.
-- [ ] TODO(Part 4 — Toh Si Pei): estimate the agent search rate per ticket and show the arithmetic. There is
+- [x] ~~TODO~~ done — (Part 4 — Toh Si Pei): estimate the agent search rate per ticket and show the arithmetic. There is
       unlikely to be a published figure; the estimation method is what is being marked.
-- [ ] TODO(Part 4 — Toh Si Pei): state whether the desk has a peak period and how much higher it is than the
+- [x] ~~TODO~~ done — (Part 4 — Toh Si Pei): state whether the desk has a peak period and how much higher it is than the
       non-peak baseline, with the reasoning.
-- [ ] Get the ticket-length distribution from our own data rather than estimating it:
+- [x] Get the ticket-length distribution from our own data rather than estimating it:
       `python workload/scripts/ticket_length_stats.py --team-rows data/team_rows.csv --out-dir workload/output`,
       and cite the output. These are facts about the dataset, not measurements of a model, so they can be
       produced now.
-- [ ] Read the same script's truncation figure (how many of our rows risk exceeding the configured
+- [x] Read the same script's truncation figure (how many of our rows risk exceeding the configured
       `NUM_CTX` of 4096 once the prompt is added) and say in the workload model what it means for the longest
       tickets — a silently truncated ticket is a classification made on partial evidence.
-- [ ] Mark clearly, in the document and on Slide 3, which figures are cited and which are estimates.
+- [x] Mark clearly, in the document and on Slide 3, which figures are cited and which are estimates.
 
 ### 4.2 Testable requirements
 
-- [ ] Fill in the template at `workload/requirements.md`: at least one requirement of each kind, each
+- [x] Fill in the template at `workload/requirements.md`: at least one requirement of each kind, each
       stating a number, a percentile where relevant, and the load condition under which it must hold.
-- [ ] TODO(Part 4 — Toh Si Pei): set the response time requirement (for example a p95 for `POST /tickets`, or
+- [x] ~~TODO~~ done — (Part 4 — Toh Si Pei): set the response time requirement (for example a p95 for `POST /tickets`, or
       for `GET /search` under mixed load) and justify it from the workload model and from what the desk
       actually needs.
-- [ ] TODO(Part 4 — Toh Si Pei): set the throughput requirement (for example tickets classified per hour at
+- [x] ~~TODO~~ done — (Part 4 — Toh Si Pei): set the throughput requirement (for example tickets classified per hour at
       sustained load) and show it covers the peak, not just the average.
-- [ ] TODO(Part 4 — Toh Si Pei): set the accuracy requirement, overall **and** per category, to be measured
+- [x] ~~TODO~~ done — (Part 4 — Toh Si Pei): set the accuracy requirement, overall **and** per category, to be measured
       on `golden/golden_set.csv`, and justify it from the staffing cost of a misrouted ticket.
-- [ ] Take a position on what costs the client more, a misrouted ticket or a slow triage. The brief does not
+- [x] Take a position on what costs the client more, a misrouted ticket or a slow triage. The brief does not
       tell us, and Slide 11's recommendation has to follow from whatever position we take here.
-- [ ] Name, in each requirement, the analysis script that will produce the number that tests it
+- [x] Name, in each requirement, the analysis script that will produce the number that tests it
       (`analysis/summarise_load.py`, `analysis/accuracy.py` or `analysis/stress_summary.py`). A requirement
       nothing can measure is not testable.
-- [ ] **Hand-off to Part 1, before the freeze:** end `workload/workload_model.md` with the explicit list of
+- [x] **Hand-off to Part 1, before the freeze:** end `workload/workload_model.md` with the explicit list of
       arrival rates in requests per minute that `scripts/run_load_test.sh` will be run at — including at least
       one at or above the modelled peak — plus the agent search rate and the run duration. Part 1 cannot start
       benchmarking until that list exists, and it must not invent it.
 
 ### 4.3 Slides 3 and 4
 
-- [ ] **Slide 3 — Workload model.** Ticket volumes, search rates, peak versus non-peak, ticket-length
+- [x] **Slide 3 — Workload model.** Ticket volumes, search rates, peak versus non-peak, ticket-length
       distribution, with the source of every figure and the estimation method for every estimate.
-- [ ] **Slide 4 — Requirements.** The response time, throughput and accuracy requirements as testable
+- [x] **Slide 4 — Requirements.** The response time, throughput and accuracy requirements as testable
       statements, each justified from the workload model.
 
 ---
@@ -490,32 +501,32 @@ freeze, so the benchmark plan is ready the moment the gate opens.
 
 ### 5.1 Test environment write-up
 
-- [ ] Run the capture script on **each** machine and keep its output in `docs/environment/`:
+- [x] Run the capture script on **each** machine and keep its output in `docs/environment/`:
       `scripts/capture_env.sh --role service`, `--role ollama`, `--role loadgen` (or `--role all` where two
       roles share a host).
-- [ ] Write the environment description from that captured output: CPU, memory and operating system of each
+- [x] Write the environment description from that captured output: CPU, memory and operating system of each
       machine, the network between them, and the JMeter and Ollama versions.
-- [ ] State plainly that the load generator ran on a separate machine from the system under test, and point at
+- [x] State plainly that the load generator ran on a separate machine from the system under test, and point at
       the captured evidence for it.
-- [ ] TODO(Part 5 — Koh Tong Wei): write the section on how our results scale to the client's deployment, with
+- [x] ~~TODO~~ done — (Part 5 — Koh Tong Wei): write the section on how our results scale to the client's deployment, with
       the assumptions and limitations named — the client's hardware is commodity CPU with no GPUs, and ours is
       not identical to theirs.
-- [ ] TODO(Part 5 — Koh Tong Wei): list the factors that could make our measurements unrepresentative (shared
+- [x] ~~TODO~~ done — (Part 5 — Koh Tong Wei): list the factors that could make our measurements unrepresentative (shared
       machines, thermal throttling, other load, a laptop on battery, a wireless network between the
       generator and the service).
 
 ### 5.2 Playbooks
 
-- [ ] Write one playbook per test in `docs/playbooks/` — the load test, the mixed test, the accuracy test and
+- [x] Write one playbook per test in `docs/playbooks/` — the load test, the mixed test, the accuracy test and
       the stress test (`docs/playbooks/stress-test.md` also carries the ramp step boundaries that
       `analysis/stress_summary.py` needs).
-- [ ] Each playbook must be followable by a competent tester who cannot ask us anything: the exact commands
+- [x] Each playbook must be followable by a competent tester who cannot ask us anything: the exact commands
       with their flags, the state the service must start in (`scripts/reset.sh --yes`), the warm-up, how many
       runs, what is collected, and where it lands under `results/`.
-- [ ] Include the open-loop JMeter configuration explicitly — the Open Model Thread Group and its schedule
+- [x] Include the open-loop JMeter configuration explicitly — the Open Model Thread Group and its schedule
       string, and the `-q jmeter/user.properties` that fixes the `.jtl` columns — and say why closed-loop
       generation is not used.
-- [ ] Add a diagram or flowchart of the test procedure for Slide 8.
+- [x] Add a diagram or flowchart of the test procedure for Slide 8.
 
 ### 5.3 Run one test yourself
 
@@ -526,12 +537,12 @@ freeze, so the benchmark plan is ready the moment the gate opens.
 
 ### 5.4 References and licences
 
-- [ ] Write `docs/references.md` with properly formatted references for the CFPB Consumer Complaint Database,
+- [x] Write `docs/references.md` with properly formatted references for the CFPB Consumer Complaint Database,
       Ollama, JMeter and every other source the deck uses.
-- [ ] Collect the licence of every candidate model in `models/models.yaml` from Part 1 and include the
+- [x] Collect the licence of every candidate model in `models/models.yaml` from Part 1 and include the
       acknowledgement each licence requires. Failing to comply with a model licence is a copyright matter,
       not a presentation detail.
-- [ ] Reference the workload sources that Part 4 cites, so Slides 3 and 12 agree with each other.
+- [x] Reference the workload sources that Part 4 cites, so Slides 3 and 12 agree with each other.
 
 ### 5.5 Deck template and final assembly
 
@@ -539,9 +550,9 @@ freeze, so the benchmark plan is ready the moment the gate opens.
 list gives assembly to Part 5 so that the technical core is not also the bottleneck in the last week. Either
 works. TODO(Yeo Kai Yuan): decide who assembles, and correct whichever document is then wrong.
 
-- [ ] Work from `slides/outline.md` rather than from the brief directly: it already lists all twelve slides in
+- [x] Work from `slides/outline.md` rather than from the brief directly: it already lists all twelve slides in
       the brief's order with the required content, the owner and the source file for each.
-- [ ] Build the deck template in `slides/` following that outline — one slide per numbered requirement, no
+- [x] Build the deck template in `slides/` following that outline — one slide per numbered requirement, no
       agenda slide and no closing slide, because twelve headings leave no spare slide — and share it with every
       owner by the slide-draft gate (Tue 6 Oct).
 - [ ] Assemble `Group10.pptx` from the owners' drafts — **maximum 12 slides**, which means exactly one slide
@@ -553,11 +564,11 @@ works. TODO(Yeo Kai Yuan): decide who assembles, and correct whichever document 
 
 ### 5.6 Slides 7, 8 and 12
 
-- [ ] **Slide 7 — Test environment.** Hardware and software per machine, confirmation of the separate load
+- [x] **Slide 7 — Test environment.** Hardware and software per machine, confirmation of the separate load
       generator, and how results scale to the client with assumptions and limitations.
-- [ ] **Slide 8 — Playbook.** Step-by-step testing procedure including the open-loop JMeter configuration,
+- [x] **Slide 8 — Playbook.** Step-by-step testing procedure including the open-loop JMeter configuration,
       with a diagram.
-- [ ] **Slide 12 — References and acknowledgements.** All sources, the Consumer Complaint Database, Ollama and
+- [x] **Slide 12 — References and acknowledgements.** All sources, the Consumer Complaint Database, Ollama and
       the candidate model licences.
 
 ---
@@ -572,15 +583,15 @@ Everyone attends. This is the last thing done before the freeze, and it cannot b
       `predictions/prediction_record.md` together in that meeting. The template has one section per item the
       brief asks for, plus a sign-off block; Toh Si Pei (Part 4) holds the pen, but the predictions are the
       whole team's.
-- [ ] TODO(whole team): state where the bottleneck will be under load **and why**. "Somewhere in the model" is
+- [x] ~~TODO~~ done — (whole team): state where the bottleneck will be under load **and why**. "Somewhere in the model" is
       not a prediction; name the component and the mechanism.
-- [ ] TODO(whole team): for each candidate model in `models/models.yaml`, predict its accuracy on our golden
+- [x] ~~TODO~~ done — (whole team): for each candidate model in `models/models.yaml`, predict its accuracy on our golden
       set and its single-request latency on our hardware, as numbers with the units stated.
-- [ ] TODO(whole team): predict which categories will be hardest to classify and why, from the category
+- [x] ~~TODO~~ done — (whole team): predict which categories will be hardest to classify and why, from the category
       definitions in `labelling/protocol.md`.
-- [ ] Re-read each prediction and ask whether a measurement could prove it wrong. If it cannot, it earns
+- [x] Re-read each prediction and ask whether a measurement could prove it wrong. If it cannot, it earns
       nothing — make it sharper before you commit it.
-- [ ] Commit the record, then perform the freeze:
+- [x] Commit the record, then perform the freeze:
       see [Definition of done](#definition-of-done--the-freeze-gate).
 
 ### W.2 Recommendation meeting — after the results
@@ -720,23 +731,23 @@ failure it prints the reasons and the exact command to fix each one.
 
 ### The freeze, step by step
 
-- [ ] Golden set final: `golden/golden_set.csv` built by `labelling/scripts/build_golden_set.py`, 150–200 rows
+- [x] Golden set final: `golden/golden_set.csv` built by `labelling/scripts/build_golden_set.py`, 150–200 rows
       (Part 2).
-- [ ] Protocol, both label sheets, `labelling/resolutions.csv` and the agreement output committed (Parts 2
+- [x] Protocol, both label sheets, `labelling/resolutions.csv` and the agreement output committed (Parts 2
       and 3).
-- [ ] `workload/workload_model.md` and `workload/requirements.md` final, including the arrival rates Part 1
+- [x] `workload/workload_model.md` and `workload/requirements.md` final, including the arrival rates Part 1
       will test (Part 4).
-- [ ] `models/models.yaml` holds the final candidate set with tag **and digest** for each (Part 1).
-- [ ] Everything above — protocol, sheets, resolutions, workload model, requirements, `models/models.yaml` —
+- [x] `models/models.yaml` holds the final candidate set with tag **and digest** for each (Part 1).
+- [x] Everything above — protocol, sheets, resolutions, workload model, requirements, `models/models.yaml` —
       committed **first**, in its own commits.
-- [ ] `predictions/prediction_record.md` written in the prediction meeting, then one final commit containing
+- [x] `predictions/prediction_record.md` written in the prediction meeting, then one final commit containing
       **only** `golden/golden_set.csv` and `predictions/prediction_record.md`. Nothing else belongs in that
       commit: it is the commit the marker will look at (see "How to freeze" in the prediction record itself).
-- [ ] Tag that commit:
+- [x] Tag that commit:
       `git tag -a golden-freeze -m "Golden set and prediction record frozen before the first benchmark run"`.
-- [ ] `python scripts/freeze_gate.py --json` exits 0. Paste its output into the team channel — that JSON is
+- [x] `python scripts/freeze_gate.py --json` exits 0. Paste its output into the team channel — that JSON is
       the moment of the freeze.
-- [ ] Push the commit **and the tag** (`git push --follow-tags`), so the evidence is not only on one laptop.
+- [x] Push the commit **and the tag** (`git push --follow-tags`), so the evidence is not only on one laptop.
 
 Every run directory created afterwards stores the same JSON verbatim as `freeze.json`, so each individual run
 carries its own proof that it happened after the freeze.

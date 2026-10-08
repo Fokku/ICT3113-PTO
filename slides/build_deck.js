@@ -513,21 +513,29 @@ const spread = (m) => `${secs(m.mean)} (${secs(m.min)}–${secs(m.max)})`;
   }
   table(s, rows, MX, 1.5, W - 2 * MX, [1.45, 1.45, ...cats.map(() => 1.18), 0.7], { size: 9.5, headSize: 9, margin: [2, 3, 2, 3] });
   text(s, "Cells are per-category recall (R4 ≥ 80%): the share of golden tickets in that category the model routed correctly. Green meets the requirement, red does not.",
-       MX, 3.2, W - 2 * MX, 0.28, { size: 9, italic: true, color: C.muted, margin: 0 });
-  // where each model goes wrong
-  const bw = (W - 2 * MX - 0.3) / 4;
+       MX, 2.88, W - 2 * MX, 0.26, { size: 9, italic: true, color: C.muted, margin: 0 });
+  // where each model goes wrong: 2 x 2 grid, then the best model's confusion matrix
+  const predHard = Object.fromEntries((D.predictions.rows ?? []).map((r) => [r.model, (r["Expected hardest category"] ?? "").replace(/\s*—.*$/, "")]));
+  const bw = 3.95, bh = 1.32;
   MODEL_ORDER.forEach((tag, i) => {
     const a = byModel[tag];
-    const x = MX + i * (bw + 0.1);
-    box(s, x, 3.6, bw, 2.15, i % 2 ? C.light : C.tealLight);
-    const lines = [{ text: `${shortTag(tag)} — most frequent errors`, options: { bold: true, color: C.dark, breakLine: true } }];
-    (a?.top_confusions ?? []).slice(0, 4).forEach((c, k, arr) => lines.push({ text: `${c.count} × ${abbrev[c.golden] ?? c.golden} → ${abbrev[c.predicted] ?? c.predicted}`, options: { bullet: true, breakLine: k < arr.length - 1 } }));
-    text(s, lines, x + 0.06, 3.65, bw - 0.12, 2.05, { size: 9.5, para: 2 });
+    const x = MX + (i % 2) * (bw + 0.1), y = 3.22 + Math.floor(i / 2) * (bh + 0.08);
+    box(s, x, y, bw, bh, i % 3 ? C.light : C.tealLight);
+    const worst = a ? [...a.per_category].filter((c) => c.recall !== null).sort((p, q) => p.recall - q.recall)[0] : null;
+    const lines = [{ text: `${shortTag(tag)}`, options: { bold: true, color: C.dark, breakLine: true } }];
+    if (worst) lines.push({ text: `Hardest: ${abbrev[worst.category] ?? worst.category} ${pct(worst.recall, 0)} (predicted: ${predHard[tag] ?? "–"})`, options: { color: C.teal, breakLine: true } });
+    (a?.top_confusions ?? []).slice(0, 3).forEach((c, k, arr) => lines.push({ text: `${c.count} × ${abbrev[c.golden] ?? c.golden} → ${abbrev[c.predicted] ?? c.predicted}`, options: { breakLine: k < arr.length - 1 } }));
+    text(s, lines, x + 0.08, y + 0.04, bw - 0.16, bh - 0.08, { size: 9.5, para: 1 });
   });
-  box(s, MX, 5.9, W - 2 * MX, 1.1, C.dark);
+  const best = [...D.accuracy].sort((p, q) => q.accuracy - p.accuracy)[0];
+  if (best) {
+    const img = path.join(REPO, best.run_dir, "confusion_matrix.png");
+    if (fs.existsSync(img)) s.addImage({ path: img, x: 8.72, y: 3.18, w: 4.06, h: 2.74 });
+  }
+  box(s, MX, 6.0, W - 2 * MX, 1.0, C.dark);
   text(s, [{ text: "Reading: ", options: { bold: true, color: C.amber } },
            { text: N.slide10_reading ?? "PENDING — interpretation written once the accuracy analysis exists.", options: { color: C.white } }],
-       MX + 0.12, 5.95, W - 2 * MX - 0.24, 1.0, { size: 10.5, valign: "middle" });
+       MX + 0.12, 6.03, W - 2 * MX - 0.24, 0.94, { size: 10.5, valign: "middle" });
 })();
 
 // ===================================================== SLIDE 11 predictions ===
@@ -566,11 +574,11 @@ const spread = (m) => `${secs(m.mean)} (${secs(m.min)}–${secs(m.max)})`;
       `${predP50 ? secs(Number(predP50)) : "–"} → ${l ? secs(l.client_p50_ms.mean) : "–"}`,
       `${predP95 ? secs(Number(predP95)) : "–"} → ${l ? secs(l.client_p95_ms.max) : "–"}`]);
   }
-  table(s, pr, MX, 3.35, 7.6, [1.3, 2.1, 2.1, 2.1], { size: 9.5, headSize: 9, margin: [2, 3, 2, 3] });
-  text(s, "* not blind: the drafter had seen an excluded pre-prediction run's category counts (prediction record §0).", MX, 4.67, 7.6, 0.25, { size: 8, italic: true, color: C.muted, margin: 0 });
+  table(s, pr, MX, 2.85, 7.6, [1.3, 2.1, 2.1, 2.1], { size: 9.5, headSize: 9, margin: [2, 3, 2, 3] });
+  text(s, "* not blind: the drafter had seen an excluded pre-prediction run's category counts (prediction record §0).", MX, 4.17, 7.6, 0.25, { size: 8, italic: true, color: C.muted, margin: 0 });
   text(s, [{ text: "Where we were wrong, and why: ", options: { bold: true, color: C.teal } },
            { text: N.slide11_wrong ?? "PENDING — written once outcomes exist.", options: { color: C.ink } }],
-       MX, 4.98, 7.6, 2.02, { size: 10, valign: "top" });
+       MX, 4.47, 7.6, 2.53, { size: 10, valign: "top" });
   // recommendation
   box(s, 8.4, 1.45, 4.38, 5.55, C.dark);
   text(s, [{ text: "Recommendation", options: { bold: true, color: C.amber, fontSize: 13, breakLine: true } },

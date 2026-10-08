@@ -80,17 +80,58 @@ environment after the re-cut freeze.
 2. After installing a second JDK, Java 25 stayed the automatic default. Add `update-alternatives --config java` (and `java -version` before every session) to the load-generator setup.
 3. A warm-up HTTP 502 `ollama_http_error` is the first sign that the model has not been pulled. Add to the abort table: run `docker exec ict3113-ollama ollama list` and pull the model before retrying.
 
-## Open items before the first real run
+## Open items before the first real run (on `tw`/`kthgoat`; superseded on 8 October 2026, see below)
 - [ ] **Which machine's Docker engine does `kthgoat`'s `docker` talk to?** A later `docker version` shows `Context: default` and a Docker Desktop server. If `DOCKER_HOST` is empty, that engine is `kthgoat`'s own, and the reset in attempt 2 restarted containers on the load generator, not on `tw`. Check `echo $DOCKER_HOST` and `docker ps` on `kthgoat`. If `ict3113-*` containers are running there, stop them (`docker compose --profile local-ollama down`) before any run.
 - [ ] Pull the model on machine 1 and rerun the dev load test to the end. Expect `results.jtl`, `metadata.json` and `service.jsonl` in the run folder.
 - [ ] In that run's `metadata.json`: `service_url` is `http://192.168.50.73:8000`, `load_generator_host_info.hostname` is `kthgoat`.
 - [ ] Freeze gate passes (`python scripts/freeze_gate.py`) and the tag `golden-freeze` exists.
 
+## 8 October 2026 — what changed before any reported run
+
+These entries record decisions and rehearsals, not measurements. Times are UTC (SGT in brackets).
+
+### Morning (before ~07:30 UTC): the freeze was found to be empty
+- The `golden-freeze` tag created at 04:28 UTC (12:28 SGT) on `ef5a1b2` passed `scripts/freeze_gate.py`, but the
+  prediction record in that commit was the unfilled template. The gate checks that the file is committed, not
+  that it is filled in.
+- The `llama3.2:1b` accuracy attempt on `tw` (05:25 UTC, entry below) was therefore made before any prediction
+  existed. It is **excluded**: moved to `../results/excluded/accuracy/` and explained in
+  `../results/excluded/EXCLUDED.md`. It is repeated after the re-cut freeze.
+
+### The test environment changed
+- `tw` and `kthgoat` became unavailable. The campaign moves to a new service host (Yeo Kai Yuan's Ryzen desktop at home:
+  triage service and Ollama, CPU only, in Docker) and a new load generator (Yeo Kai Yuan's Apple M3 Pro MacBook,
+  JMeter 5.6.3 on OpenJDK 21). Their captures are in `environment/`; the old ones moved to
+  `environment/superseded/`.
+- The harness gained a remote mode (`SERVICE_SSH`): compose and `reset.sh` run in the service host's checkout over
+  SSH, and its `logs/service` is mirrored with `rsync`. This replaces the `DOCKER_HOST` + sshfs arrangement
+  above, which needed the same absolute repository path on both machines.
+
+### 08:39–09:11 UTC (16:39–17:11 SGT) — five dev rehearsals of the whole campaign on the MacBook — dev, not evidence
+- What: `scripts/run_campaign.sh --dev --models llama3.2:1b` with short durations, the service and Ollama in Docker on
+  the same MacBook (co-hosted, which is exactly why none of it is evidence), synthetic tickets only, output under
+  the gitignored `results/dev/`.
+- Defects found and fixed before any real run (commit "Harness: remote service host over SSH…"):
+  1. `run_load_test.sh` did not pass `-q jmeter/user.properties`.
+  2. JMeter 5.6.3 writes the sample-variable header names in double quotes; the `.jtl` column check failed every run
+     (also found independently on `tw`, see "Playbook defects" above).
+  3. `analysis/common.read_jtl` typed `source_row` as float whenever a cell was blank (every `GET /search` sample), so
+     every `mixed_load` run failed reconciliation with "source_row disagreements".
+  4. Three comment lines at the top of `data/search_terms.txt` were sent as search queries.
+  5. JMeter idled ~60 s after each run before exiting (`jmeterengine.force.system.exit=true` now).
+  6. A variable-name clash: the campaign's address variable was called `SERVICE_HOST`, which `docker-compose.yml`
+     uses for uvicorn's bind address, so the container listened on its own loopback. Renamed `TARGET_HOST`.
+- Decision recorded the same day: the steady-state plans end with a **150 s drain** (`pause(drain_s)`), passed by
+  `run_load_test.sh` to every plan. Without it JMeter interrupted every request still in flight at the end of the
+  window and recorded it as a failure (46 of 80 samples in an overload rehearsal; 0 with the drain).
+- Verdict: **rehearsal**. The final rehearsal ran accuracy, load, mixed and stress end to end with exit 0, and every
+  run reconciled with its service log.
+
 ## Real runs
 
-### 2026-10-08 05:25:11–05:42:22 UTC (2026-10-08 13:25:11–13:42:22 SGT) — accuracy — llama3.2:1b — completed, provisional
+### 2026-10-08 05:25:11–05:42:22 UTC (2026-10-08 13:25:11–13:42:22 SGT) — accuracy — llama3.2:1b — EXCLUDED (predates the prediction record)
 
-- Run directory: [llama3.2-1b_20261008T052511Z](../results/accuracy/llama3.2-1b_20261008T052511Z/).
+- Run directory: [llama3.2-1b_20261008T052511Z](../results/excluded/accuracy/llama3.2-1b_20261008T052511Z/) (moved there from `results/accuracy/` on 8 October 2026).
 - Who ran it: [operator not recorded]. Driver hostname: `tw`; service URL: `http://localhost:8000`.
 - Wall-clock duration: **17 min 11.175 s**, calculated from `metadata.json` start/end timestamps. This is scheduling information, not a latency benchmark.
 - Database reset beforehand: [not recorded]. Other activity, physical setup and manual changes: [not recorded].
@@ -117,9 +158,9 @@ These figures were calculated by joining this run's `responses.csv` to `golden/g
 
 Predicted-category counts: Bank account or service 85; Consumer loan 10; Credit card 1; Credit reporting 100; Debt collection 0; Money transfer or service 0; Mortgage 1; UNPARSEABLE 3. The model never predicted Debt collection or Money transfer or service in this attempt.
 
-- Verdict: **rehearsal / provisional diagnostic attempt; not reportable** under playbook section 9. Although recorded in real mode after the freeze, the run has a dirty working tree and no recorded model digest. A low score alone would not invalidate a run.
+- Verdict: **excluded, not evidence.** Decisive reason: it was made before any prediction had been written (the `golden-freeze` tag then in force froze an empty prediction-record template), so it cannot appear on a slide whatever its quality. It also had a dirty working tree and no recorded model digest. See `../results/excluded/EXCLUDED.md` and `../predictions/prediction_record.md` §0.
 - Next steps: establish the model pin using the pinning script, run from a committed clean state, and repeat the entire golden set. Preserve this attempt. Generate formal accuracy tables and confusion matrices for the replacement run; do not retrofit a digest or change this attempt's metadata.
-- Other attempts: `results/accuracy/llama3.2-1b_20261008T052403Z/` contains only `responses.csv`; no metadata, freeze verdict or service-log snapshot is available in that directory. It is not used for the scores above.
+- Other attempts: `results/excluded/accuracy/llama3.2-1b_20261008T052403Z/` contains only `responses.csv`; no metadata, freeze verdict or service-log snapshot is available in that directory. It is not used for the scores above.
 
 ### Entry template (copy for each configuration)
 ```

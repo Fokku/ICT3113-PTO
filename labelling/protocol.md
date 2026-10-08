@@ -439,7 +439,7 @@ problem surfaced (an account, a credit file).
 | Role | Name | Date read and agreed |
 |---|---|---|
 | Protocol author, labeller A | Loh Wen Xuan | 30/09/2026 |
-| Labeller B | `TODO(Part 3 — Teammate B)` | `TODO(Part 3 — Teammate B)` |
+| Labeller B | Jolie Ngai | 28/09/2026 |
 
 ---
 

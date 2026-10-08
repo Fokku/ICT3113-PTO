@@ -5,7 +5,7 @@ written to the brief's standard: *"Each test playbook must be described in suffi
 software tester could carry it out without seeking or inventing further information from your team."* If you
 have to ask us a question to follow it, that question is a defect in this document — fix the document.
 
-**Owner:** Part 5 — Tong Wei
+**Owner:** Part 5 — Koh Tong Wei.
 
 **What "done" looks like.** Three completed run directories per configuration under `../../results/runs/`,
 each reconciling cleanly with the service log, and one summary table under `../../analysis/output/load/`.
@@ -20,7 +20,7 @@ means the repository's own virtual environment — `.venv/bin/python`, or activa
 `source .venv/bin/activate`. `<service-host>` is the hostname or IP address of the machine running the triage
 service; prefer an IP address, or add the name to `/etc/hosts` on the load generator, so that a DNS lookup
 never lands inside a measured sample. Anything in `<angle brackets>` is for you to substitute; anything marked
-`TODO(...)` is a value this team has not yet decided, and the marker names who owns the decision.
+every number in a command is the team's decided value, with its source named in section 1.1.
 
 ---
 
@@ -33,19 +33,25 @@ never lands inside a measured sample. Anything in `<angle brackets>` is for you 
 | **The unit of measurement** | Three runs of the same configuration. A single run is not a measurement — the brief says so, and `scripts/run_load_test.sh` defaults to `--runs 3` for that reason. |
 | **Plan used** | `../../jmeter/load_post_tickets.jmx` for the steady-state test; `../../jmeter/mixed_load.jmx` for the mixed test (section 10). |
 
-### 1.1 The numbers you need before you start, and where they come from
+### 1.1 The numbers, and where they come from
 
-These are **not** in this playbook, because they are not Part 5's to choose:
+These were not Part 5's to choose. They are fixed by Part 4 in `../../workload/workload_model.md` ("Derived
+arrival rates for testing") and `../../workload/requirements.md`, and copied here so a tester never has to
+look them up:
 
-| What | Where it lives |
-|---|---|
-| The arrival rate(s) to test, in tickets per minute | `TODO(Part 4 — Teammate C)`: `../../workload/requirements.md`, requirement **R2** (throughput) and the load condition attached to **R1**. Test at least the rate named in the load condition, plus one below it and one above it, so the table on Slide 9 shows a trend rather than a point. |
-| The measured duration per run, in seconds | `TODO(Part 4 — Teammate C)`: long enough that the expected sample count (`rate_per_min / 60 × duration_s`) gives a meaningful p95 and p99. Record the choice in `../../workload/requirements.md` next to R1 so every run uses the same one. |
-| The agent search rate, for the mixed test | `TODO(Part 4 — Teammate C)`: `../../workload/requirements.md`, requirement **R5**. The default in `mixed_load.jmx` is deliberately the same number as the ticket rate so that it is visibly a placeholder and not a measured agent-to-ticket ratio. |
-| The p50/p95/p99 thresholds each result is judged against | `TODO(Part 4 — Teammate C)`: `../../workload/requirements.md`, R1 and R5. This playbook produces the numbers; it does not decide whether they pass. |
-| Which models to test | `../../models/candidates.md` and `../../models/models.yaml`. Use the exact tag, never `latest`. |
+| What | Value | Source |
+|---|---|---|
+| Arrival rates to test (`load_post_tickets`) | **1, 4 and 12 tickets per minute** | workload model: 1/min is the lowest runnable rate (about 42× the modelled peak of 0.024/min), 4/min shows the curve, 12/min is the capacity test (720 tickets/hour) |
+| Measured duration per run | **600 s** of arrivals, then a **150 s drain** | workload model for the 600 s; the drain (no new arrivals, in-flight requests finish) is the harness's `DRAIN_S`, decided 8 October 2026 — see `../../jmeter/README.md`, "The drain on the steady-state plans". About 10, 40 and 120 samples per run at the three rates |
+| Runs per configuration | **3** | the brief |
+| Mixed test | **1 ticket/min + 1 search/min, 600 s, 3 runs** | requirement R5 (modelled search rate 0.167/min; 1/min is the lowest runnable) |
+| `POST /tickets` threshold | **p95 ≤ 10 s at 1/min** | requirement R1 |
+| Capacity criterion | **≤ 5% errors, and each run finishes within 660 s, at 12/min** | requirement R2 |
+| `GET /search` threshold | **p95 ≤ 2 s under the mixed test** | requirement R5 |
+| Models | `llama3.2:1b`, `llama3.2:3b`, `granite4:3b`, `qwen2.5:7b`, by the digests in `../../models/models.yaml` | `../../models/candidates.md` |
 
-Do not invent any of these. A run at a made-up rate is a run nobody can defend on Slide 9.
+This playbook produces the numbers; it does not decide whether they pass — `../../workload/requirements.md`
+does. Do not invent any of these. A run at a made-up rate is a run nobody can defend on Slide 9.
 
 ---
 
@@ -87,87 +93,68 @@ evidence.
 
 ### 2.3 The cross-machine plumbing `run_load_test.sh` needs
 
-This is the fiddly part, and it is the one thing to rehearse in `--dev` mode before a real run.
-`run_load_test.sh` runs JMeter locally, but it also resets the database, recreates the triage container and
-reads the service's own log — so from the load generator it needs to reach the service host's Docker daemon
-**and** read the service host's `logs/service` directory:
+`run_load_test.sh` runs JMeter on the load generator, but it also resets the database, recreates the triage
+container and reads the service's own log. So from the load generator it needs to run commands on the service
+host **and** read the service host's `logs/service` directory. We use the script's **remote mode**, which
+needs only key-based SSH (we use Tailscale SSH between the two machines) and `rsync`:
 
 ```bash
 # On the load generator, before the run:
-
-# 1. Point the Docker CLI at the service host's daemon. Requires key-based SSH.
-export DOCKER_HOST=ssh://<user>@<service-host>
-
-# 2. Tell the script where the service's JSONL log is readable from HERE.
-#    It must be live-readable during the run: the script reads the warm-up log
-#    line before JMeter starts and slices the measured window immediately after
-#    JMeter finishes, so copying the files afterwards is too late.
-export SERVICE_LOG_DIR=/path/to/a/live/mount/of/the/service/host/logs/service
+export SERVICE_SSH=<user>@<service-host>   # key-based SSH; BatchMode, so a password prompt fails fast
+export SERVICE_REPO=ICT3113-PTO            # the service host's checkout, relative to its home directory
 ```
 
-Two traps, both real:
+What remote mode does, so nothing surprises you:
 
-* With `DOCKER_HOST=ssh://…`, Compose resolves the bind mount `./logs/service` to an **absolute** path using
-  the compose file's location *on the load generator*, and the Docker daemon then interprets that absolute
-  path on the **service host**. So the repository must be checked out at the *same absolute path* on both
-  machines, or the container will bind-mount a directory that does not exist on the service host and write its
-  log nowhere you can find it.
-* `SERVICE_LOG_DIR` must be a live view (sshfs, NFS, or the service host's own path if you are running the
-  script there for a rehearsal), not a snapshot.
+* `docker compose …` and `scripts/reset.sh` are executed **in the service host's own checkout** over SSH, so
+  `./logs/service` and the build context resolve on the service host.
+* Before the script reads the service log (the warm-up line, then the measured window), it mirrors the
+  service host's `logs/service/` into the load generator's `logs/service/` with `rsync`. Nothing is deleted on
+  either side.
+* A real (non-`--dev`) run is **refused** if the service host's checkout is not at the same commit as the load
+  generator's, because `metadata.json` records the load generator's commit. After any push: `git pull` on the
+  service host, then `docker compose build triage`.
 
 Verify the plumbing before you spend an hour on runs:
 
 ```bash
-docker compose -f docker-compose.yml ps          # must list the containers on the service host
-ls -l "$SERVICE_LOG_DIR"                          # must show the service's <UTC-date>.jsonl
+ssh "$SERVICE_SSH" 'cd ICT3113-PTO && docker compose ps && git rev-parse HEAD'   # containers + commit
+git rev-parse HEAD                                                                  # the same commit
+rsync -a "$SERVICE_SSH:ICT3113-PTO/logs/service/" logs/service/ && ls logs/service/ # the log mirrors
 ```
 
-**The arrangement this team used** — set up on 8 October 2026 with `kthgoat` as the load generator and `tw`
-as the service host. Both are Ubuntu on WSL2 under Windows, which adds two steps the options above do not
-mention.
+The first rehearsals, on 7 and 8 October 2026 with `kthgoat` as the load generator and `tw` as the service
+host (both Ubuntu on WSL2), used the older alternative: `DOCKER_HOST=ssh://…` plus an sshfs mount of the
+service host's `logs/service` as `SERVICE_LOG_DIR`, with the repository at the same absolute path on both
+machines, because Compose resolves `./logs/service` against the load generator's path. That arrangement, and
+the WSL2 port forwarding it needed, is recorded in `../run-log.md`. Remote mode replaced it when those two
+machines became unavailable.
 
-| Piece | What we did |
-|---|---|
-| Docker over SSH | `export DOCKER_HOST=ssh://tongw@192.168.50.73`, with key-based login: an ed25519 key made on `kthgoat` (`ssh-keygen -t ed25519`, no passphrase) and installed with `ssh-copy-id tongw@192.168.50.73`. The login name is the Ubuntu user on `tw` (`whoami` there), not the machine name |
-| Reaching SSH inside WSL2 on `tw` | An OpenSSH server runs inside `tw`'s Ubuntu (`sudo apt install -y openssh-server && sudo service ssh start`). Windows on `tw` forwards port 22 to it, from an Administrator PowerShell: `netsh interface portproxy add v4tov4 listenport=22 listenaddress=0.0.0.0 connectport=22 connectaddress=<tw's WSL address, from hostname -I>`, plus `New-NetFirewallRule -DisplayName "WSL SSH" -Direction Inbound -Protocol TCP -LocalPort 22 -Action Allow`. The WSL address can change after a restart; if SSH stops answering, delete the rule and add it again with the new address |
-| Live view of the service log | sshfs: `mkdir -p ~/tw-logs`, then `sshfs tongw@192.168.50.73:"<repository path>/logs/service" ~/tw-logs`, then `export SERVICE_LOG_DIR=~/tw-logs` |
-| Repository path, identical on both machines | `/mnt/c/SIT/Y3T1/ICT 3113 Performance Testing and Optimisation/ICT3113-PTO`. Quote it everywhere: it contains spaces |
-| Every new terminal on the load generator | Re-run the two `export` lines, and re-mount with `sshfs` if `ls ~/tw-logs` is empty |
-
-Things that went wrong while setting this up, so the next person does not repeat them:
+Things that went wrong while setting up load generators, so the next person does not repeat them:
 
 * `sudo apt install jmeter` installs JMeter 2.13, which cannot open the plans. Install 5.6.3 from
-  <https://dlcdn.apache.org/jmeter/binaries/apache-jmeter-5.6.3.tgz> and set `JMETER_HOME` and `PATH` in
-  `~/.bashrc`.
+  <https://dlcdn.apache.org/jmeter/binaries/apache-jmeter-5.6.3.tgz>, check it against the published SHA-512,
+  and pass `--jmeter-home` (or set `JMETER_HOME`).
 * A copy of the repository unpacked from a zip on Windows has CRLF line endings, and the scripts fail with
   `env: 'bash\r': No such file or directory`. Fix the scripts only:
   `sed -i 's/\r$//' scripts/*.sh scripts/*.py .env`. Never do this to `data/`, `golden/` or `labelling/`. A
-  `git clone` inside Ubuntu avoids the problem, and is required for reported runs anyway, because the freeze
-  gate needs the repository history and the `golden-freeze` tag.
+  `git clone` avoids the problem, and is required for reported runs anyway, because the freeze gate needs the
+  repository history and the `golden-freeze` tag.
 * A Python virtual environment does not survive being copied to another path. Re-create it in place:
   `python3 -m venv --clear .venv && .venv/bin/pip install -r requirements-dev.txt`.
-
-* Ubuntu's default Java can take over from Java 21. `java -version` must say 17 or 21 before every session;
-  if it does not, run `sudo update-alternatives --config java` and pick the Java 21 entry. On a newer Java the
-  plans can drop samples silently (section 2.4).
-* On a load generator that gets its `docker` command from Docker Desktop, Docker Desktop must be running, or
-  the script stops at the reset with "The command 'docker' could not be found in this WSL 2 distro".
-* If the header block printed by `run_load_test.sh` shows `Service log :` pointing inside the repository on
-  the load generator, the `export` lines were not run in that terminal. It must show the mounted folder.
+* The JDK must be 17 or 21 (section 2.4). On Ubuntu the default Java can take over from Java 21: check
+  `java -version` and use `sudo update-alternatives --config java`. On macOS, install `openjdk@21` with
+  Homebrew and pin it for JMeter alone with a one-line `bin/setenv.sh` in the JMeter directory
+  (`JAVA_HOME=/opt/homebrew/opt/openjdk@21`).
+* Where the load generator's `docker` command comes from Docker Desktop, Docker Desktop must be running, or the
+  reset fails with "The command 'docker' could not be found in this WSL 2 distro". (In remote mode the load
+  generator needs no Docker at all.)
 * A warm-up that fails with `HTTP 502` and `"error":"ollama_http_error"` while `/health` says Ollama is
   reachable means the model has not been pulled on the Ollama host. Check with
   `docker exec ict3113-ollama ollama list`, then pull and pin with `scripts/pull_and_pin_models.sh --model <tag>`.
-* The script prints `results.jtl has no 'request_id' column` and `no 'source_row' column` and counts the run
-  as failed even when both columns are present. JMeter writes the two names in double quotes in the header
-  (`../../jmeter/README.md` section 4) and the script's check looks for them unquoted. Confirm with
-  `head -1 results.jtl`; `analysis/reconcile.py` reads the file correctly and is the real test.
-  `TODO(Yeo Kai Yuan): fix the header check in scripts/run_load_test.sh (strip the quotes before comparing),
-  otherwise every reported run is marked failed and carries "jtl missing request_id column" in its metadata
-  notes.`
-
-**Rehearsed.** The arrangement above ran all six steps of `run_load_test.sh` in `--dev` mode on 8 October
-2026 (run directory `20261007T174042Z_llama3.2-1b_load_post_tickets_60pm_run1` under `results/dev/runs/`).
-A `--dev` run uses synthetic tickets and is not evidence; no figure from it may be quoted.
+* **Fixed on 8 October 2026:** `run_load_test.sh` used to report `results.jtl has no 'request_id' column` for
+  every run, because JMeter 5.6.3 writes the sample-variable names in double quotes and the check compared
+  them unquoted. Both rehearsals found it independently; the check now strips the quotes.
 
 
 ### 2.4 Everything else
@@ -247,28 +234,14 @@ The expected `.jtl` header, which `analysis/common.py` is built against:
 timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect,"request_id","source_row"
 ```
 
-### 3.4 One thing to fix on the load generator before the first real run
+### 3.4 The `.jtl` column set is fixed by the repository
 
-`../../jmeter/user.properties` pins the whole `.jtl` column set and the CSV format, so that the evidence chain
-does not depend on a teammate's local JMeter installation. `scripts/run_load_test.sh` does **not** pass
-`-q jmeter/user.properties`; it passes `-Jsample_variables=request_id,source_row` only and otherwise relies on
-whatever `jmeter.properties` the load generator has installed. The script does check the resulting `.jtl`
-header and fails the run if the file is not CSV or if either reconciliation column is missing — but that check
-happens *after* the run, so a machine whose JMeter properties differ from ours costs you a whole configuration
-before you find out.
-
-Make the pinning unconditional once, per load generator, by appending our settings to the properties file
-JMeter loads automatically:
-
-```bash
-cat jmeter/user.properties >> "$JMETER_HOME/bin/user.properties"
-```
-
-Then record in `../environment/` that you did it. When running a plan **by hand** (section 9), pass
-`-q jmeter/user.properties` instead.
-
-`TODO(Yeo Kai Yuan): decide whether scripts/run_load_test.sh should pass -q jmeter/user.properties itself. It
-would remove this step and this footnote. Until it does, the step above is mandatory on every load generator.`
+`../../jmeter/user.properties` pins the whole `.jtl` column set, the CSV format and
+`httpclient4.retrycount=0`, so that the evidence does not depend on the load generator's JMeter
+installation. `scripts/run_load_test.sh` passes it with `-q` on every run (since 8 October 2026; before that
+it relied on the installed properties). The script still checks the resulting `.jtl` header after each run and
+fails a run whose `request_id` or `source_row` column is missing. When running a plan **by hand**
+(section 9), pass `-q jmeter/user.properties` yourself.
 
 ---
 
@@ -306,19 +279,20 @@ gathered under the old digest is no longer comparable. Read its message before d
 **4. Run the three measured runs (load generator).** One command per configuration:
 
 ```bash
-export DOCKER_HOST=ssh://<user>@<service-host>          # see section 2.3
-export SERVICE_LOG_DIR=/path/to/service/logs/service    # see section 2.3
+export SERVICE_SSH=<user>@<service-host>                # see section 2.3
 export RUN_NOTES="operator <name>; <anything a human noticed>"   # lands in metadata.json
 
-scripts/run_load_test.sh \
-    --plan load_post_tickets \
-    --model <ollama-tag> \
-    --rate <TODO(Part 4 — Teammate C): tickets per minute, from workload/requirements.md R2> \
-    --duration <TODO(Part 4 — Teammate C): seconds per run> \
-    --runs 3 \
-    --host <service-host> \
-    --port 8000 \
-    --yes
+for rate in 1 4 12; do                                   # section 1.1
+  scripts/run_load_test.sh \
+      --plan load_post_tickets \
+      --model <ollama-tag> \
+      --rate "$rate" \
+      --duration 600 \
+      --runs 3 \
+      --host <service-host> \
+      --port 8000 \
+      --yes
+done
 ```
 
 `--yes` skips the confirmation prompt. Read what you are agreeing to first: **each run calls
@@ -440,6 +414,10 @@ export RUN_NOTES="operator <name>; wired ethernet; service host otherwise idle; 
 `scripts/run_load_test.sh` copies it verbatim into `metadata.json`'s `notes` field, alongside its own notes.
 `scripts/run_accuracy.py` honours the same variable.
 
+The longer narrative goes in the single committed run log, `../run-log.md`: one dated entry per
+configuration with the seven items above. `scripts/run_campaign.sh` also writes every command, exit status and
+duration to `results/campaign/campaign_<stamp>.log`.
+
 ---
 
 ## 8. Abort and retry: what makes a run invalid
@@ -502,9 +480,9 @@ Same procedure, same preconditions, one plan and one extra flag. It exists for a
 scripts/run_load_test.sh \
     --plan mixed_load \
     --model <ollama-tag> \
-    --rate <TODO(Part 4 — Teammate C): ticket arrival rate, per minute> \
-    --search-rate <TODO(Part 4 — Teammate C): agent search rate, per minute, from workload/requirements.md R5> \
-    --duration <TODO(Part 4 — Teammate C): seconds per run> \
+    --rate 1 \
+    --search-rate 1 \
+    --duration 600 \
     --runs 3 \
     --host <service-host> --port 8000 --yes
 ```

@@ -3,7 +3,7 @@
 
 Part 2/3 helper (golden test set, brief Step 1, item 4).
 Script owner: Yeo Kai Yuan.  TODO(Yeo Kai Yuan): replace with real name.
-Run by: Part 3 -- Teammate B, once every disagreement has been resolved and
+Run by: Part 3 -- Jolie Ngai Ning Li, once every disagreement has been resolved and
 recorded.  This is the last step before the freeze.
 
 Output

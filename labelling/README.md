@@ -10,8 +10,8 @@ disagreement was resolved, and the script that turns all of that into
 
 | Part | Person | Responsible for |
 |---|---|---|
-| Part 2 | **Teammate A** — Loh Wen Xuan | `protocol.md`, labelling sheet A, any protocol revision |
-| Part 3 | **Teammate B** — Jolie Ngai Ning Li | labelling sheet B, running `agreement.py`, writing up `resolutions.md` / `resolutions.csv`, running `build_golden_set.py` |
+| Part 2 | Loh Wen Xuan | `protocol.md`, labelling sheet A, any protocol revision |
+| Part 3 | Jolie Ngai Ning Li | labelling sheet B, running `agreement.py`, writing up `resolutions.md` / `resolutions.csv`, running `build_golden_set.py` |
 | Technical core | **Yeo Kai Yuan** — `TODO(Yeo Kai Yuan): replace with real name` | the three scripts, the freeze gate, the commit and the tag |
 
 **"Done" looks like:** `../golden/golden_set.csv` exists with 150–200 rows, it and
@@ -85,15 +85,15 @@ independent label sheets, and the agreement statistic".
 | File | What it is | Written by |
 |---|---|---|
 | `README.md` | this file | Yeo Kai Yuan |
-| `protocol.md` | the labelling rules; **write it first** | Part 2 — Teammate A |
+| `protocol.md` | the labelling rules; **write it first** | Part 2 — Loh Wen Xuan |
 | `scripts/sample_golden_candidates.py` | draws the stratified sample, writes the blank sheets | Yeo Kai Yuan |
 | `golden_candidates.csv` | `row_number,raw_label` — the audit trail of what was sampled | the sampler |
 | `labeller_A.csv`, `labeller_B.csv` | `row_number,narrative,label,confidence,notes` | the sampler creates them blank; the labellers fill them in |
 | `scripts/agreement.py` | Cohen's kappa, per-category kappa, confusion matrix, disagreement list | Yeo Kai Yuan |
 | `disagreements.csv` | the rows the two labellers differ on, least-confident first | `agreement.py` |
-| `agreement_report.txt` | the printed output of `agreement.py`, redirected and committed | Part 3 — Teammate B |
-| `resolutions.md` | the narrative record of each resolution — **what Slide 6 quotes** | Part 3 — Teammate B |
-| `resolutions.csv` | the same resolutions in machine-readable form — **what the build script consumes** | Part 3 — Teammate B |
+| `agreement_report.txt` | the printed output of `agreement.py`, redirected and committed | Part 3 — Jolie Ngai Ning Li |
+| `resolutions.md` | the narrative record of each resolution — **what Slide 6 quotes** | Part 3 — Jolie Ngai Ning Li |
+| `resolutions.csv` | the same resolutions in machine-readable form — **what the build script consumes** | Part 3 — Jolie Ngai Ning Li |
 | `scripts/build_golden_set.py` | merges sheets + resolutions into the golden set | Yeo Kai Yuan |
 
 ### Why the resolutions live in two files
@@ -122,7 +122,7 @@ should not dictate its shape. Both warnings mean somebody has more to write.
 Run everything from the repository root. `python` below means the project
 virtualenv: `.venv/bin/python`.
 
-### Step 1 — write the protocol (Part 2 — Teammate A)
+### Step 1 — write the protocol (Part 2 — Loh Wen Xuan)
 
 Fill in every `TODO(...)` in `protocol.md`: the seven category definitions, the
 edge-case rules, the tie-break ordering, and what the three confidence levels
@@ -177,7 +177,7 @@ back as CSV. Do not edit it in a plain text editor, and do not re-sort, rename o
 add columns — the downstream scripts check the header and will refuse a sheet
 whose shape has changed.
 
-### Step 4 — compute the agreement statistic (Part 3 — Teammate B)
+### Step 4 — compute the agreement statistic (Part 3 — Jolie Ngai Ning Li)
 
 ```
 python labelling/scripts/agreement.py \
@@ -220,7 +220,7 @@ revision in its Revision log naming that row.
 * `protocol_revision` is the revision id from `protocol.md` (for example `R2`),
   or `none`.
 
-### Step 6 — build the golden set (Part 3 — Teammate B)
+### Step 6 — build the golden set (Part 3 — Jolie Ngai Ning Li)
 
 ```
 python labelling/scripts/build_golden_set.py \

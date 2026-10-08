@@ -6,10 +6,10 @@ disagreement by discussion, record each resolution, and update the protocol
 where a disagreement revealed a gap in it." This is the record; its machine
 readable counterpart is `resolutions.csv`, which `build_golden_set.py` consumes.
 
-**Owner: Part 3 — Teammate B** (writes it up during and after the resolution
-meeting). Jolie Ngai Ning Li
-**Co-owner: Part 2 — Teammate A** (agrees each resolution and makes any protocol
-revision it implies). Loh Wen Xuan
+**Owner: Part 3 — Jolie Ngai Ning Li** (writes it up during and after the resolution
+meeting).
+**Co-owner: Part 2 — Loh Wen Xuan** (agrees each resolution and makes any protocol
+revision it implies).
 
 **Feeds:** Slide 6 (Golden Test Set) — the number of disagreements, how they were
 resolved, and **one or two worked examples quoted from this file**. Also a

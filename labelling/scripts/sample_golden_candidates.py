@@ -3,7 +3,7 @@
 
 Part 2/3 helper (golden test set, brief Step 1).
 Script owner: Yeo Kai Yuan.  TODO(Yeo Kai Yuan): replace with real name.
-Consumers: Part 2 -- Teammate A and Part 3 -- Teammate B, who label the sheets
+Consumers: Part 2 -- Loh Wen Xuan and Part 3 -- Jolie Ngai Ning Li, who label the sheets
 independently and without conferring.
 
 What this script does

@@ -5,8 +5,7 @@
 model."* It is also the **authoritative record of the ramp's step boundaries**, because
 `analysis/stress_summary.py` has to be *told* where the steps fall — that coupling is not enforced in code.
 
-**Owner:** Part 5 — Teammate D.
-`TODO(Yeo Kai Yuan): replace "Teammate D" with the real name.`
+**Owner:** Part 5 — Koh Tong Wei.
 
 **What "done" looks like.** One completed stress run directory under `../../results/runs/`, reconciling
 cleanly with the service log; a per-step table under `../../analysis/output/stress/` that names the first step
@@ -21,8 +20,8 @@ only what is different about the ramp.
 
 **Conventions used in every command below.** Every command is run **from the repository root**, and `python`
 means the repository's own virtual environment — `.venv/bin/python`, or activate it first with
-`source .venv/bin/activate`. Anything in `<angle brackets>` is for you to substitute; anything marked
-`TODO(...)` is a value this team has not yet decided, and the marker names who owns the decision.
+`source .venv/bin/activate`. Anything in `<angle brackets>` is for you to substitute; every number in a
+command is the team's decided value, with its source named next to it.
 
 ---
 
@@ -32,12 +31,12 @@ The brief allows any meaningful limit. **Ours is: the highest ticket arrival rat
 answers within the response-time requirement and without an unacceptable error rate.** The last step that
 still met both criteria is the answer; the first step that breached either one is the limit.
 
-Two criteria, and both are `TODO`s owned by Part 4 rather than by this playbook:
+Two criteria, both set by Part 4 rather than by this playbook:
 
 | Criterion | Value | Source |
 |---|---|---|
-| p95 response-time limit | `TODO(Part 4 — Teammate C)` | `../../workload/requirements.md`, requirement **R1**. Passed to the analysis as `--p95-limit-ms` |
-| Error-rate limit | `TODO(Part 4 — Teammate C)`; the analysis defaults to `0.01` (one per cent) | `../../workload/requirements.md`. Passed as `--error-rate-limit` |
+| p95 response-time limit | **10 000 ms** | `../../workload/requirements.md`, requirement **R1**. Passed to the analysis as `--p95-limit-ms 10000` |
+| Error-rate limit | **5%** | `../../workload/requirements.md`, requirement **R2** (≤ 5% errors). Passed as `--error-rate-limit 0.05` |
 
 `analysis/stress_summary.py` also reports an **unbounded-growth signal**: whether the p95 rises monotonically
 across the last few steps (`--monotonic-steps`, default 3). That is the "latency grows without bound" version
@@ -77,24 +76,25 @@ baseline has been measured: the whole point of Slide 9 is that there is somethin
 ## 2. THE STEP BOUNDARIES (this is the authoritative copy)
 
 `analysis/stress_summary.py` cannot infer the schedule from the results file — the offered rate is a property
-of the JMeter plan, not of the `.jtl` — so it must be told. These are the boundaries **with every property at
-its default** (`ramp_start_per_min=30`, `ramp_step_per_min=30`, `ramp_step_duration_s=120`,
-`ramp_drain_s=ramp_step_duration_s`):
+of the JMeter plan, not of the `.jtl` — so it must be told. These are the boundaries **we run**, chosen by Part 4
+in `../../workload/workload_model.md` ("Stress ramp"): `RAMP_START_PER_MIN=1`, `RAMP_STEP_PER_MIN=4`,
+`RAMP_STEPS=6`, `RAMP_STEP_DURATION_S=120`, and the harness's drain of `DRAIN_S` = 150 s (passed as
+`ramp_drain_s`; it was the plan default of one step duration, 120 s, until 8 October 2026 — see section 2.2):
 
 | Step | Offered rate | Window (seconds from test start) | Expected arrivals |
 |---|---|---|---|
-| 1 | 30 / min | 0 – 120 | 60 |
-| 2 | 60 / min | 120 – 240 | 120 |
-| 3 | 90 / min | 240 – 360 | 180 |
-| 4 | 120 / min | 360 – 480 | 240 |
-| 5 | 150 / min | 480 – 600 | 300 |
-| 6 | 180 / min | 600 – 720 | 360 |
-| drain | no new arrivals | 720 – 840 | 0 |
-| | | **total** | **1,260 tickets** |
+| 1 | 1 / min | 0 – 120 | 2 |
+| 2 | 5 / min | 120 – 240 | 10 |
+| 3 | 9 / min | 240 – 360 | 18 |
+| 4 | 13 / min | 360 – 480 | 26 |
+| 5 | 17 / min | 480 – 600 | 34 |
+| 6 | 21 / min | 600 – 720 | 42 |
+| drain | no new arrivals | 720 – 870 | 0 |
+| | | **total** | **132 tickets** |
 
-Total wall-clock per run: `6 × ramp_step_duration_s + ramp_drain_s` = **840 s (14 minutes)** at the defaults.
-JMeter always honours a pause in full, so the thread group lasts the whole 840 s even if every request has
-already finished.
+Total wall-clock per run: `6 × 120 s + 150 s` = **870 s (14.5 minutes)**. JMeter always honours a pause in full,
+so the thread group lasts the whole 870 s even if every request has already finished. The top step (21/min) is
+above the highest steady-state load rate (12/min), so the ramp brackets requirement R2.
 
 Arrivals are a **Poisson** process (`random_arrivals`), so the per-step counts vary around those figures. That
 is the arrival process, not a fault.
@@ -103,18 +103,25 @@ is the arrival process, not a fault.
 > `TestPlan.comments` of `../../jmeter/stress_ramp.jmx`. Change one and you must change all three. This copy
 > is the one the analysis command in section 6 is written against.
 
-### 2.1 The rates must be chosen, not accepted
+### 2.1 Where the rates came from, and the pre-registered contingency
 
-`TODO(Part 4 — Teammate C): the staircase above is a placeholder, not a workload figure. The rates that matter
-are the ones that bracket the throughput requirement (R2) — you want at least one step clearly below it, one
-at it, and two or three above it, so that the test demonstrates where the baseline stops meeting it. Choose
-them from ../../workload/requirements.md, then update the table above, the two other copies named there, and
-the commands in sections 5 and 6.`
-
-`TODO(Part 5 — Teammate D): once the rates are chosen, replace the table above with the real one and record
-the date of the change. A stale boundary table silently mis-slices every stress result.`
+The staircase is Part 4's (8 October 2026; it replaced the plan's placeholder default of 30–180/min). Its top
+step only finds a limit for a model whose capacity is below about 21 tickets per minute — a service time above
+about 3 s per ticket. The prediction record expects that of `qwen2.5:7b` and not necessarily of the faster
+models. So, decided **before** any stress run and recorded here so that it is not a choice made after seeing
+results: **if this ramp finds no limit for a model, one second, steeper arithmetic ramp is run for that model —
+`RAMP_START_PER_MIN=10`, `RAMP_STEP_PER_MIN=10`, 6 steps of 120 s (10, 20, 30, 40, 50, 60 per minute),
+`--duration 870`, `--offered-rates 10,20,30,40,50,60`.** Both runs are reported. If neither finds a limit, Slide 9
+says "no limit below 60 tickets/minute" for that model.
 
 ### 2.2 Why there is a drain pause
+
+**Its length, decided 8 October 2026 before any real run: 150 s**, passed by `scripts/run_load_test.sh` as
+`ramp_drain_s` (its `DRAIN_S`). The service gives up on a model call after `OLLAMA_TIMEOUT_S` = 120 s, so a
+drain longer than that guarantees every request still in flight at the end of step 6 either completes or
+receives the service's own 502 before JMeter stops. A drain equal to the timeout (the old 120 s) left a race
+at the very end of the ramp. The steady-state plans got the same drain for the same reason; see
+`../../jmeter/README.md`, "The drain on the steady-state plans".
 
 An Open Model Thread Group interrupts its threads as soon as the schedule ends, and an interrupted in-flight
 request is recorded as a **failed** sample. At the top step a CPU-only model call can easily still be running
@@ -183,9 +190,7 @@ directory, the freeze verdict and the metadata, and the result is evidence. A ha
 only the top step, say) can only be run by invoking JMeter directly, which produces no `metadata.json` and no
 `freeze.json` and is therefore a diagnostic, not evidence.
 
-`TODO(Yeo Kai Yuan): if Part 4's chosen rates are not an arithmetic progression, scripts/run_load_test.sh needs
-to pass -Jramp_rate_1..6 (and -Jramp_drain_s) through from the environment, the way it already does for
-RAMP_STEP_PER_MIN. Until it does, this section is the constraint the rates must be chosen within.`
+Part 4's rates (1, 5, 9, 13, 17, 21) are an arithmetic progression, so the harness runs them as they are.
 
 ---
 
@@ -194,23 +199,19 @@ RAMP_STEP_PER_MIN. Until it does, this section is the constraint the rates must 
 The brief asks for *"One stress test"*, so one run satisfies it. But the limit this test reports is a single
 observation, and a Poisson arrival pattern differs between runs (`random_seed=0`).
 
-`TODO(Part 5 — Teammate D): decide and record whether we run the ramp once or repeat it. Two defensible
-positions: (a) once, because the brief asks for one and 14 minutes per run times four candidates is real time;
-(b) twice or three times for at least one candidate, so the reported limit is not a single observation and
-Slide 9 can say whether the limit moved. If you repeat it, pass --runs and report the limit each run found,
-not an average — averaging two limits produces a rate nothing was measured at.`
-
-The brief requires the stress test for *at least one* candidate model.
-`TODO(Part 5 — Teammate D): record which candidate(s) the ramp was run for and why that one. Running it for
-the model you intend to recommend is the most defensible choice; running it for the fastest one finds a
-different limit and answers a different question.`
+**Decision: once per candidate model, for all four candidates.** One run satisfies the brief; running the ramp
+for every candidate (14 minutes each) shows how the limit moves with model size, which is the trade-off the
+engagement is about. The limit each run found is reported per model, never averaged. The run for the model we
+recommend is the one Slide 9 leads with; the others give the comparison. `scripts/run_campaign.sh` runs them
+last, after every model's accuracy, load and mixed tests, so that if time runs short what is lost is
+comparison, not a requirement.
 
 ---
 
 ## 5. Procedure
 
 Sections 2.1 to 2.4 of `load-test.md` are preconditions here too: the freeze gate, the separate machines, the
-`DOCKER_HOST` and `SERVICE_LOG_DIR` plumbing, JMeter 5.6+, Java 17 or 21, the pinned model digest, synchronised
+`SERVICE_SSH` remote-mode plumbing, JMeter 5.6+, Java 17 or 21, the pinned model digest, synchronised
 clocks, an empty database, a clean working tree, and the `.jtl` column pinning in its section 3.4. Do not skip
 them because this is "just the stress test" — a stress run is the one most likely to be invalidated by a
 saturated load generator.
@@ -233,21 +234,21 @@ Check `status`, `model_tag`, `model_digest` against the pin, `ollama_reachable`,
 **3. Run the ramp (load generator).**
 
 ```bash
-export DOCKER_HOST=ssh://<user>@<service-host>            # see load-test.md section 2.3
-export SERVICE_LOG_DIR=/path/to/service/logs/service      # see load-test.md section 2.3
-export RUN_NOTES="operator <name>; stress ramp; <anything a human noticed>"
+export SERVICE_SSH=<user>@<service-host>                  # see load-test.md section 2.3
+export RUN_NOTES="stress ramp 1/5/9/13/17/21 per min, 120 s steps, 150 s drain; operator <name>"
 
-# The staircase. Both of these must match the boundary table in section 2.
-export RAMP_STEP_PER_MIN=<TODO(Part 4 — Teammate C): increment per step, per minute>
-export RAMP_STEP_DURATION_S=<TODO(Part 4 — Teammate C): seconds per step; 120 at the defaults>
+# The staircase. These must match the boundary table in section 2.
+export RAMP_START_PER_MIN=1
+export RAMP_STEP_PER_MIN=4
+export RAMP_STEP_DURATION_S=120
 export RAMP_STEPS=6                                       # recorded in jmeter.log; the schedule is six steps
 
 scripts/run_load_test.sh \
     --plan stress_ramp \
     --model <ollama-tag> \
-    --rate <TODO(Part 4 — Teammate C): step 1's rate, per minute> \
-    --duration <TODO: the TRUE total, i.e. 6 × RAMP_STEP_DURATION_S + drain; 840 at the defaults> \
-    --runs <TODO(Part 5 — Teammate D): see section 4> \
+    --rate 1 \
+    --duration 870 \
+    --runs 1 \
     --host <service-host> \
     --port 8000 \
     --yes
@@ -293,10 +294,10 @@ high step, read the report before assuming a clock problem.
 ```bash
 python analysis/stress_summary.py \
     --run-dir results/runs/<run-dir> \
-    --step-seconds <the SAME number you passed as RAMP_STEP_DURATION_S; 120 at the defaults> \
-    --offered-rates <the offered rates from section 2, comma-separated, e.g. 30,60,90,120,150,180> \
-    --p95-limit-ms <TODO(Part 4 — Teammate C): the p95 requirement from workload/requirements.md R1> \
-    --error-rate-limit <TODO(Part 4 — Teammate C): the error-rate criterion; 0.01 if not decided otherwise>
+    --step-seconds 120 \
+    --offered-rates 1,5,9,13,17,21 \
+    --p95-limit-ms 10000 \
+    --error-rate-limit 0.05
 ```
 
 Equivalently, for an arithmetic staircase, `--ramp-start-per-min` with `--ramp-step-per-min` instead of
@@ -396,10 +397,8 @@ The short version goes into `metadata.json` via `RUN_NOTES`. Put the staircase i
 future reader cannot recover from the run directory alone:
 
 ```bash
-export RUN_NOTES="stress ramp 30/60/90/120/150/180 per min, 120 s steps, 120 s drain; operator <name>"
+export RUN_NOTES="stress ramp 1/5/9/13/17/21 per min, 120 s steps, 150 s drain; operator <name>"
 ```
-
-`TODO(Part 5 — Teammate D): replace the example rates above with the real staircase once Part 4 has chosen it.`
 
 ---
 

@@ -36,9 +36,9 @@
 #     scripts/pull_and_pin_models.sh               # pulls and pins
 #     scripts/pull_and_pin_models.sh --model llama3.2:1b
 #
-# STATUS: PROPOSAL. Every `pinned:` block below is null, which means nothing in
-#   here has been pulled or verified, and the shortlist itself is still awaiting
-#   confirmation -- see the TODO at the top of models/candidates.md.
+# STATUS: CONFIRMED 8 October 2026 (decisions at the top of models/candidates.md).
+#   The `pinned:` blocks are written by scripts/pull_and_pin_models.sh against
+#   the Ollama instance on the service host that every reported run used.
 #
 # FORMAT NOTE FOR ANYONE EDITING BY HAND
 #   The script patches the four scalars inside each `pinned:` block in place, by

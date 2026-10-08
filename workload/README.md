@@ -14,8 +14,8 @@ position that **Slide 11 (Recommendation and Defence)** is defended with.
 | File | What it is | Who fills it in |
 |---|---|---|
 | `README.md` | this file: the order of work and the commands | already written |
-| `workload_model.md` | the workload model template — every figure, its source and whether it is an estimate | Part 4 — Teammate C |
-| `requirements.md` | the requirements template — one testable row per requirement | Part 4 — Teammate C |
+| `workload_model.md` | the workload model template — every figure, its source and whether it is an estimate | Part 4 — Toh Si Pei |
+| `requirements.md` | the requirements template — one testable row per requirement | Part 4 — Toh Si Pei |
 | `scripts/ticket_length_stats.py` | measures the ticket length distribution of our own team rows | already written; Part 4 runs it |
 | `output/` | created by the script: tables, charts and a report | created on first run |
 

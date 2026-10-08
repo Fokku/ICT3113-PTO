@@ -9,7 +9,6 @@ checklists are the marking scheme restated, so an unticked box is a lost mark.
 
 **Owner:** Part 1 — Yeo Kai Yuan assembles the deck and owns Slides 1, 2, 5 and 9. Every other slide has a
 named owner below, and the owner — not the assembler — writes the content.
-`TODO(Yeo Kai Yuan): replace "Teammate A/B/C/D" with real names throughout this file once the team is registered.`
 
 **Done when.** Every checkbox below is ticked against the actual deck; every number on every slide names the
 file it came from (see *Traceability rule* at the end); the deck is exactly twelve slides or fewer; and the
@@ -41,10 +40,10 @@ from the repository root with the project virtual environment active.
 | Supporting file required by the brief | What we submit | Owner |
 |---|---|---|
 | The golden test set — final labels, identified by row number | `golden/golden_set.csv` (keeps the `row_number` column, so each label is traceable to the course CSV row) | Parts 2 and 3 — Teammates A and B |
-| The prediction record — the three items listed in Step 4 | `predictions/prediction_record.md`, **as frozen at the `golden-freeze` tag** (`git show golden-freeze:predictions/prediction_record.md`) | Part 4 — Teammate C holds the pen; whole team signs |
-| The labelling protocol **with its revisions** | `labelling/protocol.md` (the revision history is part of the document) | Part 2 — Teammate A |
+| The prediction record — the three items listed in Step 4 | `predictions/prediction_record.md`, **as frozen at the `golden-freeze` tag** (`git show golden-freeze:predictions/prediction_record.md`) | Part 4 — Toh Si Pei holds the pen; whole team signs |
+| The labelling protocol **with its revisions** | `labelling/protocol.md` (the revision history is part of the document) | Part 2 — Loh Wen Xuan |
 | The independent label sheets | `labelling/labeller_A.csv` and `labelling/labeller_B.csv` | Parts 2 and 3 — Teammates A and B |
-| The agreement statistic | The output written into `labelling/` by `python labelling/scripts/agreement.py --a labelling/labeller_A.csv --b labelling/labeller_B.csv` | Part 3 — Teammate B |
+| The agreement statistic | The output written into `labelling/` by `python labelling/scripts/agreement.py --a labelling/labeller_A.csv --b labelling/labeller_B.csv` | Part 3 — Jolie Ngai Ning Li |
 
 * **Repository evidence, not submitted but examined.** *"The golden test set and the prediction record must
   also be committed to your repository before your first benchmark run. The commit history is your evidence
@@ -60,16 +59,16 @@ from the repository root with the project virtual environment active.
 |---|---|---|---|
 | 1 | Cover Page | Part 1 | Yeo Kai Yuan |
 | 2 | Service Architecture | Part 1 | Yeo Kai Yuan |
-| 3 | Workload Model | Part 4 | Teammate C |
-| 4 | Performance and Accuracy Requirements | Part 4 | Teammate C |
+| 3 | Workload Model | Part 4 | Toh Si Pei |
+| 4 | Performance and Accuracy Requirements | Part 4 | Toh Si Pei |
 | 5 | Candidate Models | Part 1 | Yeo Kai Yuan |
 | 6 | Golden Test Set | Parts 2 and 3 | Teammates A and B |
-| 7 | Test Environment | Part 5 | Teammate D |
-| 8 | Playbook (Testing Procedure) | Part 5 | Teammate D |
+| 7 | Test Environment | Part 5 | Koh Tong Wei |
+| 8 | Playbook (Testing Procedure) | Part 5 | Koh Tong Wei |
 | 9 | Load and Stress Test Results | Part 1 | Yeo Kai Yuan |
-| 10 | Accuracy Results | Part 3 | Teammate B |
+| 10 | Accuracy Results | Part 3 | Jolie Ngai Ning Li |
 | 11 | Predictions, Recommendation and Defence | Whole team | Whole team (`TODO(Yeo Kai Yuan): nominate who assembles this slide from the five contributions`) |
-| 12 | References and Acknowledgements | Part 5 | Teammate D |
+| 12 | References and Acknowledgements | Part 5 | Koh Tong Wei |
 
 **A note on artefact filenames.** Where a slide's content comes from an analysis script, this outline names
 the **script and its output directory**, because the exact table and chart filenames are fixed by the
@@ -145,7 +144,7 @@ rather than left to be inferred from the diagram.
 
 ## Slide 3 — Workload Model
 
-**Owner:** Part 4 — Teammate C.
+**Owner:** Part 4 — Toh Si Pei.
 
 **The brief requires (verbatim):**
 
@@ -162,7 +161,7 @@ rather than left to be inferred from the diagram.
 **Sources:**
 
 * `workload/requirements.md` — the workload model and the requirements it justifies.
-  `TODO(Part 4 — Teammate C): if the workload model is a separate document from the requirements, name its path here.`
+  `TODO(Part 4 — Toh Si Pei): if the workload model is a separate document from the requirements, name its path here.`
 * `workload/output/` — written by
   `python workload/scripts/ticket_length_stats.py --team-rows data/team_rows.csv --out-dir workload/output`.
   The ticket-length distribution is **measured from our own 1000 team rows**, so it is evidence rather than
@@ -180,7 +179,7 @@ conclusion is stated and justified rather than omitted.
 
 ## Slide 4 — Performance and Accuracy Requirements
 
-**Owner:** Part 4 — Teammate C.
+**Owner:** Part 4 — Toh Si Pei.
 
 **The brief requires (verbatim):**
 
@@ -257,7 +256,7 @@ popular.
 
 ## Slide 6 — Golden Test Set
 
-**Owner:** Parts 2 and 3 — Teammates A and B (Teammate A: protocol and revisions; Teammate B: agreement
+**Owner:** Parts 2 and 3 — Teammates A and B (Loh Wen Xuan: protocol and revisions; Jolie Ngai Ning Li: agreement
 statistic and resolutions).
 
 **The brief requires (verbatim):**
@@ -301,7 +300,7 @@ protocol revisions are summarised as what changed and why; and the freeze commit
 
 ## Slide 7 — Test Environment
 
-**Owner:** Part 5 — Teammate D.
+**Owner:** Part 5 — Koh Tong Wei.
 
 **The brief requires (verbatim):**
 
@@ -339,7 +338,7 @@ assumption about how the results carry over to commodity CPU servers.
 
 ## Slide 8 — Playbook (Testing Procedure)
 
-**Owner:** Part 5 — Teammate D.
+**Owner:** Part 5 — Koh Tong Wei.
 
 **The brief requires (verbatim):**
 
@@ -424,7 +423,7 @@ quietly left to Slide 11); and each figure names its source file.
 
 ## Slide 10 — Accuracy Results
 
-**Owner:** Part 3 — Teammate B.
+**Owner:** Part 3 — Jolie Ngai Ning Li.
 
 **The brief requires (verbatim):**
 
@@ -500,7 +499,7 @@ with the evidence; and no number on the slide fails the traceability rule below.
 
 ## Slide 12 — References and Acknowledgements
 
-**Owner:** Part 5 — Teammate D.
+**Owner:** Part 5 — Koh Tong Wei.
 
 **The brief requires (verbatim):**
 
@@ -515,7 +514,7 @@ with the evidence; and no number on the slide fails the traceability rule below.
 **Sources:**
 
 * `docs/references.md` — the reference list the slide is built from.
-  `TODO(Part 5 — Teammate D): confirm this path if the references live in a different file.`
+  `TODO(Part 5 — Koh Tong Wei): confirm this path if the references live in a different file.`
 * `docs/assignment-brief.md` — the Consumer Complaint Database attribution and URL as the brief states them.
 * `models/models.yaml` and `models/candidates.md` — the candidate tags, the licence recorded for each
   (`licence` and `licence_url`), and the citations behind every factual claim made about a model.

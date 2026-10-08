@@ -50,10 +50,10 @@ the work that slips with it is the 5% marked as "measurement and recommendation"
 | Part | Owner | Slides | Works mainly in |
 |---|---|---|---|
 | Part 1 — technical core (service, tests, analysis) | **Yeo Kai Yuan** | 1, 2, 5, 9 | `service/`, `scripts/`, `jmeter/`, `analysis/`, `models/` |
-| Part 2 — golden set lead, labeller 1 | **Teammate A** | 6 (with B) | `labelling/`, `golden/` |
-| Part 3 — labeller 2, accuracy results | **Teammate B** | 6 (with A), 10 | `labelling/`, `analysis/output/accuracy/` |
-| Part 4 — workload model and requirements | **Teammate C** | 3, 4 | `workload/` |
-| Part 5 — environment, playbooks, deck | **Teammate D** | 7, 8, 12 | `docs/environment/`, `docs/playbooks/`, `slides/` |
+| Part 2 — golden set lead, labeller 1 | **Loh Wen Xuan** | 6 (with B) | `labelling/`, `golden/` |
+| Part 3 — labeller 2, accuracy results | **Jolie Ngai Ning Li** | 6 (with A), 10 | `labelling/`, `analysis/output/accuracy/` |
+| Part 4 — workload model and requirements | **Toh Si Pei** | 3, 4 | `workload/` |
+| Part 5 — environment, playbooks, deck | **Koh Tong Wei** | 7, 8, 12 | `docs/environment/`, `docs/playbooks/`, `slides/` |
 | Slide 11 (predictions, recommendation, defence) | whole team | 11 | `predictions/` |
 
 Slide content is specified slide by slide in `slides/outline.md`: required content, owner, the files each slide
@@ -277,9 +277,8 @@ Nothing in this block may start before `python scripts/freeze_gate.py` exits 0.
 
 ---
 
-## Part 2 — Teammate A (golden set lead, labeller 1; Slide 6)
+## Part 2 — Loh Wen Xuan (golden set lead, labeller 1; Slide 6)
 
-TODO(Yeo Kai Yuan): replace "Teammate A" with the real name.
 
 Part 2 sets the pace of the whole assignment: the freeze gate cannot pass until the golden set is finished, and
 nothing may be measured until the freeze gate passes. Start on day one; no code is needed for any of it.
@@ -297,15 +296,15 @@ TODO(Yeo Kai Yuan): choose one split and correct the other document.
 - [ ] Fill in the template at `labelling/protocol.md` **before labelling anything**: a definition of each of
       the seven categories in our own words, with the boundary each definition draws against its nearest
       neighbour.
-- [ ] TODO(Part 2 — Teammate A): write the edge-case rules — what to do with a ticket that fits two
+- [ ] TODO(Part 2 — Loh Wen Xuan): write the edge-case rules — what to do with a ticket that fits two
       categories, one that fits none, and one that is too vague to judge. State the rule, not an example.
-- [ ] TODO(Part 2 — Teammate A): record the rule on the noisy consumer `raw_label`. The label sheets exclude
+- [ ] TODO(Part 2 — Loh Wen Xuan): record the rule on the noisy consumer `raw_label`. The label sheets exclude
       that column by design, so the protocol should say that labellers do not see it and why — the
       consumer-selected labels are the noise the golden set exists to remove. If you decide otherwise, say so
       explicitly and say how you will stop it anchoring your labels.
 - [ ] Record the protocol version and keep a dated revision log at the bottom of the file — Slide 6 must show
       the protocol *and its revisions*, so the revisions must be visible, not smoothed away.
-- [ ] Agree the protocol with Teammate B before either of you labels a ticket, and note the date you did.
+- [ ] Agree the protocol with Jolie Ngai Ning Li before either of you labels a ticket, and note the date you did.
 
 ### 2.2 Draw the candidate sample
 
@@ -323,7 +322,7 @@ TODO(Yeo Kai Yuan): choose one split and correct the other document.
 ### 2.3 Label independently (labeller 1)
 
 - [ ] Label every sampled ticket into `labelling/labeller_A.csv`, following the protocol, **without
-      conferring with Teammate B**. Fill `label` with one of the seven category names spelled exactly as in
+      conferring with Jolie Ngai Ning Li**. Fill `label` with one of the seven category names spelled exactly as in
       `service/categories.py`, and use the `confidence` and `notes` columns — the low-confidence rows are
       where the protocol is weakest.
 - [ ] Do not open `labelling/golden_candidates.csv` or `data/team_rows.csv` while labelling. Both carry the
@@ -331,7 +330,7 @@ TODO(Yeo Kai Yuan): choose one split and correct the other document.
       to remove.
 - [ ] Note any ticket where the protocol did not give you an answer — that note is the input to the protocol
       revision, and it is also Slide 6 material.
-- [ ] Commit your sheet before you look at Teammate B's.
+- [ ] Commit your sheet before you look at Jolie Ngai Ning Li's.
 
 ### 2.4 Agreement statistic
 
@@ -347,7 +346,7 @@ TODO(Yeo Kai Yuan): choose one split and correct the other document.
 
 ### 2.5 Lead disagreement resolution
 
-- [ ] Meet Teammate B and resolve **every** disagreement by discussion.
+- [ ] Meet Jolie Ngai Ning Li and resolve **every** disagreement by discussion.
 - [ ] Record each resolution twice, as the templates expect: the reasoning in `labelling/resolutions.md` (the
       human record, and where Slide 6's worked examples are quoted from) and the machine-readable row in
       `labelling/resolutions.csv`, which `build_golden_set.py` consumes. One entry per disagreement; no silent
@@ -370,24 +369,23 @@ TODO(Yeo Kai Yuan): choose one split and correct the other document.
       in that commit. Then run `python scripts/freeze_gate.py` and read what it still wants. See
       [Definition of done](#definition-of-done--the-freeze-gate).
 
-### 2.7 Slide 6 (with Teammate B)
+### 2.7 Slide 6 (with Jolie Ngai Ning Li)
 
 - [ ] **Slide 6 — Golden test set.** Summary of the protocol and its revisions, the agreement statistic, the
       number of disagreements and how they were resolved, with one or two examples.
 
 ---
 
-## Part 3 — Teammate B (labeller 2 and accuracy results; Slide 6 with A, Slide 10)
+## Part 3 — Jolie Ngai Ning Li (labeller 2 and accuracy results; Slide 6 with A, Slide 10)
 
-TODO(Yeo Kai Yuan): replace "Teammate B" with the real name.
 
 ### 3.1 Independent labelling (labeller 2)
 
 - [ ] Read `labelling/README.md` for the order of work, then read `labelling/protocol.md` and agree it with
-      Teammate A before starting. Note the ownership question flagged at the top of Part 2: `labelling/README.md`
+      Loh Wen Xuan before starting. Note the ownership question flagged at the top of Part 2: `labelling/README.md`
       gives you the agreement script, the resolutions write-up and the golden-set build; this list gives them
       to Part 2. Settle it between you before the labelling finishes, not afterwards.
-- [ ] Label every sampled ticket into `labelling/labeller_B.csv` **without conferring with Teammate A** and
+- [ ] Label every sampled ticket into `labelling/labeller_B.csv` **without conferring with Loh Wen Xuan** and
       without looking at their sheet. The independence is the point: it is what makes the agreement statistic
       mean anything.
 - [ ] Check you have labelled every sampled row, using only the seven canonical category names exactly as
@@ -395,11 +393,11 @@ TODO(Yeo Kai Yuan): replace "Teammate B" with the real name.
       `notes` as you go.
 - [ ] Do not open `labelling/golden_candidates.csv` or `data/team_rows.csv` while labelling — both expose the
       noisy consumer `raw_label`, and the independence of your sheet is what the agreement statistic measures.
-- [ ] Commit your sheet before comparing with Teammate A.
+- [ ] Commit your sheet before comparing with Loh Wen Xuan.
 
 ### 3.2 Co-resolve the disagreements
 
-- [ ] Work through every disagreement with Teammate A and argue your reading; do not simply concede to move
+- [ ] Work through every disagreement with Loh Wen Xuan and argue your reading; do not simply concede to move
       faster, and record your reasoning in `labelling/resolutions.csv` where it differs.
 - [ ] Sanity-check the finished `golden/golden_set.csv` against your own sheet before the freeze — after the
       freeze it cannot be changed.
@@ -428,9 +426,8 @@ Blocked until Part 1 has run the accuracy tests. Nothing here needs new code.
 
 ---
 
-## Part 4 — Teammate C (workload model and requirements; Slides 3, 4)
+## Part 4 — Toh Si Pei (workload model and requirements; Slides 3, 4)
 
-TODO(Yeo Kai Yuan): replace "Teammate C" with the real name.
 
 Part 1 cannot choose the arrival rates to test. They come from this part, and they are needed before the
 freeze, so the benchmark plan is ready the moment the gate opens.
@@ -442,12 +439,12 @@ freeze, so the benchmark plan is ready the moment the gate opens.
 - [ ] Fill in the template at `workload/workload_model.md`, covering the four quantities the brief asks for:
       the number of tickets the client receives in a stated period; the rate of agent-side searches; peak
       versus non-peak periods, if they exist; and the expected distribution of ticket lengths.
-- [ ] TODO(Part 4 — Teammate C): find and cite a published figure for complaint volume at a financial
+- [ ] TODO(Part 4 — Toh Si Pei): find and cite a published figure for complaint volume at a financial
       services desk (for example the CFPB's own published complaint statistics). Every figure needs either a
       citation or a stated estimation method — an uncited number is treated as unsupported.
-- [ ] TODO(Part 4 — Teammate C): estimate the agent search rate per ticket and show the arithmetic. There is
+- [ ] TODO(Part 4 — Toh Si Pei): estimate the agent search rate per ticket and show the arithmetic. There is
       unlikely to be a published figure; the estimation method is what is being marked.
-- [ ] TODO(Part 4 — Teammate C): state whether the desk has a peak period and how much higher it is than the
+- [ ] TODO(Part 4 — Toh Si Pei): state whether the desk has a peak period and how much higher it is than the
       non-peak baseline, with the reasoning.
 - [ ] Get the ticket-length distribution from our own data rather than estimating it:
       `python workload/scripts/ticket_length_stats.py --team-rows data/team_rows.csv --out-dir workload/output`,
@@ -462,12 +459,12 @@ freeze, so the benchmark plan is ready the moment the gate opens.
 
 - [ ] Fill in the template at `workload/requirements.md`: at least one requirement of each kind, each
       stating a number, a percentile where relevant, and the load condition under which it must hold.
-- [ ] TODO(Part 4 — Teammate C): set the response time requirement (for example a p95 for `POST /tickets`, or
+- [ ] TODO(Part 4 — Toh Si Pei): set the response time requirement (for example a p95 for `POST /tickets`, or
       for `GET /search` under mixed load) and justify it from the workload model and from what the desk
       actually needs.
-- [ ] TODO(Part 4 — Teammate C): set the throughput requirement (for example tickets classified per hour at
+- [ ] TODO(Part 4 — Toh Si Pei): set the throughput requirement (for example tickets classified per hour at
       sustained load) and show it covers the peak, not just the average.
-- [ ] TODO(Part 4 — Teammate C): set the accuracy requirement, overall **and** per category, to be measured
+- [ ] TODO(Part 4 — Toh Si Pei): set the accuracy requirement, overall **and** per category, to be measured
       on `golden/golden_set.csv`, and justify it from the staffing cost of a misrouted ticket.
 - [ ] Take a position on what costs the client more, a misrouted ticket or a slow triage. The brief does not
       tell us, and Slide 11's recommendation has to follow from whatever position we take here.
@@ -488,9 +485,8 @@ freeze, so the benchmark plan is ready the moment the gate opens.
 
 ---
 
-## Part 5 — Teammate D (environment, playbooks and deck; Slides 7, 8, 12)
+## Part 5 — Koh Tong Wei (environment, playbooks and deck; Slides 7, 8, 12)
 
-TODO(Yeo Kai Yuan): replace "Teammate D" with the real name.
 
 ### 5.1 Test environment write-up
 
@@ -501,10 +497,10 @@ TODO(Yeo Kai Yuan): replace "Teammate D" with the real name.
       machine, the network between them, and the JMeter and Ollama versions.
 - [ ] State plainly that the load generator ran on a separate machine from the system under test, and point at
       the captured evidence for it.
-- [ ] TODO(Part 5 — Teammate D): write the section on how our results scale to the client's deployment, with
+- [ ] TODO(Part 5 — Koh Tong Wei): write the section on how our results scale to the client's deployment, with
       the assumptions and limitations named — the client's hardware is commodity CPU with no GPUs, and ours is
       not identical to theirs.
-- [ ] TODO(Part 5 — Teammate D): list the factors that could make our measurements unrepresentative (shared
+- [ ] TODO(Part 5 — Koh Tong Wei): list the factors that could make our measurements unrepresentative (shared
       machines, thermal throttling, other load, a laptop on battery, a wireless network between the
       generator and the service).
 
@@ -574,7 +570,7 @@ Everyone attends. This is the last thing done before the freeze, and it cannot b
 
 - [ ] Meet once Part 4's requirements and Part 1's candidate list are settled, and fill in the template at
       `predictions/prediction_record.md` together in that meeting. The template has one section per item the
-      brief asks for, plus a sign-off block; Teammate C (Part 4) holds the pen, but the predictions are the
+      brief asks for, plus a sign-off block; Toh Si Pei (Part 4) holds the pen, but the predictions are the
       whole team's.
 - [ ] TODO(whole team): state where the bottleneck will be under load **and why**. "Somewhere in the model" is
       not a prediction; name the component and the mechanism.

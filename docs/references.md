@@ -6,8 +6,7 @@ model with its licence. It also separates what a licence **requires** us to stat
 practice, because the brief warns that *"Failing to comply with a licence may be an infringement of
 copyright."*
 
-**Owner:** Part 5 — Teammate D.
-`TODO(Yeo Kai Yuan): replace "Teammate D" with the real name.`
+**Owner:** Part 5 — Koh Tong Wei.
 
 **What "done" looks like.** Every source cited anywhere in the deck appears here exactly once, in one
 consistent style; the Consumer Complaint Database, Ollama and a licence for every candidate model are all
@@ -38,7 +37,7 @@ Rules we hold to, so that two people editing this file produce the same thing:
   page was read, that date is used and the document is named. Where it does not, the date is a `TODO` for
   whoever compiles the final list — **do not invent one.**
 
-`TODO(Part 5 — Teammate D): if the module or your lab group requires a different style (APA, Harvard), convert
+`TODO(Part 5 — Koh Tong Wei): if the module or your lab group requires a different style (APA, Harvard), convert
 the whole list rather than mixing two. The content does not change; only the layout does.`
 
 ---
@@ -66,14 +65,14 @@ nowhere else:
 
 **[1]** US Consumer Financial Protection Bureau, "Consumer Complaint Database." [Online]. Available:
 <https://www.consumerfinance.gov/data-research/consumer-complaints/>.
-[Accessed: `TODO(Part 5 — Teammate D)`].
+[Accessed: `TODO(Part 5 — Koh Tong Wei)`].
 
 *This is the reference the brief names explicitly, and it is not optional: "The Consumer Complaint Database is
 published by a US government agency; acknowledge the source in your final document." The brief gives the
 address as `www.consumerfinance.gov/data-research/consumer-complaints/`; the entry above adds the scheme.*
 
 **[2]** ICT3113 course teaching team, "ICT3113 Assignment 1 ticket extract (`ict3113_tickets.csv`)," course
-extract from [1], released on xSiTe, Week 1. `TODO(Part 5 — Teammate D): confirm how the course wants the
+extract from [1], released on xSiTe, Week 1. `TODO(Part 5 — Koh Tong Wei): confirm how the course wants the
 extract itself cited, or fold it into the sentence describing [1] and delete this entry.`
 
 *What the deck must say about the data, from the brief: the narratives are "real consumer complaint
@@ -81,7 +80,7 @@ narratives, published with consumer consent and with personal information remove
 rows 10000–10999 of the extract (team 10), and every labelled ticket and every test request comes from those
 1,000 rows.*
 
-`TODO(Part 5 — Teammate D): check the CFPB's own terms-of-use or data-licence page and record here what, if
+`TODO(Part 5 — Koh Tong Wei): check the CFPB's own terms-of-use or data-licence page and record here what, if
 anything, it asks of a re-user beyond acknowledgement. The brief requires the acknowledgement regardless, so
 this is about being right rather than about being safe.`
 
@@ -89,19 +88,19 @@ this is about being right rather than about being safe.`
 
 ## 4. Load generator
 
-**[3]** Apache Software Foundation, "Apache JMeter," version `TODO(Part 5 — Teammate D): from
+**[3]** Apache Software Foundation, "Apache JMeter," version `TODO(Part 5 — Koh Tong Wei): from
 environment/<loadgen>.txt`. [Online]. Available: <https://jmeter.apache.org/>.
-[Accessed: `TODO(Part 5 — Teammate D)`].
+[Accessed: `TODO(Part 5 — Koh Tong Wei)`].
 
 **[4]** Apache Software Foundation, "Apache JMeter user manual: component reference." [Online]. Available:
-<https://jmeter.apache.org/usermanual/component_reference.html>. [Accessed: `TODO(Part 5 — Teammate D)`].
+<https://jmeter.apache.org/usermanual/component_reference.html>. [Accessed: `TODO(Part 5 — Koh Tong Wei)`].
 
 *Cite [4] wherever the deck relies on the **Open Model Thread Group** and its `rate(...) random_arrivals(...)`
 schedule — which is Slide 8, because the brief requires the open-loop configuration to be shown.*
-`TODO(Part 5 — Teammate D): confirm the exact section anchor for the Open Model Thread Group on that page and
+`TODO(Part 5 — Koh Tong Wei): confirm the exact section anchor for the Open Model Thread Group on that page and
 append it to the URL, or cite the page without an anchor. Do not guess the anchor.`
 
-**Licence:** Apache License 2.0. `TODO(Part 5 — Teammate D): verify on jmeter.apache.org and record the URL of
+**Licence:** Apache License 2.0. `TODO(Part 5 — Koh Tong Wei): verify on jmeter.apache.org and record the URL of
 the licence statement you verified it from.` We do not redistribute JMeter, so nothing beyond a correct
 citation is owed — see section 8.
 
@@ -109,8 +108,8 @@ citation is owed — see section 8.
 
 ## 5. Model backend, container platform and service stack
 
-**[5]** Ollama, "Ollama." [Online]. Available: <https://ollama.com/>. [Accessed: `TODO(Part 5 — Teammate D)`].
-Version `TODO(Part 5 — Teammate D): from environment/<ollama-host>.txt, label "ollama /api/version"`.
+**[5]** Ollama, "Ollama." [Online]. Available: <https://ollama.com/>. [Accessed: `TODO(Part 5 — Koh Tong Wei)`].
+Version `TODO(Part 5 — Koh Tong Wei): from environment/<ollama-host>.txt, label "ollama /api/version"`.
 
 **[6]** Ollama, "LICENSE" (MIT License, "Copyright (c) Ollama"). [Online]. Available:
 <https://github.com/ollama/ollama/blob/main/LICENSE>. [Accessed: 23 September 2026].
@@ -124,41 +123,41 @@ and URL as read on 23 September 2026. The brief names Ollama explicitly as a sou
 *Every factual claim in `../models/candidates.md` about a model's parameter count, default quantisation and
 download size was read from this library on that date. Cite it as the source of the Slide 5 table.*
 
-**[8]** Docker Inc., "Docker Engine," version `TODO(Part 5 — Teammate D): from environment/<hostname>.txt,
+**[8]** Docker Inc., "Docker Engine," version `TODO(Part 5 — Koh Tong Wei): from environment/<hostname>.txt,
 labels "docker" and "docker server"`. [Online]. Available: <https://www.docker.com/>.
-[Accessed: `TODO(Part 5 — Teammate D)`].
+[Accessed: `TODO(Part 5 — Koh Tong Wei)`].
 
-**[9]** Docker Inc., "Docker Compose," version `TODO(Part 5 — Teammate D): from environment/<hostname>.txt,
+**[9]** Docker Inc., "Docker Compose," version `TODO(Part 5 — Koh Tong Wei): from environment/<hostname>.txt,
 label "docker compose"`. [Online]. Available: <https://docs.docker.com/compose/>.
-[Accessed: `TODO(Part 5 — Teammate D)`].
+[Accessed: `TODO(Part 5 — Koh Tong Wei)`].
 
 *The brief requires the repository to be "sufficient to rebuild and run it with docker compose", so Compose is
 a cited tool and not an implementation detail.*
 
-`TODO(Part 5 — Teammate D): verify the licences of [8] and [9] and record the URL you verified each from.
+`TODO(Part 5 — Koh Tong Wei): verify the licences of [8] and [9] and record the URL you verified each from.
 Docker Engine and Docker Compose are open-source projects with their own repository licences, while Docker
 Desktop is distributed under Docker's own subscription terms — so if any team machine used Docker Desktop
 rather than the engine alone, that is a different licence and it must be named. Check section 4 of each
 capture file to see which was installed on which machine.`
 
-**[10]** S. Ramírez, "FastAPI," version `TODO(Part 5 — Teammate D): from pip freeze in the container`.
-[Online]. Available: <https://fastapi.tiangolo.com/>. [Accessed: `TODO(Part 5 — Teammate D)`].
+**[10]** S. Ramírez, "FastAPI," version `TODO(Part 5 — Koh Tong Wei): from pip freeze in the container`.
+[Online]. Available: <https://fastapi.tiangolo.com/>. [Accessed: `TODO(Part 5 — Koh Tong Wei)`].
 
-**[11]** Encode OSS Ltd., "Uvicorn," version `TODO(Part 5 — Teammate D): from pip freeze in the container`.
-[Online]. Available: <https://www.uvicorn.org/>. [Accessed: `TODO(Part 5 — Teammate D)`].
+**[11]** Encode OSS Ltd., "Uvicorn," version `TODO(Part 5 — Koh Tong Wei): from pip freeze in the container`.
+[Online]. Available: <https://www.uvicorn.org/>. [Accessed: `TODO(Part 5 — Koh Tong Wei)`].
 
-**[12]** SQLite Consortium, "SQLite," version `TODO(Part 5 — Teammate D): from
+**[12]** SQLite Consortium, "SQLite," version `TODO(Part 5 — Koh Tong Wei): from
 sqlite3.sqlite_version in the container`. [Online]. Available: <https://www.sqlite.org/>.
-[Accessed: `TODO(Part 5 — Teammate D)`].
+[Accessed: `TODO(Part 5 — Koh Tong Wei)`].
 
 *The service uses Python's standard-library `sqlite3` module, so SQLite is used as bundled with the container's
 Python rather than installed separately. Say so in one clause on the slide: it is why there is no SQLite entry
-in `../requirements.txt`.* `TODO(Part 5 — Teammate D): SQLite's own copyright page states its public-domain
+in `../requirements.txt`.* `TODO(Part 5 — Koh Tong Wei): SQLite's own copyright page states its public-domain
 position; read <https://www.sqlite.org/copyright.html> and record here what, if anything, it asks for.`
 
-**[13]** Python Software Foundation, "Python," version `TODO(Part 5 — Teammate D): 3.11.x, from
+**[13]** Python Software Foundation, "Python," version `TODO(Part 5 — Koh Tong Wei): 3.11.x, from
 "docker compose exec triage python --version"`. [Online]. Available: <https://www.python.org/>.
-[Accessed: `TODO(Part 5 — Teammate D)`].
+[Accessed: `TODO(Part 5 — Koh Tong Wei)`].
 
 ### 5.1 Secondary dependencies — include only if the deck cites them
 
@@ -173,7 +172,7 @@ evidence.
 | pandas | every analysis script under `../analysis/` | <https://pandas.pydata.org/> |
 | Matplotlib | the charts in `../analysis/output/` — cite it on any slide that shows one | <https://matplotlib.org/> |
 
-`TODO(Part 5 — Teammate D): promote to a numbered entry, with version and licence, each library the deck
+`TODO(Part 5 — Koh Tong Wei): promote to a numbered entry, with version and licence, each library the deck
 actually cites; delete the rest of this table.`
 
 ---
@@ -184,13 +183,13 @@ The four candidates, their licences and their URLs are carried across **exactly*
 and `../models/models.yaml`, which record where each fact was read and on what date. Slide 5 reports the tag
 and digest; this section reports the licence.
 
-> `TODO(Part 5 — Teammate D): verify against ../models/candidates.md` before submission. That file is the
+> `TODO(Part 5 — Koh Tong Wei): verify against ../models/candidates.md` before submission. That file is the
 > authority for every licence claim below, and it may have moved on — the shortlist itself is still marked
 > **PROPOSAL** there pending Yeo Kai Yuan's confirmation, and the Q8_0 quantisation decision for
 > `llama3.2:1b` is still open. If anything below no longer matches that file, change **this** file, and do not
 > let the two diverge silently.
 
-> `TODO(Part 5 — Teammate D): the digests are not pinned yet.` Every `pinned:` block in
+> `TODO(Part 5 — Koh Tong Wei): the digests are not pinned yet.` Every `pinned:` block in
 > `../models/models.yaml` is null until `../scripts/pull_and_pin_models.sh` has run against the Ollama host we
 > measure on. Slide 5 must report the digests from that file, not the short web digests in
 > `../models/candidates.md`, which are cross-checks only.
@@ -211,8 +210,8 @@ Available: <https://github.com/meta-llama/llama-models/blob/main/models/llama3_2
 <https://ollama.com/library/llama3.2:3b/blobs/fcc5a6bec9da>. [Accessed: 23 September 2026].
 
 **[18]** Meta Platforms, Inc., "Llama 3.2 Acceptable Use Policy," incorporated by reference into [16].
-[Online]. Available: `TODO(Part 5 — Teammate D): the policy is named on the Ollama model page [15]; record the
-URL you actually reached it at.` [Accessed: `TODO(Part 5 — Teammate D)`].
+[Online]. Available: `TODO(Part 5 — Koh Tong Wei): the policy is named on the Ollama model page [15]; record the
+URL you actually reached it at.` [Accessed: `TODO(Part 5 — Koh Tong Wei)`].
 
 * **Licence:** Llama 3.2 Community License — a **custom licence, not OSI-approved**, with an Acceptable Use
   Policy incorporated by reference.
@@ -294,12 +293,12 @@ Slide 3 defers to this slide: *"Cite the source of every figure; state clearly w
 how you estimated them (see Slide 12)."* So every published statistic behind the workload model belongs here in
 full, and the short form on Slide 3 must match it.
 
-`TODO(Part 4 — Teammate C): list every published figure the workload model uses — complaint volumes, search
+`TODO(Part 4 — Toh Si Pei): list every published figure the workload model uses — complaint volumes, search
 rates, peak and non-peak periods — as an IEEE entry in the style of section 1, and name which figures are
 estimates rather than published. They are collected in ../workload/workload_model.md; this section is where
 they become citations.`
 
-`TODO(Part 5 — Teammate D): after Part 4 supplies them, check that no figure cited on Slide 3 is missing here
+`TODO(Part 5 — Koh Tong Wei): after Part 4 supplies them, check that no figure cited on Slide 3 is missing here
 and that no entry here is unused. Then renumber the whole list in one pass.`
 
 One source is already fixed, because our own ticket-length distribution is measured rather than cited:
@@ -326,10 +325,10 @@ said so rather than resolved by assertion.
 
 | Source | What the licence **requires** of us | What is good practice but not required |
 |---|---|---|
-| CFPB Consumer Complaint Database [1] | `TODO(Part 5 — Teammate D): whatever the CFPB's own terms page asks for — check it.` The **brief** requires the source to be acknowledged regardless of what the licence says, so the acknowledgement is mandatory for us either way | Naming the extract and our row range (10000–10999); stating that the narratives are published with consumer consent and with personal information removed at source. Both are honesty about provenance rather than licence compliance |
+| CFPB Consumer Complaint Database [1] | `TODO(Part 5 — Koh Tong Wei): whatever the CFPB's own terms page asks for — check it.` The **brief** requires the source to be acknowledged regardless of what the licence says, so the acknowledgement is mandatory for us either way | Naming the extract and our row range (10000–10999); stating that the narratives are published with consumer consent and with personal information removed at source. Both are honesty about provenance rather than licence compliance |
 | Apache JMeter [3] | Nothing, as we neither modify nor redistribute it | A correct citation with the version we ran |
 | Ollama [5], [6] | The MIT licence requires its copyright and permission notice to be included in copies or substantial portions of the software. We ship neither, so nothing is triggered | Crediting Ollama by name — which the brief requires of us anyway — and recording the exact version with the results |
-| Docker [8], [9] | `TODO(Part 5 — Teammate D): confirm, and note separately if any machine used Docker Desktop, which carries different terms` | A correct citation with the version |
+| Docker [8], [9] | `TODO(Part 5 — Koh Tong Wei): confirm, and note separately if any machine used Docker Desktop, which carries different terms` | A correct citation with the version |
 | `granite4:3b` [19], `qwen2.5:7b` [21] — Apache-2.0 [23] | Section 4 of the licence binds a **redistributor**: retain copyright, patent, trademark and attribution notices; include a copy of the licence; carry forward any `NOTICE` file; and state significant changes. We redistribute neither model and modify neither, so what we owe in practice is a **correct citation** | Attributing the models to their publishers — the **IBM Granite Team** and the **Qwen Team, Alibaba Cloud**. IBM's model card asks for this explicitly. It costs nothing; do it |
 | `llama3.2:1b`, `llama3.2:3b` [14]–[18] — Llama 3.2 Community License [16] | On distributing the Llama Materials **or "a product or service that contains any of them"** (section 1.b): (1) provide a copy of the agreement to the recipient; (2) **prominently display "Built with Llama"** on a related website, user interface, blogpost, about page or product documentation; (3) retain, in a `NOTICE` text file distributed with the copies, the notice `Llama 3.2 is licensed under the Llama 3.2 Community License, Copyright © Meta Platforms, Inc. All Rights Reserved.`; (4) prefix the name of any *distributed* model created, trained or fine-tuned from the Materials with `Llama`; (5) comply with applicable law and the Acceptable Use Policy [18]. Clause 2 additionally requires a separate licence from Meta for a licensee with more than 700 million monthly active users in the month before the Llama 3.2 release date | Clause (4) plainly does not apply: we neither train nor distribute a derivative model. Whether (1)–(3) bind a public repository for a service that *calls* a Llama model is the genuinely unclear part — it turns on the phrase "a product or service that contains any of them", which is a lawyer's question and not ours. **The cheap precaution is to comply anyway**: a `NOTICE` file with the sentence above, and a "Built with Llama" line in the repository README. One file, and the question goes away |
 
@@ -339,7 +338,7 @@ recommends doing it. If the answer is yes, ask the owner of the repository root 
 add them, and neither must candidates.md. If the answer is no, record the reason here in one sentence, because
 "we thought about it and decided not to" is a defensible position and silence is not.`
 
-`TODO(Part 5 — Teammate D): if the Llama models are still candidates at submission, put the "Built with Llama"
+`TODO(Part 5 — Koh Tong Wei): if the Llama models are still candidates at submission, put the "Built with Llama"
 attribution on Slide 12 itself. The clause names "a related website, user interface, blogpost, about page or
 product documentation"; a submitted report is the closest thing we have to product documentation, and the
 slide costs one line.`
@@ -358,7 +357,7 @@ measurement, interpretation, and judgement."*
 So declaring it costs nothing and not declaring it looks worse than the truth. Write a short, specific
 statement rather than a disclaimer.
 
-`TODO(Part 5 — Teammate D): write the AI-tool-use statement. Be specific enough to be checkable, and cover
+`TODO(Part 5 — Koh Tong Wei): write the AI-tool-use statement. Be specific enough to be checkable, and cover
 these five things:`
 
 1. **Which tools**, by name and — where it is knowable — version or model.
@@ -379,13 +378,13 @@ section.`
 
 ### 9.2 Team and data
 
-`TODO(Part 5 — Teammate D): acknowledge the course teaching team for the dataset extract, and state the team
+`TODO(Part 5 — Koh Tong Wei): acknowledge the course teaching team for the dataset extract, and state the team
 number (10) and the row range used (10000–10999). Slide 1 carries the names and student IDs; do not duplicate
 them here.`
 
 ### 9.3 Everything the deck rests on that is not a citation
 
-`TODO(Part 5 — Teammate D): if any hardware was borrowed, or any machine belongs to someone outside the team,
+`TODO(Part 5 — Koh Tong Wei): if any hardware was borrowed, or any machine belongs to someone outside the team,
 say so here. It costs a line and it is part of describing the test environment honestly — see
 ../test-environment.md.`
 

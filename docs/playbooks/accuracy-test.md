@@ -5,7 +5,7 @@ every golden-set ticket through POST /tickets for each candidate model, and repo
 accuracy against your golden labels, with a confusion matrix."* It is written so that a competent tester who
 cannot ask us anything can carry it out.
 
-**Owner:** Tong Wei
+**Owner:** Part 5 — Koh Tong Wei.
 
 **What "done" looks like.** One completed run directory per candidate model under `../../results/accuracy/`,
 each covering **every** row of the golden set, and one scored set of tables and confusion matrices under
@@ -19,7 +19,7 @@ identical: this test needs no load generator machine and no JMeter, and it delib
 **Conventions used in every command below.** Every command is run **from the repository root**, and `python`
 means the repository's own virtual environment — `.venv/bin/python`, or activate it first with
 `source .venv/bin/activate`. Anything in `<angle brackets>` is for you to substitute; anything marked
-`TODO(...)` is a value this team has not yet decided, and the marker names who owns the decision.
+every threshold is the team's decided value, with its source named next to it.
 
 ---
 
@@ -90,7 +90,7 @@ access to the service and read access to the service's log directory.
 | Every golden row number exists in `data/team_rows.csv` | the driver refuses with a list if any is missing | It resolves the narrative by row number. A golden row with no narrative cannot be tested |
 | The service is serving the model you intend to test | `curl -s http://<service-host>:8000/health` | The driver refuses (`SystemExit`) if `/health` reports a different `model_tag`. This is how a mislabelled accuracy run is prevented |
 | The model is pulled and **pinned** | a non-null `digest` under that tag in `models/models.yaml` | The digest is what ties the score to a specific set of weights, and it is what Slide 5 and Slide 10 report |
-| `SERVICE_LOG_DIR` is readable from the driver machine | `ls -l "$SERVICE_LOG_DIR"` shows the service's `<UTC-date>.jsonl` | The run directory must contain the service's own record of the same requests |
+| The service log reaches the driver machine | with `SERVICE_SSH` set (remote mode, `load-test.md` section 2.3) the driver mirrors the service host's `logs/service` with `rsync` before slicing it; otherwise `SERVICE_LOG_DIR` must be a live view of it | The run directory must contain the service's own record of the same requests |
 | Time budget | see below | This is the step people underestimate |
 
 **Time budget.** One golden-set run is one sequential model call per golden ticket, 150 to 200 of them, on CPU.
@@ -100,7 +100,8 @@ check, which is the correct behaviour.
 
 The first completed candidate's observed wall-clock duration is recorded in the
 [run log](../run-log.md), so the remaining candidates can be scheduled. This is scheduling information,
-not a request-latency measurement.
+not a request-latency measurement. `scripts/run_campaign.sh` also records each step's duration on its `DONE`
+line in `results/campaign/campaign_<stamp>.log`.
 
 ---
 
@@ -185,7 +186,7 @@ Expect exit 0. The driver runs it again itself and copies the verdict into the r
 **5. Run the driver (driver machine).**
 
 ```bash
-export SERVICE_LOG_DIR=/path/to/the/service/logs/service   # default: ./logs/service
+export SERVICE_SSH=<user>@<service-host>   # remote mode: the driver mirrors the service host's log
 export RUN_NOTES="operator <name>; <anything a human noticed>"
 
 python scripts/run_accuracy.py \

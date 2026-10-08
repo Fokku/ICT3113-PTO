@@ -1,7 +1,9 @@
 # Run log — ICT3113 Assignment 1 (Team 10)
 
-**Owner:** Part 5 (Teammate D).
-**Status:** rehearsals and one completed post-freeze accuracy attempt. Its results are provisional; the recorded dirty working tree and missing model digest prevent it from being reportable under the accuracy playbook.
+**Owner:** Part 5 (Koh Tong Wei).
+**Status:** rehearsals, plus one accuracy attempt on `tw` that predates the prediction record and is therefore
+excluded (moved to `../results/excluded/`, see its entry below). Every reported run is made on the new test
+environment after the re-cut freeze.
 
 ## Rules
 1. One dated entry per configuration (one model x one plan x one rate), written straight after its runs.

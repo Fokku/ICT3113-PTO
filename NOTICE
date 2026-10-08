@@ -1,0 +1,18 @@
+ICT3113 Assignment 1 -- Team 10 ticket triage service
+
+This repository contains no model weights. The candidate models are pulled at
+run time from the Ollama library and are identified by tag and digest in
+models/models.yaml.
+
+Llama 3.2 is licensed under the Llama 3.2 Community License, Copyright © Meta Platforms, Inc. All Rights Reserved.
+Built with Llama.
+
+Granite 4.0 Micro (granite4:3b) is published by the IBM Granite Team under the
+Apache License 2.0. Qwen2.5-7B-Instruct (qwen2.5:7b) is published by the Qwen
+Team, Alibaba Cloud, under the Apache License 2.0. Ollama is distributed under
+the MIT License. Licence texts and full references: docs/references.md.
+
+Ticket narratives in data/ are from the Consumer Complaint Database published by
+the U.S. Consumer Financial Protection Bureau
+(https://www.consumerfinance.gov/data-research/consumer-complaints/), via the
+course extract.

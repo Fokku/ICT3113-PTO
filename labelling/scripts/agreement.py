@@ -3,7 +3,7 @@
 
 Part 2/3 helper (golden test set, brief Step 1, item 3).
 Script owner: Yeo Kai Yuan.  TODO(Yeo Kai Yuan): replace with real name.
-Consumer: Part 3 -- Teammate B, who reports the statistic on Slide 6 and runs
+Consumer: Part 3 -- Jolie Ngai Ning Li, who reports the statistic on Slide 6 and runs
 the resolution meeting from the disagreement list this script writes.
 
 The brief asks for "an inter-annotator agreement statistic".  Raw percentage

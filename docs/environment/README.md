@@ -6,8 +6,7 @@ addresses and the repository state at capture time. Slide 7 (Test Environment) i
 and they are also what the `service_host_info` and `load_generator_host_info` fields of every run's
 `metadata.json` point at.
 
-**Owner:** Part 5 — Teammate D.
-`TODO(Yeo Kai Yuan): replace "Teammate D" with the real name.`
+**Owner:** Part 5 — Koh Tong Wei.
 
 **What "done" looks like.** There is one committed `<hostname>.txt` in this directory for **every** machine
 that took part in a reported run — the triage service host, the Ollama host and the load generator — the
@@ -112,5 +111,5 @@ capture file, and the `service_url` field of every run's `metadata.json`, which 
 actually posted to and must not be `localhost` or `127.0.0.1`. Say in the write-up which of the two you are
 relying on.
 
-`TODO(Part 5 — Teammate D): after the captures are committed, list the machines and their roles in the table
+`TODO(Part 5 — Koh Tong Wei): after the captures are committed, list the machines and their roles in the table
 at the top of ../test-environment.md, and check that no two rows share a hostname.`

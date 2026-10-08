@@ -396,7 +396,7 @@ trap cleanup EXIT
             ;;
     esac
     echo
-    echo "TODO(Part 5 -- Teammate D): describe the network between the machines"
+    echo "TODO(Part 5 -- Koh Tong Wei): describe the network between the machines"
     echo "  (link speed, switch or Wi-Fi, same subnet or not, anything shared with"
     echo "  other traffic) and anything that could make these measurements"
     echo "  unrepresentative of the client's deployment. Put it in the Part 5"

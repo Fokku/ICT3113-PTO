@@ -18,29 +18,21 @@ licence named here appears in `../docs/references.md`.
 
 ---
 
-> ## TODO(Yeo Kai Yuan): confirm this shortlist before anyone pulls a model
+> ## Decisions — confirmed by Yeo Kai Yuan, 8 October 2026
 >
-> **This is a proposal, not a decision.** Four candidates are proposed below. Nothing in this repository
-> treats them as settled: `models.yaml` carries no digests until `../scripts/pull_and_pin_models.sh` has
-> run, and `MODEL_TAG` in `.env.example` is only a default.
->
-> Confirm, in this order:
->
-> 1. **The set.** Four candidates, three size classes (~1B, ~3B twice, ~7.6B). Confirm that four models
->    times three runs times however many arrival rates fits the time you have before 9 October. If it does
->    not, drop `granite4:3b` first — it is the least load-bearing member of the set (see below) — and keep
->    three candidates, which still satisfies the brief.
-> 2. **The 1B quantisation asymmetry.** Ollama ships `llama3.2:1b` at **Q8_0** and `llama3.2:3b` at
->    **Q4_K_M**. Our within-family size comparison therefore changes two variables at once, not one.
->    Decide either to accept it and say so on Slide 5, or to pin `llama3.2:1b-instruct-q4_K_M` instead and
->    change `MODEL_TAG` to match. See "The Q8_0 problem" below. Do not leave this undecided.
-> 3. **The Llama notice.** Decide whether we add a `NOTICE` file and a "Built with Llama" line to the
->    repository README. See "Licences and attribution" below for why this is a judgement call and not a
->    clear obligation.
-> 4. **Substitutions.** If any candidate will not run on the Ollama host, the named substitute is
->    `mistral:7b` for the 7-8B slot and `qwen2.5:1.5b` for the sub-2B slot. Both are Apache-2.0.
->
-> TODO(Yeo Kai Yuan): replace the `Teammate A`–`Teammate D` placeholders in this file with real names.
+> 1. **The set: confirmed as proposed.** Four candidates in three size classes (~1B, ~3B twice, ~7.6B):
+>    `llama3.2:1b`, `llama3.2:3b`, `granite4:3b`, `qwen2.5:7b`. Four models times three arrival rates times
+>    three runs, plus the mixed-load and accuracy tests, fits one overnight campaign on the service host.
+> 2. **The 1B quantisation asymmetry: accepted and stated, not corrected.** We pin the default
+>    `llama3.2:1b` build (**Q8_0**), not `llama3.2:1b-instruct-q4_K_M`. The default build is what a client
+>    gets when they ask Ollama for "llama3.2:1b", so it is the honest thing to measure; the cost is that the
+>    1B-versus-3B comparison varies bits per weight as well as parameter count. Slide 5 says so in one line,
+>    and the effect is predicted in `../predictions/prediction_record.md`: the 1B model is heavier per
+>    parameter than the others, which narrows its speed advantage.
+> 3. **The Llama notice: added as a precaution.** `../NOTICE` carries the Llama 3.2 notice sentence, and the
+>    README carries "Built with Llama". It costs one file and removes the question.
+> 4. **Substitutions: none.** All four candidates serve on the service host; neither substitute was needed.
+>    The pins are the digests that `../scripts/pull_and_pin_models.sh` wrote into `models.yaml`.
 
 ---
 
@@ -141,18 +133,16 @@ There is a four-bit build of the 1B available: `llama3.2:1b-instruct-q4_K_M`, 80
 `22bc6b92eb01` (<https://ollama.com/library/llama3.2/tags>). Pinning that instead would hold quantisation
 constant across the Llama pair at the cost of a less obvious tag on the slide.
 
-TODO(Yeo Kai Yuan): choose one of the two options in item 2 of the confirmation block above, record the
-choice here in one sentence, and make `MODEL_TAG` in `.env.example`, `models.yaml` and Slide 5 agree.
+**Decision (8 October 2026):** we keep the default `llama3.2:1b` (Q8_0) and state the asymmetry on Slide 5;
+`MODEL_TAG` in `.env.example`, `models.yaml` and Slide 5 all name `llama3.2:1b`.
 
 ### What we are *not* writing here
 
-TODO(Part 4 — Teammate B): the per-candidate expected accuracy on the golden set, the expected
-single-request latency on our hardware, and the expected bottleneck all belong in
-`../predictions/prediction_record.md`, which must be committed before the first benchmark run. They are
-deliberately absent from this file: this document chooses candidates, it does not predict how they will
-perform, and it contains no accuracy or latency figure of any kind.
-TODO(Yeo Kai Yuan): confirm which teammate owns the prediction record and replace `Teammate B` with the
-real name.
+The per-candidate expected accuracy on the golden set, the expected single-request latency on our
+hardware, and the expected bottleneck all belong in `../predictions/prediction_record.md`, which is frozen
+under the `golden-freeze` tag before the first benchmark run. They are deliberately absent from this file:
+this document chooses candidates, it does not predict how they will perform, and it contains no accuracy or
+latency figure of any kind.
 
 ---
 
@@ -203,8 +193,8 @@ not our call to make.
   counts as making available "a product or service that contains any of them" is a lawyer's question.
   **Recommended precaution:** add a `NOTICE` file with the sentence above and a "Built with Llama" line to
   the README. It costs one file and removes the question.
-  TODO(Yeo Kai Yuan): decide, and if yes, ask the owner of the README and repository root to add them —
-  do not add them yourself from this file, which is not in that scope.
+  **Decision (8 October 2026): yes.** `../NOTICE` and a "Built with Llama" line in `../README.md` were
+  added.
 * **Could not verify:** the canonical licence URL printed in the licence text itself,
   <https://www.llama.com/llama3_2/license/>, redirected on 23 September 2026 through
   `developer.meta.com` to a Meta developer **login page**, so the licence text is not publicly readable

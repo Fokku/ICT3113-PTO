@@ -5,16 +5,19 @@
 **Team:** Team 10. Our dataset slice is rows 10000–10999 of the course CSV.
 **Deliverable:** `Group10.pptx`, maximum 12 slides, plus the supporting files listed in
 [`slides/outline.md`](slides/outline.md). Due **2359, Friday 9 October 2026**.
+**Team members:** Yeo Kai Yuan (Part 1), Loh Wen Xuan (Part 2), Jolie Ngai Ning Li (Part 3), Toh Si Pei
+(Part 4), Koh Tong Wei (Part 5).
+**Repository:** <https://github.com/Fokku/ICT3113-PTO>
 **Owner of this file and of the technical core:** Yeo Kai Yuan (Part 1).
-`TODO(Yeo Kai Yuan): replace the "Teammate A/B/C/D" placeholders throughout this repository with the real
-names and student IDs once the team is registered.`
+**Built with Llama.** Two of the four candidate models are Llama 3.2; see [`NOTICE`](NOTICE) and
+[`docs/references.md`](docs/references.md) for every model's licence.
 
 This README is written for a teammate opening a fresh clone who has never seen the repository. Follow it in
 order and you will not have to ask anyone a question. Every script and file it names exists, and every
-`--help` quoted here came from running that script. The one group of commands that could **not** be executed
-while this file was written is the JMeter ones — no JMeter is installed on the machine it was written on —
-so they are transcribed from the plans, `jmeter/README.md` and `scripts/run_load_test.sh`; see the note in
-[section 3.1](#31-software).
+`--help` quoted here came from running that script. The JMeter commands were first transcribed from the plans;
+on 8 October 2026 every plan was run end to end through `scripts/run_campaign.sh --dev` with JMeter 5.6.3 on
+JDK 21, which is how the `-q jmeter/user.properties` gap described in [section 6.7](#67-running-a-plan-by-hand)
+was found and closed.
 
 Two documents sit alongside this one and are not repeated here:
 
@@ -169,9 +172,11 @@ Six rules govern every file in this repository. They override style, elegance an
 3. **We do not measure model performance at development time.** No latency and no accuracy figure appears in
    a smoke test, an example, or a docstring. The analysis scripts compute latency and accuracy — that is
    their job — and they are run against real evidence only after the freeze.
-4. **Nobody does a teammate's judgement work.** Category definitions, labels, workload figures, requirement
-   numbers and predictions are marked `TODO(Part N — Teammate X)` and left for their owner. A placeholder is
-   always visibly empty, never a plausible-looking made-up value.
+4. **Judgement work belongs to its owner.** The labels and the protocol (Parts 2 and 3), the workload figures
+   and the requirements (Part 4) were written by their owners. The prediction record was drafted by Part 1 with
+   an AI assistant under deadline pressure and circulated to the whole team before the freeze; its §0 says so,
+   and says which entries were not blind. A placeholder is always visibly empty, never a plausible-looking
+   made-up value.
 5. **No number is ever fabricated.** Every figure that could be reported traces to a line in
    `logs/service/*.jsonl` or to a JMeter `.jtl`. The brief treats an irreconcilable number as an academic
    integrity matter, not a marking deduction.
@@ -355,7 +360,7 @@ Every command is run **from the repository root**.
 **1. Clone the repository.**
 
 ```bash
-git clone <TODO(Yeo Kai Yuan): the team's GitHub repository URL> ICT3113-PTO
+git clone https://github.com/Fokku/ICT3113-PTO ICT3113-PTO
 cd ICT3113-PTO
 ```
 
@@ -621,35 +626,28 @@ without `-Jhost` fails immediately with `UnknownHostException` rather than quiet
 ### 5.3 The cross-machine plumbing
 
 `scripts/run_load_test.sh` runs JMeter locally, but it also resets the database, recreates the triage
-container with the right `MODEL_TAG`, and reads the service's own log. So from machine 2 it needs to reach
-machine 1's Docker daemon **and** read machine 1's `logs/service` directory:
+container with the right `MODEL_TAG`, and reads the service's own log. From machine 2 it therefore needs to run
+commands on machine 1 **and** read machine 1's `logs/service`. We use **remote mode**, which needs nothing on
+machine 2 except key-based SSH and `rsync`:
 
 ```bash
 # On machine 2, before the run.
-
-# 1. Point the Docker CLI at machine 1's daemon. Requires key-based SSH.
-export DOCKER_HOST=ssh://<user>@<machine-1>
-
-# 2. Tell the script where the service's JSONL log is readable from HERE.
-#    It must be LIVE-readable during the run: the script reads the warm-up log
-#    line before JMeter starts and slices the measured window immediately after
-#    JMeter finishes, so copying the files afterwards is too late.
-export SERVICE_LOG_DIR=/path/to/a/live/mount/of/machine-1/logs/service
+export SERVICE_SSH=<user>@<machine-1>      # key-based SSH (we use Tailscale SSH)
+export SERVICE_REPO=ICT3113-PTO            # machine 1's checkout, relative to its home directory
 ```
 
-Two traps, both real:
+With `SERVICE_SSH` set, both drivers behave as follows:
 
-* With `DOCKER_HOST=ssh://…`, Compose resolves the bind mount `./logs/service` to an **absolute** path using
-  the compose file's location *on machine 2*, and machine 1's daemon then interprets that absolute path on
-  machine 1. **So the repository must be checked out at the same absolute path on both machines**, or the
-  container will bind-mount a directory that does not exist on machine 1 and write its log somewhere you
-  cannot find it.
-* `SERVICE_LOG_DIR` must be a **live view** — sshfs, NFS, or machine 1's own path if you are rehearsing there
-  — not a snapshot taken afterwards.
+* `docker compose` and `scripts/reset.sh` run **inside machine 1's own checkout** over SSH, so the bind mount
+  `./logs/service` and the build context resolve on machine 1. (The older `DOCKER_HOST=ssh://…` approach
+  resolves the bind mount against machine 2's path, which is why it is not used.)
+* machine 1's `logs/service/` is mirrored into machine 2's `logs/service/` with `rsync` before every read
+  (the warm-up line, and the measured window after JMeter finishes). Nothing is deleted on either side.
+* `run_load_test.sh` refuses a real run if machine 1's checkout is not at the **same commit** as machine 2's,
+  because `metadata.json` records machine 2's commit and the service must be running that code.
 
-`TODO(Part 5 — Teammate D): record which arrangement the team actually used — sshfs, NFS or something else —
-and the absolute repository path on both machines. The next person to run this needs the answer, not the
-options.`
+`scripts/run_campaign.sh` (section 6.0) uses the same two variables, plus `TARGET_HOST`, the address JMeter
+sends to.
 
 ### 5.4 Verify reachability from machine 2 before a run
 
@@ -659,12 +657,12 @@ Do all four of these from machine 2, before spending an hour on runs.
 # 1. The service answers, and reports the model and backend you expect.
 curl -s http://<machine-1>:8000/health | .venv/bin/python -m json.tool
 
-# 2. The Docker plumbing works: this must list machine 1's containers.
-docker compose -f docker-compose.yml ps
+# 2. The SSH plumbing works: this must list machine 1's containers, from machine 1's checkout.
+ssh "$SERVICE_SSH" 'cd ICT3113-PTO && docker compose ps && git rev-parse HEAD'
+git rev-parse HEAD                        # must print the same commit
 
-# 3. The service log is readable from here, and is the file the service is writing.
-ls -l "$SERVICE_LOG_DIR"                  # must show <UTC-date>.jsonl
-wc -l "$SERVICE_LOG_DIR"/*.jsonl          # run twice, after a smoke request: it must grow
+# 3. The service log can be mirrored here.
+rsync -a "$SERVICE_SSH:ICT3113-PTO/logs/service/" logs/service/ && ls -l logs/service/
 
 # 4. The network cost, measured rather than assumed. Record the output for Slide 7.
 ping -c 20 <machine-1>
@@ -726,9 +724,34 @@ information from your team"* — and each carries its own preconditions, abort c
   copy of the step boundaries
 * [`docs/playbooks/accuracy-test.md`](docs/playbooks/accuracy-test.md) — the golden-set run, per model
 
-**Every arrival rate, duration, search rate and threshold in the commands below is a
-`TODO(Part 4 — Teammate C)` from [`workload/requirements.md`](workload/requirements.md).** Part 1 does not
-invent them. A run at a made-up rate is a run nobody can defend on Slide 9.
+**Every arrival rate, duration, search rate and threshold in the commands below comes from Part 4** — the
+"Derived arrival rates for testing" section of [`workload/workload_model.md`](workload/workload_model.md) and
+requirements R1–R5 in [`workload/requirements.md`](workload/requirements.md). Part 1 did not invent them:
+
+| Test | Rates (per minute) | Duration per run | Runs | Requirement it tests |
+|---|---|---|---|---|
+| `load_post_tickets` | 1, 4, 12 | 600 s of arrivals + 150 s drain | 3 per rate, per model | R1 (p95 ≤ 10 s at 1/min), R2 (≤ 5% errors, no backlog at 12/min) |
+| `mixed_load` | 1 ticket + 1 search | 600 s of arrivals + 150 s drain | 3 per model | R5 (`GET /search` p95 ≤ 2 s) |
+| `stress_ramp` | 1, 5, 9, 13, 17, 21 (120 s steps) + 150 s drain | 870 s | 1 per model | the limit: first step breaching R1's 10 s p95 or a 5% error rate |
+| accuracy | every golden ticket, once, serially | — | 1 per model | R3 (≥ 90% overall), R4 (≥ 80% per category) |
+
+### 6.0 The whole campaign in one command
+
+[`scripts/run_campaign.sh`](scripts/run_campaign.sh) runs every row of that table for every candidate in
+`models/models.yaml`, by calling the two drivers below with exactly those parameters. It switches the service
+to each model and checks that `/health` reports the digest pinned in `models/models.yaml` first. It logs every
+command, exit status and duration to `results/campaign/campaign_<stamp>.log`, and it can be re-run safely: a
+configuration with complete evidence for the current freeze is skipped, and a partial one is moved to
+`results/excluded/` (with the reason appended to `results/excluded/EXCLUDED.md`) and run again in full.
+
+```bash
+export SERVICE_SSH=<user>@<machine-1> TARGET_HOST=<machine-1> JMETER_HOME=$HOME/tools/apache-jmeter-5.6.3
+STRESS_MODELS="llama3.2:1b llama3.2:3b granite4:3b qwen2.5:7b" scripts/run_campaign.sh
+# rehearsal on synthetic tickets, no freeze needed, writes only under results/dev/:
+DURATION_S=45 RUNS=1 RATES=30 scripts/run_campaign.sh --dev --models llama3.2:1b
+```
+
+The sections below are the same steps, one at a time.
 
 **`--runs 3` is the default and the brief's requirement**: *"Three runs per configuration. Report means and
 the spread across runs. A single run is not a measurement."*
@@ -741,17 +764,18 @@ script refuses (exit 2) rather than resetting unasked.
 ### 6.1 Load test — steady state, `POST /tickets`
 
 ```bash
-export DOCKER_HOST=ssh://<user>@<machine-1>          # section 5.3
-export SERVICE_LOG_DIR=/path/to/machine-1/logs/service
-export RUN_NOTES="operator <name>; wired ethernet; service host otherwise idle; JDK 21"
+export SERVICE_SSH=<user>@<machine-1>                # section 5.3
+export RUN_NOTES="operator <name>; service host otherwise idle; JDK 21"
 
-scripts/run_load_test.sh \
-    --plan load_post_tickets \
-    --model <ollama-tag> \
-    --rate <TODO(Part 4 — Teammate C): tickets per minute, from workload/requirements.md R2> \
-    --duration <TODO(Part 4 — Teammate C): seconds per run> \
-    --runs 3 \
-    --host <machine-1> --port 8000 --yes
+for rate in 1 4 12; do
+  scripts/run_load_test.sh \
+      --plan load_post_tickets \
+      --model <ollama-tag> \
+      --rate "$rate" \
+      --duration 600 \
+      --runs 3 \
+      --host <machine-1> --port 8000 --yes
+done
 ```
 
 ### 6.2 Mixed load — `POST /tickets` and `GET /search` concurrently
@@ -764,9 +788,9 @@ minute" (R5).
 scripts/run_load_test.sh \
     --plan mixed_load \
     --model <ollama-tag> \
-    --rate <TODO(Part 4 — Teammate C): ticket arrival rate, per minute> \
-    --search-rate <TODO(Part 4 — Teammate C): agent search rate, per minute, from R5> \
-    --duration <TODO(Part 4 — Teammate C): seconds per run> \
+    --rate 1 \
+    --search-rate 1 \
+    --duration 600 \
     --runs 3 \
     --host <machine-1> --port 8000 --yes
 ```
@@ -784,16 +808,16 @@ set `--duration` to the true total wall-clock (`6 × step + drain`) or `metadata
 run.
 
 ```bash
-export RAMP_STEP_PER_MIN=<TODO(Part 4 — Teammate C): increment per step, per minute>
-export RAMP_STEP_DURATION_S=<TODO(Part 4 — Teammate C): seconds per step; 120 at the plan defaults>
+export RAMP_STEP_PER_MIN=4             # workload_model.md: 1, 5, 9, 13, 17, 21 per minute
+export RAMP_STEP_DURATION_S=120
 export RAMP_STEPS=6                    # recorded in jmeter.log; the schedule is six literal steps
 
 scripts/run_load_test.sh \
     --plan stress_ramp \
     --model <ollama-tag> \
-    --rate <TODO(Part 4 — Teammate C): step 1's rate, per minute> \
-    --duration <the TRUE total: 6 × RAMP_STEP_DURATION_S + drain; 840 at the plan defaults> \
-    --runs <TODO(Part 5 — Teammate D): once, or repeated — see stress-test.md section 4> \
+    --rate 1 \
+    --duration 870 \
+    --runs 1 \
     --host <machine-1> --port 8000 --yes
 ```
 
@@ -814,15 +838,14 @@ authoritative copy), `jmeter/README.md` section 3, and the `TestPlan.comments` o
 One run per candidate. Switch the service to that model first, then confirm it:
 
 ```bash
-# On machine 1:
-MODEL_TAG=<ollama-tag> docker compose up -d --force-recreate --no-deps triage
-docker compose --profile local-ollama up -d ollama      # if Ollama is local
+# Switch machine 1 to the model (from machine 2, in machine 1's checkout):
+ssh "$SERVICE_SSH" 'cd ICT3113-PTO && docker compose up -d ollama && MODEL_TAG=<ollama-tag> docker compose up -d --force-recreate --no-deps triage'
 
-# From the driver machine:
+# Confirm it, from the driver machine:
 curl -s http://<machine-1>:8000/health | .venv/bin/python -m json.tool
 
-export SERVICE_LOG_DIR=/path/to/machine-1/logs/service
-export RUN_NOTES="operator <name>; candidate <tag>; database reset first"
+export SERVICE_SSH=<user>@<machine-1>        # the driver mirrors machine 1's log before slicing it
+export RUN_NOTES="operator <name>; candidate <tag>"
 
 .venv/bin/python scripts/run_accuracy.py \
     --model <ollama-tag> \
@@ -913,20 +936,11 @@ and the `jmeter.save.saveservice.*` settings, and without it the `.jtl` has no `
 columns and cannot be reconciled with the service log. Write scratch results to `/tmp`, never into the
 repository.
 
-**One caveat, verified and worth knowing.** `scripts/run_load_test.sh` does **not** pass
-`-q jmeter/user.properties`; it passes `-Jsample_variables=request_id,source_row` and otherwise relies on the
-JMeter properties installed on the load generator. It does check the resulting `.jtl` header and fails the run
-if the file is not CSV or if either reconciliation column is missing — but that check happens *after* the run,
-so a machine whose JMeter properties differ from ours costs a whole configuration before you find out. Pin
-them once per load generator:
-
-```bash
-cat jmeter/user.properties >> "$JMETER_HOME/bin/user.properties"
-```
-
-Then record in `docs/environment/` that you did.
-`TODO(Yeo Kai Yuan): decide whether scripts/run_load_test.sh should pass -q jmeter/user.properties itself,
-which would remove this step. The same decision is recorded in docs/playbooks/load-test.md section 3.4.`
+**Resolved 8 October 2026.** `scripts/run_load_test.sh` originally did not pass `-q jmeter/user.properties`
+and relied on whatever JMeter properties the load generator had installed. It now passes it on every run, so
+the `.jtl` column set and `httpclient4.retrycount=0` are fixed by the repository, not by the machine. The
+script still checks the `.jtl` header after each run and fails a run whose reconciliation columns are
+missing.
 
 ---
 
@@ -987,10 +1001,10 @@ is what a response-time requirement is about — reported alongside the service'
 ```bash
 .venv/bin/python analysis/stress_summary.py \
     --run-dir results/runs/<stress-run-dir> \
-    --step-seconds <the SAME number you passed as RAMP_STEP_DURATION_S> \
-    --offered-rates <the offered rates, comma-separated, from stress-test.md section 2> \
-    --p95-limit-ms <TODO(Part 4 — Teammate C): the p95 requirement, R1> \
-    --error-rate-limit <TODO(Part 4 — Teammate C): the error-rate criterion; 0.01 if not decided otherwise>
+    --step-seconds 120 \
+    --offered-rates 1,5,9,13,17,21 \
+    --p95-limit-ms 10000 \
+    --error-rate-limit 0.05
 ```
 
 Writes into `analysis/output/stress/`: `stress_steps.csv/.md` (per-step arrival rate, latency percentiles and
@@ -1070,18 +1084,17 @@ slide requirements are in [`slides/outline.md`](slides/outline.md).
 2. Decide which two machines we use, stand the stack up on machine 1, confirm `/health`, and run
    `scripts/smoke_test.sh --count 5`. Rehearse the cross-machine plumbing of
    [section 5.3](#53-the-cross-machine-plumbing) with `--dev` before the freeze, not after.
-3. Collect the four real names and student IDs, replace every `Teammate A/B/C/D` placeholder in this
+3. Collect the four real names and student IDs, replace every `Loh Wen Xuan/B/C/D` placeholder in this
    repository, and hand the list to Part 5 for Slide 1.
 
-### Part 2 — Teammate A (golden set lead, labeller 1; Slide 6)
+### Part 2 — Loh Wen Xuan (golden set lead, labeller 1; Slide 6)
 
-`TODO(Yeo Kai Yuan): replace "Teammate A" with the real name.`
 
 **Folder:** [`labelling/`](labelling/), and `golden/` once the set is built.
 **Documents:** [`labelling/README.md`](labelling/README.md) (read this first — it is two pages),
 [`labelling/protocol.md`](labelling/protocol.md), [`labelling/resolutions.md`](labelling/resolutions.md).
 **Scripts:** `labelling/scripts/sample_golden_candidates.py`, `agreement.py`, `build_golden_set.py`.
-**Slide:** 6 (golden test set), with Teammate B.
+**Slide:** 6 (golden test set), with Jolie Ngai Ning Li.
 
 **Part 2 sets the pace of the whole assignment**: the freeze gate cannot pass until the golden set is
 finished, and nothing may be measured until the gate passes. No code is needed for any of it.
@@ -1089,7 +1102,7 @@ finished, and nothing may be measured until the gate passes. No code is needed f
 1. Read `labelling/README.md`, then fill in `labelling/protocol.md` **before labelling anything** — a
    definition of each of the seven categories in your own words, the boundary each draws against its nearest
    neighbour, and the edge-case rules (fits two categories, fits none, too vague to judge). Agree it with
-   Teammate B and note the date.
+   Jolie Ngai Ning Li and note the date.
 2. Draw the sample and commit the **blank** sheets, so the history shows the sample predates the labelling:
    `.venv/bin/python labelling/scripts/sample_golden_candidates.py --n 200 --seed 3113`. The seed is the
    course code and is fixed so the sample is provably not cherry-picked.
@@ -1098,9 +1111,8 @@ finished, and nothing may be measured until the gate passes. No code is needed f
    `labelling/golden_candidates.csv` or `data/team_rows.csv` while labelling: both carry the noisy consumer
    `raw_label`, which is the noise the golden set exists to remove.
 
-### Part 3 — Teammate B (labeller 2 and accuracy results; Slide 6 with A, Slide 10)
+### Part 3 — Jolie Ngai Ning Li (labeller 2 and accuracy results; Slide 6 with A, Slide 10)
 
-`TODO(Yeo Kai Yuan): replace "Teammate B" with the real name.`
 
 **Folder:** [`labelling/`](labelling/), then `analysis/output/accuracy/`.
 **Documents:** `labelling/README.md`, `labelling/protocol.md`,
@@ -1108,20 +1120,19 @@ finished, and nothing may be measured until the gate passes. No code is needed f
 **Scripts:** `labelling/scripts/agreement.py`, `analysis/accuracy.py`.
 **Slides:** 6 (with A), 10 (accuracy results).
 
-1. Read `labelling/protocol.md` and agree it with Teammate A **before** starting, then label every sampled
+1. Read `labelling/protocol.md` and agree it with Loh Wen Xuan **before** starting, then label every sampled
    ticket into `labelling/labeller_B.csv` without conferring and without looking at their sheet. The
    independence is the point: it is what makes the agreement statistic mean anything.
 2. Compute the agreement statistic and keep its report as a submitted file:
    `.venv/bin/python labelling/scripts/agreement.py --a labelling/labeller_A.csv --b labelling/labeller_B.csv`
-   redirected into `labelling/agreement_report.txt`. Then co-resolve every disagreement with Teammate A and
+   redirected into `labelling/agreement_report.txt`. Then co-resolve every disagreement with Loh Wen Xuan and
    record the reasoning in `labelling/resolutions.csv`. Disagreements are evidence of care, not error.
 3. After the benchmarks, read `analysis/output/accuracy/misclassified.csv` and the confusion matrices and
    write the "where each model goes wrong" commentary for Slide 10. An `UNPARSEABLE` prediction is a
    **result**, not a bug — how it counts towards accuracy is an open decision under R3.
 
-### Part 4 — Teammate C (workload model and requirements; Slides 3, 4)
+### Part 4 — Toh Si Pei (workload model and requirements; Slides 3, 4)
 
-`TODO(Yeo Kai Yuan): replace "Teammate C" with the real name.`
 
 **Folder:** [`workload/`](workload/), plus the pen on
 [`predictions/prediction_record.md`](predictions/prediction_record.md).
@@ -1149,9 +1160,8 @@ freeze so the benchmark plan is ready the moment the gate opens.
    of `workload_model.md`. Take a position on what costs the client more: a misrouted ticket or a slow triage.
    Slide 11's recommendation has to follow from it.
 
-### Part 5 — Teammate D (environment, playbooks and deck; Slides 7, 8, 12)
+### Part 5 — Koh Tong Wei (environment, playbooks and deck; Slides 7, 8, 12)
 
-`TODO(Yeo Kai Yuan): replace "Teammate D" with the real name.`
 
 **Folders:** [`docs/environment/`](docs/environment/), [`docs/playbooks/`](docs/playbooks/),
 [`slides/`](slides/).

@@ -6,8 +6,8 @@ labelling protocol first: a definition of each category, with rules for the edge
 cases you expect"), it is a submitted supporting file, and it is summarised on
 Slide 6.
 
-**Owner: Part 2 — Teammate A.** Loh Wen Xuan
-**Second labeller: Part 3 — Teammate B.** Jolie Ngai Ning Li
+**Owner: Part 2 — Loh Wen Xuan.**
+**Second labeller: Part 3 — Jolie Ngai Ning Li.**
 **Feeds:** Slide 6 (Golden Test Set), and the submitted supporting files
 (protocol with revisions, the two independent label sheets, the agreement
 statistic).

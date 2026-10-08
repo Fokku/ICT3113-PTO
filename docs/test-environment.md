@@ -65,7 +65,7 @@ If the service and Ollama share one machine, keep both rows and put the same hos
 file in each: the roles are still distinct even when the hardware is not, and Slide 7 has to speak about both.
 The load generator row must always name a **different** hostname from the service row — see section 4.
 
-`TODO(Part 5 — Teammate D): add a row for any other machine that took part, and delete the "Ollama version"
+`TODO(Part 5 — Koh Tong Wei): add a row for any other machine that took part, and delete the "Ollama version"
 and "JMeter version" cells marked n/a only if that role genuinely never ran on that host.`
 
 ### 2.1 Where each column comes from inside a capture file
@@ -104,7 +104,7 @@ belong on the slide because they change what the numbers mean. The values below 
 | GPU | none, anywhere | There is no `deploy.resources.reservations.devices` block and no GPU runtime in `../docker-compose.yml`. The client's constraint is CPU-only commodity hardware. |
 | Container CPU/memory limits | none set | The baseline gets the whole machine. Constraining it would be tuning — but see the container-limit factor in section 5, because *not* limiting it has consequences too. A2 candidate: pin the containers to a stated core count so the measured configuration matches a sized client server. |
 
-`TODO(Part 5 — Teammate D): confirm each of these against the .env actually used on the service host —
+`TODO(Part 5 — Koh Tong Wei): confirm each of these against the .env actually used on the service host —
 'docker compose config' on that host prints the values in force — and correct the table if any differs from
 the committed default. GET /health reports num_ctx, uvicorn_workers, threadpool_size, prompt_hash and
 ollama_base_url directly, which is the quickest check.`

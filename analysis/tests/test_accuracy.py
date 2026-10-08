@@ -409,7 +409,7 @@ def test_errored_response_is_excluded_and_fails_coverage(tmp_path, golden_csv, c
 
 
 # ---------------------------------------------------------------------------
-# misclassified.csv -- the file Teammate B reads
+# misclassified.csv -- the file Jolie Ngai Ning Li reads
 # ---------------------------------------------------------------------------
 
 def test_misclassified_csv_contents_and_narrative_prefix(tmp_path, golden_csv):

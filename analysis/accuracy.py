@@ -1,7 +1,7 @@
 """Classification accuracy of the baseline service, measured against the golden set.
 
 Owner: Yeo Kai Yuan (Part 5 measurement tooling). Feeds **Slide 10 — Accuracy
-Results**; ``misclassified.csv`` is the file Teammate B reads to write the
+Results**; ``misclassified.csv`` is the file Jolie Ngai Ning Li reads to write the
 "where each model goes wrong" commentary.
 
 What it reads
@@ -150,7 +150,7 @@ DEFAULT_GOLDEN = REPO_ROOT / "golden" / "golden_set.csv"
 DEFAULT_OUT_DIR = REPO_ROOT / "analysis" / "output" / "accuracy"
 DEFAULT_TEAM_ROWS = REPO_ROOT / "data" / "team_rows.csv"
 
-#: Columns of ``misclassified.csv``. Teammate B reads this file by hand, so the
+#: Columns of ``misclassified.csv``. Jolie Ngai Ning Li reads this file by hand, so the
 #: order is "identify the row, then see the disagreement, then read the ticket".
 MISCLASSIFIED_COLUMNS: tuple[str, ...] = (
     "row_number",
@@ -185,7 +185,7 @@ def _format_ts(value: object) -> str:
     """Render a log timestamp back in the service's own format (ISO-8601, ms, Z).
 
     ``read_service_log`` parses ``ts`` into a pandas timestamp; printing that
-    repr into a CSV would hand Teammate B a string that does not appear in
+    repr into a CSV would hand Jolie Ngai Ning Li a string that does not appear in
     ``service.jsonl``, which makes the row harder to trace back to its log line.
     """
     if value is None or value is pd.NA:
@@ -984,22 +984,15 @@ def render_run_report(report: RunReport) -> str:
         lines += [f"* {failure}" for failure in report.failures]
         lines += [""]
     lines += [
-        "## Interpretation still owed",
+        "## Interpretation",
         "",
         "`misclassified.csv` lists every wrong row with the golden label, the "
         "predicted label, the raw model reply and the first characters of the "
-        "ticket. It is the input to the Slide 10 commentary.",
-        "",
-        "TODO(Part 5 — Teammate B): read `misclassified.csv` and state, for "
-        "this model, which category pairs it confuses and what the narratives "
-        "in those pairs have in common. Name the two or three examples that go "
-        "on Slide 10.",
-        "",
-        "TODO(Part 5 — Teammate B): say whether the per-category recall figures "
-        "meet the per-category accuracy requirement from Part 4, category by "
-        "category, and list every category that does not.",
-        "",
-        'TODO(Yeo Kai Yuan): replace "Teammate B" above with the real name.',
+        "ticket. It is the input to the Slide 10 commentary (Part 3 — Jolie Ngai "
+        "Ning Li): which category pairs this model confuses, what the narratives "
+        "in those pairs have in common, and which categories miss the "
+        "per-category requirement R4 in `workload/requirements.md`. This file "
+        "reports; it does not interpret.",
         "",
     ]
     return "\n".join(lines)
@@ -1047,14 +1040,12 @@ def render_top_report(
             "",
         ]
     lines += [
-        "## Interpretation still owed",
+        "## Interpretation",
         "",
-        "TODO(Part 6 — Teammate B): state which model this table supports "
-        "recommending on accuracy grounds, and whether any candidate fails the "
-        "per-category accuracy requirement. Accuracy alone does not decide the "
-        "recommendation: pair it with the latency and throughput results.",
-        "",
-        'TODO(Yeo Kai Yuan): replace "Teammate B" above with the real name.',
+        "Which model these figures support on accuracy grounds, and which "
+        "candidates fail requirements R3 and R4, is argued on Slides 10 and 11. "
+        "Accuracy alone does not decide the recommendation: it is weighed there "
+        "against the latency and throughput results.",
         "",
     ]
     return "\n".join(lines)

@@ -858,12 +858,33 @@ def test_build_refuses_when_the_output_is_committed(
     assert out.read_text(encoding="utf-8") == "row_number,label\n10000,Mortgage\n"
 
 
-def test_shipped_resolutions_template_parses_to_no_resolutions() -> None:
-    """The committed template must be readable and must resolve nothing yet."""
-    csv_path = REPO_ROOT / "labelling" / "resolutions.csv"
-    assert build.read_resolutions(csv_path) == []
-    md_path = REPO_ROOT / "labelling" / "resolutions.md"
-    assert build.read_resolution_md_rows(md_path) == set()
+def test_committed_resolutions_cover_every_disagreement_exactly_once() -> None:
+    """Every row in disagreements.csv has exactly one recorded resolution, in both records."""
+    with (REPO_ROOT / "labelling" / "disagreements.csv").open(newline="", encoding="utf-8") as handle:
+        disagreements = {int(row["row_number"]) for row in csv.DictReader(handle)}
+    resolutions = build.read_resolutions(REPO_ROOT / "labelling" / "resolutions.csv")
+    resolved = [resolution.row_number for resolution in resolutions]
+    assert len(resolved) == len(set(resolved)), "a disagreement is resolved twice"
+    assert set(resolved) == disagreements
+    assert all(r.agreed_label in CATEGORIES or r.agreed_label == "EXCLUDE" for r in resolutions)
+    md_rows = build.read_resolution_md_rows(REPO_ROOT / "labelling" / "resolutions.md")
+    assert md_rows == disagreements
+
+
+def test_committed_golden_set_rebuilds_from_the_committed_inputs(tmp_path: Path) -> None:
+    """golden/golden_set.csv is exactly what build_golden_set.py makes from the sheets."""
+    labelling = REPO_ROOT / "labelling"
+    out = tmp_path / "golden_set.csv"
+    argv = [
+        "--a", str(labelling / "labeller_A.csv"),
+        "--b", str(labelling / "labeller_B.csv"),
+        "--resolutions", str(labelling / "resolutions.csv"),
+        "--out", str(out),
+        "--team-rows", str(REPO_ROOT / "data" / "team_rows.csv"),
+    ]
+    assert build.main(argv) == 0
+    committed = (REPO_ROOT / "golden" / "golden_set.csv").read_text(encoding="utf-8")
+    assert out.read_text(encoding="utf-8").splitlines() == committed.splitlines()
 
 
 def test_resolutions_md_row_pattern_matches_the_documented_shape() -> None:

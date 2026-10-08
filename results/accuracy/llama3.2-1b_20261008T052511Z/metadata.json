@@ -1,0 +1,42 @@
+{
+  "run_id": "llama3.2-1b_20261008T052511Z",
+  "mode": "real",
+  "plan": "accuracy",
+  "plan_file": null,
+  "model_tag": "llama3.2:1b",
+  "model_digest": null,
+  "rate_per_min": null,
+  "duration_s": null,
+  "run_index": 1,
+  "runs_total": 1,
+  "started_at_utc": "2026-10-08T05:25:11.188Z",
+  "ended_at_utc": "2026-10-08T05:42:22.363Z",
+  "git_commit": "a21b38f26f849ff1626e92e354df10cef66a39ab",
+  "git_dirty": true,
+  "freeze_commit": "ef5a1b21f5030966047a2bb438082ab80a893f8c",
+  "freeze_tag": "golden-freeze",
+  "prompt_hash": "sha256:681131c48bdc15a1",
+  "num_ctx": 4096,
+  "seed": 42,
+  "input_csv": "golden/golden_set.csv",
+  "service_url": "http://localhost:8000",
+  "service_host_info": {
+    "target_url": "http://localhost:8000",
+    "ollama_base_url": "http://ollama:11434",
+    "db_path": "/data/triage.db",
+    "uvicorn_workers": 1,
+    "threadpool_size": 40,
+    "note": "hardware is recorded by scripts/capture_env.sh on the service host"
+  },
+  "load_generator_host_info": {
+    "hostname": "tw",
+    "platform": "Linux 5.15.167.4-microsoft-standard-WSL2 x86_64",
+    "python": "3.12.3",
+    "environment_capture": "docs/environment/<hostname>.txt (scripts/capture_env.sh)"
+  },
+  "jmeter_version": null,
+  "ollama_num_parallel": "default",
+  "ollama_max_loaded_models": "default",
+  "warmup_request_id": null,
+  "notes": "narratives resolved from team_rows.csv by row_number; posted=200 status_counts={200: 200}; service log lines captured=201"
+}

@@ -1,309 +1,179 @@
-# Test environment — template for Slide 7
+# Test environment (Slide 7)
 
-**What this document is for.** It is the written test-environment description the brief demands in Step 5,
-and it is the source Slide 7 ("Test Environment") is built from. It is deliberately a **template**: the
-structure, the evidence pointers and the questions are here, and every figure is either a
-`TODO(Part 5 — Koh Tong Wei)` that must be filled from a committed capture file rather than from memory, or a
-known fact marked *to be confirmed by `scripts/capture_env.sh` output* until that file exists.
+**What this document is for.** It is the test-environment description the brief demands in Step 5, and the
+source Slide 7 ("Test Environment") is built from. Every hardware and software figure below is copied from a
+capture file in [`environment/`](environment/) written by `scripts/capture_env.sh`, from a command whose output
+is quoted with the time it was run, or from a run's `metadata.json`. Nothing is from memory.
 
-**Owner:** Part 5 — Koh Tong Wei.
+**Owner:** Part 5 — Koh Tong Wei. The machines changed on 8 October 2026 (see [`run-log.md`](run-log.md)); this
+version was written by Part 1 — Yeo Kai Yuan, whose two machines replaced the original pair, from the captures of
+those machines.
 
-**The setup in one paragraph.** Two machines. **Machine 1**, the service host, is Yeo Kai Yuan's desktop: it
-runs the triage service and Ollama, both in Docker, CPU-only. **Machine 2**, the load generator, is a team
-member's laptop running JMeter and `scripts/run_accuracy.py`. Which laptop, and its specification, are still to
-be captured.
+**The setup in one paragraph.** Two machines on one home LAN. **Machine 1**, the service host `omarchy`, is
+Yeo Kai Yuan's desktop: it runs the triage service and Ollama, both in Docker Engine natively on Linux, CPU only.
+**Machine 2**, the load generator `kais-macbook-pro`, is Yeo Kai Yuan's MacBook Pro: it runs JMeter,
+`scripts/run_accuracy.py` and `scripts/run_campaign.sh`, and no service or model. The first pair of machines
+(`tw` and `kthgoat`) became unavailable before any reported run; their captures are kept in
+[`environment/superseded/`](environment/superseded/) and no reported number comes from them.
 
-**What "done" looks like.**
-
-1. Every cell of the machine table in section 2 holds a value copied from a file in `environment/`, and the
-   "captured file" column names that file.
-2. Section 3 describes the network with a **measured** round-trip time, not an assumed one.
-3. Section 4 states the separate-machine confirmation as a sentence, and the three named pieces of evidence
-   for it all check out.
-4. Section 5 lists at least the factors that actually apply to our setup, each with the **direction** in
-   which it biases our numbers.
-5. Section 6 makes the scaling argument to the client's commodity CPU servers, with its assumptions named.
-6. No figure anywhere in this document is one nobody can point at a file for.
-
-**Feeds:** Slide 7 (Test Environment). Sections 3 and 5 also supply the "assumptions and limitations" line
-that Slide 11 needs when a requirement is missed for an environmental reason rather than a system one.
-
-**The brief's exact demands, for checking against:** *"describe your test environment: the machines running
-the service, Ollama, and the load generator; their CPU, memory, and operating system; the network between
-them; and any factors that could make your measurements unrepresentative. Indicate how results from your test
-environment scale to the client's deployment."* And: *"The load generator and the system under test must run
-on separate machines."*
+**The brief's exact demands:** *"describe your test environment: the machines running the service, Ollama, and
+the load generator; their CPU, memory, and operating system; the network between them; and any factors that
+could make your measurements unrepresentative. Indicate how results from your test environment scale to the
+client's deployment."* And: *"The load generator and the system under test must run on separate machines."*
 
 ---
 
-## 1. Produce the captures first
+## 1. The captures
 
-Nothing below can be filled in until the capture script has been run on every machine and its output
-committed. That is one command per machine, run **on** that machine:
+| File | Machine | Declared role | Captured (UTC) |
+|---|---|---|---|
+| [`environment/omarchy-Service.txt`](environment/omarchy-Service.txt) | `omarchy` | `service` | 2026-10-08 11:41 |
+| [`environment/omarchy-Ollama.txt`](environment/omarchy-Ollama.txt) | `omarchy` | `ollama` | 2026-10-08 11:41 |
+| [`environment/kais-macbook-pro-Loadgen.txt`](environment/kais-macbook-pro-Loadgen.txt) | `kais-macbook-pro` (macOS reports `Kais-MacBook-Pro-2.local`) | `loadgen` | 2026-10-08 11:49 |
 
-```bash
-# On the machine running the triage service container:
-scripts/capture_env.sh --role service
-
-# On the machine running Ollama:
-scripts/capture_env.sh --role ollama
-
-# On the machine running JMeter and scripts/run_accuracy.py:
-scripts/capture_env.sh --role loadgen
-```
-
-Each writes `docs/environment/<hostname>.txt`. See `environment/README.md` for how to commit them, what to do
-if two machines share a hostname, and when to re-capture. Do not hand-edit a capture file: it is regenerated
-in place, and this document is where the narrative belongs.
+The capture script names its file after the host name; the files were renamed with the role suffix, as the
+superseded `tw-Service.txt` / `tw-Ollama.txt` pair was. No file declares `Declared role: all`.
 
 ---
 
 ## 2. The machines
 
-One row per machine. Every value is copied from the capture file named in the last column; the mapping from
-column to the exact label inside the capture file is in section 2.1, so no guessing is needed.
-
-| Role | Hostname | CPU model | Cores / threads | RAM | OS and kernel | Docker version | Ollama version | JMeter version | Captured file |
+| Role | Hostname | CPU | Cores / threads | RAM | OS and kernel | Docker | Ollama | JMeter | Capture |
 |---|---|---|---|---|---|---|---|---|---|
-| Triage service (`POST /tickets`, `GET /search`, `GET /stats`) — machine 1, Yeo Kai Yuan's desktop | TODO(Part 5 — Koh Tong Wei) | AMD Ryzen 9 5900X (Zen 3, AVX2) *(to be confirmed by `scripts/capture_env.sh` output)* | 12 cores / 24 threads *(to be confirmed by `scripts/capture_env.sh` output)* | 32 GB *(to be confirmed by `scripts/capture_env.sh` output)* | Arch Linux, kernel 7.2.x *(to be confirmed by `scripts/capture_env.sh` output)* | Docker Engine, native (no Docker Desktop, no VM); version TODO(Part 5 — Koh Tong Wei) | same host as Ollama — see next row | n/a | `environment/<hostname>.txt` — TODO(Part 5 — Koh Tong Wei) |
-| Ollama model backend (CPU only) — machine 1, same host | same as the row above | same | same | same | same | same | TODO(Part 5 — Koh Tong Wei) | n/a | same file as the row above |
-| Load generator (JMeter, `scripts/run_accuracy.py`) | TODO(Part 5 — Koh Tong Wei) | TODO(Part 5 — Koh Tong Wei) | TODO(Part 5 — Koh Tong Wei) | TODO(Part 5 — Koh Tong Wei) | TODO(Part 5 — Koh Tong Wei) | TODO(Part 5 — Koh Tong Wei) | n/a | TODO(Part 5 — Koh Tong Wei) | `environment/<hostname>.txt` |
+| Triage service (`POST /tickets`, `GET /search`, `GET /stats`) | `omarchy` | AMD Ryzen 9 5900X (Zen 3, x86_64; AVX2 and FMA, no AVX-512); max 4.95 GHz; 64 MiB L3 | 12 / 24 | 31.3 GiB (swap 15.6 GiB, 0 B used) | Arch Linux, kernel 7.2.3-arch1-3 | Docker Engine 29.7.2, native (no VM); Compose 5.5.1 | — | not installed | `omarchy-Service.txt` |
+| Ollama model backend (CPU only) | `omarchy` (same machine) | same | same | same | same | same | **0.34.3** (`ollama/ollama` container) | not installed | `omarchy-Ollama.txt` |
+| Load generator (JMeter, accuracy driver) | `kais-macbook-pro` | Apple M3 Pro (arm64) | 11 cores (no SMT) | 18.0 GiB | macOS 15.1.1 (24B91), Darwin 24.1.0 | installed but **not running** during reported runs (Docker Desktop quit) | none | **5.6.3**, on OpenJDK 21.0.12.1 (set in JMeter's `bin/setenv.sh`) | `kais-macbook-pro-Loadgen.txt` |
 
-If the service and Ollama share one machine, keep both rows and put the same hostname and the same capture
-file in each: the roles are still distinct even when the hardware is not, and Slide 7 has to speak about both.
-The load generator row must always name a **different** hostname from the service row — see section 4.
+The load generator's capture prints `java (used by JMeter): 23.0.1`, because it reports the `java` on the
+shell's `PATH`. JMeter itself runs on OpenJDK 21: its `bin/setenv.sh` sets `JAVA_HOME=/opt/homebrew/opt/openjdk@21`
+(`java -version` there: `openjdk version "21.0.12.1"`). That matters — see the JDK factor in section 5.
 
-Only these two machines took part. The service host also has an NVIDIA GTX 1660, which is **deliberately not
-passed to the container**: there is no GPU device in `../docker-compose.yml`, so Ollama runs CPU-only, as the
-client's hardware would. Confirm it during a run with `docker compose exec ollama ollama ps`, whose `PROCESSOR`
-column should read `100% CPU`.
+**CPU only.** The service host has an NVIDIA GeForce GTX 1660 (`lspci`: `TU116 [GeForce GTX 1660]`), and it is
+deliberately **not** passed to the container: `docker inspect ict3113-ollama` shows `DeviceRequests: null`, there
+is no GPU device in [`../docker-compose.yml`](../docker-compose.yml), and the `ollama/ollama` container has no
+NVIDIA runtime. Ollama therefore runs on the CPU, as the client's hardware would.
 
-### 2.1 Where each column comes from inside a capture file
+### 2.1 Software configuration in force
 
-`scripts/capture_env.sh` writes labelled `label : value` lines under eight numbered sections. Copy from these
-exact labels so that two people filling the table in get the same answer.
+Confirmed on 8 October 2026 against `GET /health` and `docker exec ict3113-ollama env` on the service host, and
+recorded again in every run's `metadata.json`:
 
-| Table column | Capture file section | Label(s) to copy |
-|---|---|---|
-| CPU model | 2. CPU | `Model name` (Linux, from `lscpu`; macOS, from `machdep.cpu.brand_string`) |
-| Cores / threads | 2. CPU | `Cores per socket` × `Sockets` physical, `Logical CPUs` total, `Threads per core` for SMT. On macOS: `Physical cores` and `Logical cores` |
-| RAM | 3. Memory and storage | `Total RAM` (and note `Total swap` in section 5 if it is non-zero — see the swap factor) |
-| OS and kernel | 1. Operating system | `Distribution` (or `macOS version`) plus `uname -r (kernel)` and `uname -m (arch)` |
-| Docker version | 4. Software versions | `docker`, `docker server` and `docker compose` |
-| Ollama version | 5. Model backend (Ollama) | `ollama /api/version` for the server actually serving us, or `ollama CLI` if the backend is not containerised |
-| JMeter version | 6. Load generator (JMeter) | `jmeter version`, **and** `java (used by JMeter)` — record the JDK too, see the JDK factor in section 5 |
-| Hostname | header block | `Host` |
-
-### 2.2 Software configuration in force
-
-These are not measurements; they are the committed configuration the baseline was measured under, and they
-belong on the slide because they change what the numbers mean. The values below are the defaults in
-`../.env.example` and `../docker-compose.yml`.
-
-| Setting | Committed default | Why it is on the slide |
+| Setting | Value in force | Why it is on the slide |
 |---|---|---|
 | `UVICORN_WORKERS` | `1` | One worker, one event loop, one writer to SQLite and to the log. The process model is part of the baseline. |
-| `SERVICE_THREADPOOL_SIZE` | `40` | The anyio worker-thread pool that blocking SQLite calls are handed to. Set explicitly so it is visible rather than an invisible library default. |
-| `NUM_CTX` | `4096` | Ollama's own default is 2048 and it truncates silently; our team rows reach 1,999 characters. A truncated prompt would look like a model error, not a configuration error. |
+| `SERVICE_THREADPOOL_SIZE` | `40` | The thread pool blocking SQLite calls are handed to. Set explicitly so it is visible. |
+| `NUM_CTX` | `4096` | Ollama's default (2048) would silently truncate our longest prompts (~612 approximate tokens, `../workload/output/ticket_length_stats.md`) less often than you might think, but 4096 removes the question. |
 | `OLLAMA_TIMEOUT_S` | `120` | The service's own model-call timeout. A `502` with `error: "ollama_timeout"` is this limit being hit. |
-| `OLLAMA_SEED` / temperature | `42` / `0` (fixed in code) | Re-running the accuracy test on the same model and prompt gives the same answers. |
-| `OLLAMA_NUM_PARALLEL` | `0` (Ollama's "decide for me" sentinel), which means Ollama's own default, documented as `1` — one request processed at a time per model, with the rest queued (`OLLAMA_MAX_QUEUE`, default 512). Source: <https://docs.ollama.com/faq> [Accessed: 2 October 2026] | **Not tuned.** Concurrency is where we expect the bottleneck; tuning it is Assignment 2. A2 candidate: raise `OLLAMA_NUM_PARALLEL` and re-measure the latency / throughput trade-off on the same plans. |
-| `OLLAMA_MAX_LOADED_MODELS` | `0` (same sentinel), which means Ollama's default — documented as 3 for CPU inference (same source) | Same reason. The harness serves one model per run, so in practice one model is loaded at a time. A2 candidate: `OLLAMA_MAX_LOADED_MODELS > 1`, to avoid a model reload when two candidates are exercised in one session. |
-| GPU | none, anywhere | There is no `deploy.resources.reservations.devices` block and no GPU runtime in `../docker-compose.yml`. The client's constraint is CPU-only commodity hardware. The service host's GTX 1660 is present but not passed through. |
-| Container CPU/memory limits | none set | The baseline gets the whole machine. Constraining it would be tuning — but see the container-limit factor in section 5, because *not* limiting it has consequences too. A2 candidate: pin the containers to a stated core count so the measured configuration matches a sized client server. |
-
-`TODO(Part 5 — Koh Tong Wei): confirm each of these against the .env actually used on the service host —
-'docker compose config' on that host prints the values in force — and correct the table if any differs from
-the committed default. GET /health reports num_ctx, uvicorn_workers, threadpool_size, prompt_hash and
-ollama_base_url directly, which is the quickest check.`
+| seed / temperature | `42` / `0` | Re-running the accuracy test on the same model gives the same answers. |
+| `OLLAMA_NUM_PARALLEL` | `0` in the container's environment — Ollama's "use the default" sentinel, documented as **1** request at a time per model, the rest queued (`OLLAMA_MAX_QUEUE`, default 512) | **Not tuned.** The prediction record puts the bottleneck here; tuning it is Assignment 2. |
+| `OLLAMA_MAX_LOADED_MODELS` | `0` (same sentinel; Ollama's default) | The harness serves one model per run. |
+| `OLLAMA_KEEP_ALIVE` | unset — Ollama's default of 5 minutes | Every measured window is preceded by a warm-up request, so no measured request pays the model load. |
+| Container CPU / memory limits | none (`NanoCpus 0`, `Memory 0`) | The baseline gets the whole machine. See section 5. |
+| Model pins | the four digests in [`../models/models.yaml`](../models/models.yaml), checked against `/health` before every configuration by `scripts/run_campaign.sh` | Slide 5 and every run's `metadata.json` carry the same digest. |
 
 ---
 
 ## 3. The network between the machines
 
-The brief asks for this explicitly, and it is the part nobody captures automatically: the capture script
-records each machine's IPv4 addresses (section 7 of the file) and nothing else about the link.
-
-| Property | Value | How to establish it |
+| Property | Value | How it was established |
 |---|---|---|
-| Link type | TODO(Part 5 — Koh Tong Wei) | Wired Ethernet, or Wi-Fi, or both (say which machine is on which) |
-| Nominal link speed | TODO(Part 5 — Koh Tong Wei) | `ethtool <iface> \| grep Speed` on Linux, or the router/switch port speed. State it as nominal, not achieved |
-| Switch, router or direct | TODO(Part 5 — Koh Tong Wei) | Named switch or home router, or a direct cable. Say whether other traffic shares it |
-| Same subnet? | TODO(Part 5 — Koh Tong Wei) | Compare the `IPv4 address` lines in section 7 of the two capture files |
-| **Measured** round-trip time, service host to load generator | TODO(Part 5 — Koh Tong Wei) | Measure it — see below. Give min/avg/max and the packet count |
-| Measured HTTP connect time to the service | TODO(Part 5 — Koh Tong Wei) | Measure it — see below |
-| Name resolution | TODO(Part 5 — Koh Tong Wei) | Whether `-Jhost` was an IP address or a name, and whether the name was in `/etc/hosts`. See `../jmeter/user.properties` section 3: a DNS lookup inside a measured sample is load-generator latency wearing the service's clothes |
+| Link, service host | Wired Gigabit Ethernet: `enp38s0`, 1000 Mb/s, full duplex | `/sys/class/net/enp38s0/speed` and `duplex` |
+| Link, load generator | Wi-Fi 802.11ac (5 GHz, channel 40, 80 MHz), transmit rate 866 Mb/s, signal −40 dBm / noise −92 dBm | `system_profiler SPAirPortDataType`; `networksetup -listallhardwareports` (`en0` is the Wi-Fi port) |
+| Path | Both on the home router `192.168.50.1`; no VPN, proxy or tunnel on the measured path | `route -n get default` on the MacBook |
+| Addresses | service host `192.168.50.130/24`; load generator `192.168.50.35/24` — same subnet | section 7 of both capture files |
+| Measured round trip, load generator → service host | 20 packets, 0% loss; min / avg / max / stddev = **2.218 / 3.515 / 6.797 / 1.638 ms** | `ping -c 20 -i 0.5 192.168.50.130` on the MacBook, 2026-10-08T11:51:30Z |
+| Measured HTTP cost of `GET /health` | TCP connect **3.0–4.0 ms**; complete response **14.8–19.8 ms** (5 requests) | `curl -w 'connect=%{time_connect}s total=%{time_total}s'`, same time |
+| Name resolution | none: JMeter and the accuracy driver are given the IP address `192.168.50.130` (`TARGET_HOST`) | the campaign environment; `service_url` in every `metadata.json` |
+| Control channel (not measured traffic) | SSH from the MacBook to the service host over the Tailscale address `100.85.101.39`, used only for `docker compose`, `scripts/reset.sh` and `rsync` of `logs/service`, between measured windows | `SERVICE_SSH=omarchy` in `scripts/run_campaign.sh`; the service host's firewall (`ufw`) admits SSH only on the tailnet |
 
-**What this means for our numbers.** The link is uneven. The mean round trip (51 ms) is more than twelve times
-the minimum (4 ms), and the slowest packet took 188 ms. Against requirement R1 (`POST /tickets` p95 ≤ 10 s,
-`../workload/requirements.md`) this is small: 188 ms is under 2% of the threshold. Against R5 (`GET /search`
-p95 ≤ 2 s) it is not negligible: 188 ms is about 9% of the threshold, and a search over a near-empty table is
-itself fast, so network jitter can be a visible share of the search latency JMeter records. The effect is on
-JMeter's client-side figures only. The service log's own timings do not include the network.
-
----
-
-```bash
-# 20 packets is enough to see jitter as well as the mean.
-ping -c 20 <service-host>
-
-# The HTTP path, which is what actually matters: TCP connect and the time to a
-# complete /health response. /health is deliberately not written to the JSONL
-# request log, so this probe does not contaminate the evidence.
-curl -s -o /dev/null -w 'connect=%{time_connect}s  total=%{time_total}s\n' \
-    http://<service-host>:8000/health
-```
-
-Repeat the `curl` a handful of times and record the range. If the round-trip time is a material fraction of
-the `POST /tickets` latency you later measure, say so in section 5 — it is a bias in our favour or against us
-depending on which side of the requirement the number lands, and the honest move is to state the size of it.
-
-`TODO(Part 5 — Koh Tong Wei): record the date and time the network measurements were taken. A Wi-Fi
-measurement taken at 03:00 does not describe a run done at 15:00.`
+**What this means for our numbers.** The worst round trip measured (6.8 ms) is under 0.1% of R1's 10 s
+`POST /tickets` threshold and about 0.3% of R5's 2 s `GET /search` threshold. The network is not a material share
+of any latency we report, and the service log's own timings (`total_latency_ms`) exclude it entirely;
+`analysis/reconcile.py` checks that JMeter's `elapsed` and the service's `total_latency_ms` agree within its
+threshold for every sample.
 
 ---
 
 ## 4. CONFIRMATION: the load generator ran on a separate machine
 
-The brief requires this confirmation, and it explains why: *"A co-hosted load generator steals CPU from the
-service and produces latency numbers that are fiction."* State it as a claim, then point at the evidence.
+> **Confirmation.** Apache JMeter and `scripts/run_accuracy.py` ran on `kais-macbook-pro` (Apple M3 Pro MacBook
+> Pro). The system under test — the triage service container and the Ollama container — ran on `omarchy`
+> (Ryzen 9 5900X desktop). No JMeter process, triage service or model ran on the other machine during a
+> reported run: JMeter is not installed on `omarchy`, and on the MacBook the containers left from the
+> afternoon rehearsals were stopped and Docker Desktop was quit before the campaign.
 
-> **Confirmation.** The load generator (Apache JMeter, and `scripts/run_accuracy.py`) ran on
-> `TODO(Part 5 — Koh Tong Wei): load generator hostname`, a team member's laptop. The system under test —
-> the triage service container and the Ollama backend, on the same machine — ran on
-> `TODO(Part 5 — Koh Tong Wei): service hostname`, Yeo Kai Yuan's desktop. No JMeter process ran on the
-> machine hosting the service and Ollama during a reported run.
-
-The evidence, all of it already in the repository:
-
-| Evidence | Where to look | What it must show |
+| Evidence | Where | What it shows |
 |---|---|---|
-| Two distinct capture files | `environment/` | Two different hostnames: `kthgoat.txt` with `Declared role: loadgen`, and `tw-Service.txt` / `tw-Ollama.txt` with `service` and `ollama`. No file declares `Declared role: all` |
-| JMeter and Java only on the load generator | `environment/kthgoat.txt` section 6; both `tw` files | `kthgoat.txt`: JMeter 5.6 or newer and Java 17 or 21. The `tw` files: `jmeter binary : not installed` |
-| No service or model backend on the load generator | `docker ps` on machine 2; `environment/kthgoat.txt` section 5 | No `ict3113-*` containers. `ollama /api/version : not reachable at http://localhost:11434` |
-| Service healthy on machine 1 | `docker compose ps` and `curl.exe -s http://127.0.0.1:8000/health` on machine 1 | `ict3113-triage` Up (healthy), `ict3113-ollama` Up. `"status":"ok"` and `"ollama_reachable":true`. `model_digest` is **not** `null` once the model is pulled (`docker exec ict3113-ollama ollama list`) |
-| Machine 1 reachable from machine 2 | `curl.exe -s -m 5 http://192.168.50.73:8000/health` and `ping -n 20 192.168.50.73` on machine 2 | JSON from `/health`. Ping packets sent, received and lost, with min/avg/max, date and time. If ping is blocked, record the `curl` timing range instead |
-| Smoke test across the network | `bash scripts/smoke_test.sh --host 192.168.50.73 --count 3` on machine 2 | Passes: 3 of 3 tickets posted, 3 of 3 complete log lines |
-| Live service log visible from machine 2 | `ls -l "$SERVICE_LOG_DIR"` and `wc -l "$SERVICE_LOG_DIR"/*.jsonl`, run twice during a smoke test | Line count **grows**. A stale copy is not acceptable |
-| The address JMeter actually posted to | `../results/runs/<run>/metadata.json`, key `service_url` | `http://192.168.50.73:8000`. **Not** `127.0.0.1`, `localhost` or `0.0.0.0` |
-| The machine JMeter actually ran on | `../results/runs/<run>/metadata.json`, key `load_generator_host_info.hostname` | `kthgoat`, **different** from the service host (`tw`) |
-| The backend the service actually used | `../results/runs/<run>/metadata.json`, key `service_host_info.ollama_base_url` (also `GET /health`) | The Ollama host we claim, not a stale default |
-| Same code and clock on both machines | `git rev-parse HEAD` and `date -u` on each | Identical commit hash. Clocks agree within a second or two |
-| Freeze gate before any real run | `python scripts/freeze_gate.py` | Passes: golden set and prediction record committed, tag `golden-freeze` present. Until then only `--dev` runs are allowed |
+| Two capture files, two host names, three roles | `environment/` | `omarchy-*` declare `service` and `ollama`, with `jmeter binary : not installed`; `kais-macbook-pro-Loadgen.txt` declares `loadgen`, with JMeter 5.6.3 |
+| The address every request was sent to | `service_url` in each `../results/runs/*/metadata.json` and `../results/accuracy/*/metadata.json` | `http://192.168.50.130:8000` — never a loopback address |
+| The machine JMeter ran on | `load_generator_host_info.hostname` in the same files | the MacBook, a different host name from `omarchy` |
+| Same code on both machines | `scripts/run_load_test.sh` refuses a real run when `git rev-parse HEAD` differs between the two checkouts | every run's `git_commit` is the frozen commit or later |
 
-`scripts/run_load_test.sh` prints a warning when `--host` is `127.0.0.1`, `localhost`, `::1` or `0.0.0.0`,
-precisely so that a co-hosted run cannot be produced by accident and then reported. If any run directory you
-intend to cite has a loopback `service_url`, that run is not evidence for a latency or throughput claim — see
-the abort criteria in the playbooks.
-
-`TODO(Part 5 — Koh Tong Wei): check every run directory you intend to cite, not just one. The check is:
-grep -h '"service_url"' ../results/runs/*/metadata.json | sort -u`
+The per-run check over every directory cited on the slides is recorded in section 4.1 once the campaign is
+complete.
 
 ---
 
-* **Two machines, two hostnames.** `environment/kthgoat.txt` declares `loadgen` (Intel Core i5-14400F, 15.5 GiB);
-  `environment/tw-Service.txt` and `environment/tw-Ollama.txt` declare `service` and `ollama` (Intel Core Ultra 7 155H,
-  15.3 GiB). No file declares `all`.
-* **Still to confirm on `kthgoat`.** The capture screenshot showed Docker, JMeter and Java as not installed.
-  **[TO FILL: re-run `bash scripts/capture_env.sh --role loadgen` after installing Java 21 and JMeter 5.6.3, then
-  confirm section 6 shows both with version numbers.]**
-* **Network.** Machine 1 `192.168.50.73`, machine 2 `192.168.50.15`, both on Wi-Fi through `192.168.50.1`.
-  **[TO FILL: ping summary (packets lost, min/avg/max), the `curl` timing range, and the date and time measured.]**
-* **Per-run record.** **[TO FILL after the reported runs: confirm that every cited run's `metadata.json` has
-  `service_url` = `http://192.168.50.73:8000` and `load_generator_host_info.hostname` = `kthgoat`.]**
-
 ## 5. Factors that could make our measurements unrepresentative
 
-The brief asks for "any factors that could make your measurements unrepresentative", and a list of generic
-risks earns nothing. Fill in only the ones that **actually apply to our setup**, say how you know each one
-applies, and say which way it biases the numbers. A factor with no stated direction is not yet an analysis.
-
-
-| Factor | Does it apply to us? | How we know | Direction of bias | Mitigation actually applied, or "none — accepted" |
+| Factor | Does it apply? | How we know | Direction of bias | Mitigation |
 |---|---|---|---|---|
-| **Thermal throttling** on a laptop or small-form-factor machine | Less likely on the service host, a desktop; possible on the load-generator laptop, though JMeter at ≤ 21 requests/minute is a light load. `TODO(Part 5 — Koh Tong Wei)`: confirm by watching the clock during a run | A sustained CPU-only load test heats the machine. Check the CPU model and `CPU max MHz` in the capture file, and watch the clock during a run (`watch -n5 "grep MHz /proc/cpuinfo \| head"` on Linux) | TODO(Part 5 — Koh Tong Wei) — usually makes later runs of a three-run set slower than the first, which inflates the spread | TODO(Part 5 — Koh Tong Wei) |
-| **Other processes** on the service or Ollama host | Yes, potentially: the service host is a personal desktop with a desktop environment. `TODO(Part 5 — Koh Tong Wei)`: record what was running during the reported runs | What else was running: a browser, a desktop environment, another student's job, a backup | TODO(Part 5 — Koh Tong Wei) — adds latency and variance; usually hurts the p95 and p99 more than the p50 | TODO(Part 5 — Koh Tong Wei) |
-| **Wi-Fi jitter** between the load generator and the service | TODO(Part 5 — Koh Tong Wei) | Section 3: is either machine on Wi-Fi? Compare the `ping` min/avg/max spread | TODO(Part 5 — Koh Tong Wei) — inflates the tail; a p99 can be a radio retransmission rather than the service | TODO(Part 5 — Koh Tong Wei) |
-| **A shared machine** (lab PC, shared VM, another team's workload on the same host) | No, as far as is known: both machines are personal, and Docker runs natively on the service host with no VM — to be confirmed by the `Virtualisation` line of each capture file | `Virtualisation` / `Hypervisor vendor` in section 2 of the capture file tells you if it is a guest. A guest shares a physical CPU with neighbours we cannot see | TODO(Part 5 — Koh Tong Wei) — unpredictable in both directions, and it breaks run-to-run comparability, which is the thing three runs are supposed to establish | TODO(Part 5 — Koh Tong Wei) |
-| **Container CPU limits** | Not applied — stated for completeness | `../docker-compose.yml` sets no `cpus`, `cpuset` or `mem_limit` on either service, deliberately: limiting them would be tuning | The baseline gets the whole machine, so our numbers are an **upper bound** on what the client would see if they cgroup-limited the same container | None — accepted, and the consequence is stated |
-| **Ollama cold start** (first-request model load) | Handled, but state it | `scripts/run_load_test.sh` sends one `X-Warmup: 1` request before every measured window and writes its log line to `warmup.jsonl`, outside `service.jsonl`. `load_duration` in the service log shows the model-load cost per request | Without the warm-up the first sample would carry the whole model-load cost and drag the p99. With it, our numbers describe a **warm** service — which is optimistic relative to a client whose model is evicted between quiet periods (`OLLAMA_KEEP_ALIVE`) | Warm-up request, excluded from analysis. `TODO(Part 5 — Koh Tong Wei): state the OLLAMA_KEEP_ALIVE value from section 5 of the Ollama host's capture file, because it decides whether a real deployment would ever go cold` |
-| **A single SQLite file, one writer** | Applies by design | `DB_PATH=/data/triage.db`, a new `sqlite3` connection per request, no WAL, no pooling — see the A2 candidate comments in `../service/db.py` | Every `POST /tickets` writes to one file through one worker process, and `GET /search` is a full-table `LIKE` scan whose cost grows with the number of stored tickets. So a long run gets slower as it goes, and a run against a non-empty database is not comparable with one against an empty one | `scripts/reset.sh --yes` wipes the database volume before every measured run, so each run starts empty. `TODO(Part 5 — Koh Tong Wei): state how many tickets are in the database by the end of the longest run, since GET /search cost depends on it — GET /stats reports the total` |
-| **JDK version on the load generator** | TODO(Part 5 — Koh Tong Wei) | `java (used by JMeter)` in section 6 of the load generator's capture file. JMeter 5.6.3 bundles Groovy 3.0.20 and needs Java 17 or 21; on a much newer JDK the plans' Groovy pre-processors fail *silently* and samples simply go missing — see `../jmeter/README.md` section 7 | TODO(Part 5 — Koh Tong Wei) — a silent shortfall in samples understates the offered rate, which flatters the service | TODO(Part 5 — Koh Tong Wei) |
-| **Clock skew between machines** | TODO(Part 5 — Koh Tong Wei) | The service log's `ts` and JMeter's `timeStamp` come from two different clocks. `analysis/reconcile.py` fails a run whose client-minus-server latency p99 exceeds `--latency-threshold-ms` (250 ms by default), so gross skew is caught, and `SLICE_MARGIN_S` widens the log slice by 5 s at each end to absorb the rest | TODO(Part 5 — Koh Tong Wei) — skew does not change the service's real latency, but it can void a run by making it unreconcilable | Run NTP on both machines. `TODO(Part 5 — Koh Tong Wei): say whether NTP was running and name the source` |
-| **Swap** on the Ollama host | Unlikely: 32 GB of RAM against a largest candidate of about 4.7 GB (`qwen2.5:7b`). `TODO(Part 5 — Koh Tong Wei)`: confirm `Total RAM` and `Total swap` from the capture file | `Total swap` in section 3 of the capture. A 7-8B model at four bits plus the context is gigabytes; if it does not fit in RAM the machine swaps and latency becomes disk latency | TODO(Part 5 — Koh Tong Wei) — catastrophic and non-linear, and it would show up as a step change in `eval_duration` rather than as an error | TODO(Part 5 — Koh Tong Wei) |
-| **Battery or power profile** on a laptop | The service host is a desktop, so no battery; its CPU frequency governor is not yet recorded. The load generator is a laptop. `TODO(Part 5 — Koh Tong Wei)`: record whether the laptop was on mains power, and both machines' governors | Whether any machine ran on battery or a power-saving governor during a run | TODO(Part 5 — Koh Tong Wei) — a power-saving governor lowers the clock and makes every CPU-bound model call slower | TODO(Part 5 — Koh Tong Wei) |
-
-`TODO(Part 5 — Koh Tong Wei): delete the rows that genuinely do not apply, rather than leaving them marked
-"no". A row that says "does not apply" and cannot say how you know is worse than no row.`
-
-`TODO(Part 5 — Koh Tong Wei): add any factor specific to our setup that is not in this list. Two that catch
-student setups and are not here: a VPN or corporate proxy between the two machines, and Docker Desktop on
-macOS or Windows, which runs the containers inside a Linux VM with its own CPU and memory allocation — if
-either applies, it belongs in this table with the VM's allocation quoted from the capture file.` The second
-does not apply to the containers we measure: the service host runs Docker Engine natively on Arch Linux.
+| **Other processes on the service host** | Yes: `omarchy` is a personal desktop with a Wayland session, and the operator's terminal session (including the AI coding assistant used to drive the campaign and write documents) ran on it throughout. Other desktop use during the overnight campaign was not controlled | `run-log.md` | Adds variance and occasional tail latency to CPU-bound model calls; hurts p95/p99 more than p50 | The assistant's work during the campaign was text editing; no builds, model runs or other containers were started on `omarchy` while it ran. Run-to-run spread is reported, so any interference shows |
+| **Wi-Fi on the load generator** | Yes | section 3 | Inflates JMeter's client-side tail by milliseconds, at most a few tenths of a percent of any threshold; the service log's timings are unaffected | None needed at this scale; the network share is reported per run by `analysis/reconcile.py` |
+| **Desktop CPU, not a server** | Yes | section 2: 12 Zen 3 cores, two DDR4 memory channels (the AM4 platform), boosting to 4.95 GHz | Single-request latency on our desktop is likely **better** than on a commodity server core at a lower clock; capacity per host is likely **worse** than a many-core server with more memory channels — see section 6 | Stated, not corrected |
+| **CPU frequency governor** | Set to `performance` on `omarchy` (power profile `performance`); the MacBook was on AC power, lid open, `caffeinate` held | `/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`; `pmset -g batt`; `ioreg` clamshell state | A power-saving governor would slow every model call; this one does not | None needed |
+| **Thermal behaviour** | Possible on a long CPU-bound campaign, even on a desktop | the campaign runs ~12 h of near-continuous inference for the larger models | Later runs of a three-run set slightly slower than the first; shows as run-to-run spread | Three runs per configuration, spread reported; models interleaved by phase, not run back to back |
+| **No container limits** | Yes, by design | `docker inspect`: `NanoCpus 0`, `Memory 0` | The baseline gets the whole machine, so our capacity is an **upper bound** for the same container under a cgroup limit | Stated |
+| **Ollama warm-up** | Handled | one `X-Warmup: 1` request per measured run, logged to `warmup.jsonl`, excluded from analysis | Our numbers describe a warm model — optimistic for a client whose model is evicted after `OLLAMA_KEEP_ALIVE` (5 min) of idleness, which at the modelled ~4 tickets per day would happen before most tickets | Stated; the cold-start cost is visible in `load_duration` of each warm-up line |
+| **SQLite, one file, one writer, growing table** | By design | `../service/db.py`; `scripts/reset.sh --yes` empties the database before every run | `GET /search` gets slower as the table grows; our runs hold at most the tickets of one run, far fewer than a year of client data | Reset before every run; stated |
+| **JDK on the load generator** | Handled | JMeter 5.6.3 needs Java 17 or 21; on newer JDKs its Groovy pre-processors can fail silently and drop samples | A silent shortfall would understate the offered rate and flatter the service | JMeter pinned to OpenJDK 21 in `bin/setenv.sh`; `analysis/reconcile.py` checks every sample has a log line |
+| **Clock skew** | Small | `omarchy`: NTP synchronised (`timedatectl`); MacBook offset **+0.27 s** against `time.apple.com` (`sntp`, 2026-10-08) | Skew does not change latency (both sides measure durations on their own clock); it only shifts the log slice | The harness widens the service-log slice by 5 s at each end |
+| **Swap** | No | 31.3 GiB RAM against the largest candidate's 4.7 GB of weights; `free -h`: swap 0 B used | — | — |
+| **VM or Docker Desktop on the measured path** | No | Docker Engine runs natively on Arch Linux on `omarchy`; Docker Desktop on the MacBook was quit and runs nothing we measure | — | — |
 
 ---
 
 ## 6. How results scale to the client's deployment
 
-The brief requires this, and it requires the reasoning, not a reassurance. The client's hardware is
-*"commodity CPU servers with no GPUs"*; ours is whatever section 2 says it is. The argument has to bridge
-that gap explicitly, and it has to say where it stops working.
+1. **What is the same.** CPU-only inference; the same Ollama version (0.34.3) and the same pinned model digests,
+   all four at Q4_K_M; the same prompt (hash `sha256:681131c48bdc15a1`, in every log line); `NUM_CTX=4096`; one
+   uvicorn worker; synchronous classification; Ollama's default concurrency of one request at a time per model.
+   The client would run exactly this container image against exactly these weights.
 
-Answer these in order. Each is a paragraph or a short table, not a sentence.
+2. **What is different.**
 
-1. **What is the same?**
-   The client would inherit these exactly: CPU-only inference (the GTX 1660 in our service host is not
-   passed to the container); the same Ollama version and the same pinned model digests from
-   `../models/models.yaml`, all four at Q4_K_M; the same prompt, whose hash is in every log line and in
-   `metadata.json`; `NUM_CTX=4096`; one uvicorn worker; synchronous classification; and Ollama's default
-   concurrency of one request at a time per model (`OLLAMA_NUM_PARALLEL` left at its default).
+   | Axis that decides CPU inference speed | Our service host | A commodity 2-socket CPU server (assumption) |
+   |---|---|---|
+   | Cores per model evaluation | 12 physical (Ollama's default: one thread per physical core) | 16–64 physical per socket |
+   | Clock | up to 4.95 GHz boost | typically 2.0–3.5 GHz all-core |
+   | Memory channels | 2 × DDR4 | 8–12 × DDR4/DDR5 per socket |
+   | Vector extensions | AVX2, FMA (no AVX-512) | AVX2 everywhere; AVX-512 on most current Xeon and EPYC parts |
 
-2. **What is different, and by how much?**
-   `TODO(Part 5 — Koh Tong Wei): compare our CPU to a commodity server CPU on the axes that actually decide
-   CPU inference speed — physical core count, memory bandwidth (channels and speed), and the vector
-   extensions listed in section 2 of the capture file (AVX2 and AVX-512 change llama.cpp's throughput
-   materially). Give the comparison as a table with our figure and a stated assumption about theirs.`
+3. **Which way it pushes our numbers.** *Prefill* (evaluating the ticket, which the prediction record expects
+   to dominate service time) is compute-bound: per request it scales with cores × clock × vector width, so a
+   server socket with 2–4× our cores and AVX-512 would likely evaluate a ticket **faster** than our desktop,
+   even at a lower clock. *Decode* (the few reply tokens) is memory-bandwidth-bound, and a server's 4–6× memory
+   bandwidth makes it faster too. Our single-request latencies are therefore more likely **pessimistic** than
+   optimistic for a dedicated modern server, and **optimistic** for a small or shared virtual machine with a
+   handful of vCPUs. We do not average the two: the direction depends on what "commodity" means for this
+   client, which is why item 5 exists.
 
-3. **Which direction does the difference push our numbers?**
-   `TODO(Part 5 — Koh Tong Wei): say, for each difference, whether our measurement is optimistic or
-   pessimistic relative to the client. A server with more cores and more memory channels is faster per
-   request and sustains a higher arrival rate; a shared virtual machine or a laptop is slower. Do not average
-   the two into "roughly comparable".`
+4. **What scales linearly and what does not.** With `OLLAMA_NUM_PARALLEL` at its default, one model evaluates
+   one ticket at a time, so a host's capacity is 60 / S tickets per minute, where S is the service time we
+   measure. Capacity therefore scales with **hosts** (or with parallel slots, if the cores allow it — an
+   Assignment 2 question), and it scales with per-request speed. Single-request latency does not improve by
+   adding hosts. R1 (latency at 1/min) depends only on S; R2 (12/min without backlog) depends on S being under
+   5 s; R3/R4 (accuracy) do not depend on hardware at all — the same digest, prompt, seed and temperature give
+   the same answers on any CPU — so the accuracy results transfer exactly.
 
-4. **What scales linearly and what does not?**
-   `TODO(Part 5 — Koh Tong Wei): argue this rather than asserting it. Throughput at a fixed latency is roughly
-   proportional to the number of concurrent model evaluations the hardware can sustain, so adding cores or
-   machines helps it. Single-request latency is not: one ticket's classification is one model evaluation,
-   largely memory-bandwidth bound, and more cores past a point do not shorten it. Which of our requirements
-   depends on which is the whole point of this section — see ../workload/requirements.md.`
+5. **What must be re-measured before promising the client anything.** On one of the client's own servers:
+   `docs/playbooks/load-test.md` for the recommended model at R1's and R2's rates (three runs each), and one
+   `docs/playbooks/stress-test.md` ramp for it. Accuracy does not need repeating unless the model, digest or
+   prompt changes.
 
-5. **What would you have to re-measure before promising the client anything?**
-   `TODO(Part 5 — Koh Tong Wei): name the smallest set of runs that would have to be repeated on the client's
-   own hardware to make our recommendation safe, and say which playbook produces them. "Re-run
-   docs/playbooks/load-test.md at the arrival rate in R2 and docs/playbooks/accuracy-test.md for the
-   recommended model" is a defensible answer; "it should be fine" is not.`
-
-6. **The limits of this extrapolation, stated plainly.**
-   `TODO(Part 5 — Koh Tong Wei): state the assumptions the scaling argument rests on and what breaks it. At
-   minimum: that the client's ticket length distribution matches ours (../workload/workload_model.md), that
-   they run one model per host as we do, and that they do not run the classifier on the same machine as
-   anything else. A finding that our environment cannot support a claim about theirs is a legitimate finding;
-   say it rather than hedging.`
-
-   Stated plainly: our environment supports claims about **which model is faster and which is more accurate**,
-   and about **accuracy in absolute terms**. It does not support a promise about absolute latency or capacity on
-   the client's hardware. Those need the re-measurement in section 5.5.
----
-
-## 7. Checklist before this goes on the slide
-
-- [ ] A committed capture file exists for every machine named in section 2, and no two share a hostname.
-- [ ] Every cell of the section 2 table is a value, not a `TODO`.
-- [ ] The round-trip time in section 3 was measured, and the date and time it was measured are recorded.
-- [ ] Section 4's confirmation names both hostnames, and `service_url` is a loopback address in **none** of
-      the run directories being cited.
-- [ ] Section 5 has at least two factors with a stated direction of bias, as Slide 7 requires.
-- [ ] Section 6 answers all six questions, and question 3 takes a position rather than balancing.
-- [ ] Nothing in this document contains a figure that cannot be traced to `environment/`,
-      `../results/runs/<run>/metadata.json`, `../.env.example` or `../docker-compose.yml`.
+6. **The limits of this extrapolation.** It assumes the client's ticket-length distribution matches our 1,000
+   rows (`../workload/workload_model.md`), that they run one model per host with nothing else on it, and that
+   their volume stays near the modelled peak. Our environment supports claims about **which model is faster and
+   by how much relative to the others**, about **where the bottleneck is**, and about **accuracy in absolute
+   terms**. It does not support a promise about absolute latency or capacity on the client's hardware; those
+   need the runs in item 5.

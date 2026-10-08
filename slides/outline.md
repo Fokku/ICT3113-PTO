@@ -68,7 +68,7 @@ from the repository root with the project virtual environment active.
 | 8 | Playbook (Testing Procedure) | Part 5 | Koh Tong Wei |
 | 9 | Load and Stress Test Results | Part 1 | Yeo Kai Yuan |
 | 10 | Accuracy Results | Part 3 | Jolie Ngai Ning Li |
-| 11 | Predictions, Recommendation and Defence | Whole team | Whole team (`TODO(Yeo Kai Yuan): nominate who assembles this slide from the five contributions`) |
+| 11 | Predictions, Recommendation and Defence | Whole team | Yeo Kai Yuan assembles it from `predictions/outcomes.md` and `slides/narrative.yaml` |
 | 12 | References and Acknowledgements | Part 5 | Koh Tong Wei |
 
 **A note on artefact filenames.** Where a slide's content comes from an analysis script, this outline names
@@ -92,8 +92,9 @@ filename you assumed.
 
 * Group number: **10** (the registered team number that selects our dataset slice, rows 10000–10999).
 * Names: Yeo Kai Yuan, Loh Wen Xuan, Jolie Ngai Ning Li, Toh Si Pei, Koh Tong Wei.
-  `TODO(Yeo Kai Yuan): the five student IDs, and a check that each name is spelled as registered on xSiTe.`
-* `TODO(Whole team): project title — concise and descriptive, naming the system, not the assignment.`
+  Student IDs are read from `slides/team.yaml`; the deck builder marks any missing ID in amber, and
+  `slides/collect_deck_data.py --final` refuses to build while one is missing.
+* Project title: **"Ticket Triage Service on CPU-Only LLMs"** (`slides/team.yaml`).
 * Repository: <https://github.com/Fokku/ICT3113-PTO>.
 * `README.md` and `docker-compose.yml` (plus `.env.example`) are what make the "sufficient to rebuild and
   run it with docker compose" claim true — the link is only as good as those files.
@@ -465,7 +466,9 @@ per category; and every figure names the file in `analysis/output/accuracy/` it 
 
 **Owner:** Whole team. Each part brings its own line: predictions (whole team), requirements (Part 4),
 latency and throughput evidence (Part 1), accuracy evidence (Part 3).
-`TODO(Yeo Kai Yuan): nominate who assembles this slide from the five contributions.`
+Assembled by Yeo Kai Yuan (Part 1): the figures come from `analysis/output/` through `slides/collect_deck_data.py`,
+the sentences from `slides/narrative.yaml`, and the full prediction-by-prediction account is
+`predictions/outcomes.md`.
 
 **The brief requires (verbatim):**
 

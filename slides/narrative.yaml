@@ -1,0 +1,12 @@
+# The team's words for the judgement slides (9, 10, 11). No number lives here
+# unless it is copied from a file under analysis/output/ and that file is named
+# next to it; the slides take every figure from deck_data.json. A value still
+# containing TODO keeps `collect_deck_data.py --final` from building the deck.
+slide9_message: "TODO: one-sentence headline of the load and stress results"
+slide9_bottleneck: "TODO: the diagnosed bottleneck, with the component figures that show it"
+slide10_message: "TODO: one-sentence headline of the accuracy results"
+slide10_reading: "TODO: what the confusion matrices say about where each model goes wrong"
+slide11_message: "TODO: one-sentence headline of the recommendation"
+slide11_wrong: "TODO: where the predictions were wrong, and why"
+recommendation: "TODO: the recommended model, defended against R1–R5"
+unmet: "TODO: every requirement no candidate meets, stated plainly"

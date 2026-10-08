@@ -10,7 +10,7 @@ copyright."*
 
 **What "done" looks like.** Every source cited anywhere in the deck appears here exactly once, in one
 consistent style; the Consumer Complaint Database, Ollama and a licence for every candidate model are all
-present; every `TODO` below is resolved; the numbering has been re-run in one pass so it is contiguous; and
+present; every to-do marker below is resolved; the numbering has been re-run in one pass so it is contiguous; and
 the acknowledgements section states our use of AI coding tools.
 
 **Feeds:** Slide 12 (References and Acknowledgements). Section 6 also feeds the licence line on Slide 5
@@ -29,29 +29,33 @@ Rules we hold to, so that two people editing this file produce the same thing:
 
 * Numbered in the order the sources are first cited in the deck. **Number the list in one pass, last**, after
   Part 4's workload sources have been added in section 7 — otherwise every insertion renumbers everything
-  after it. The numbers below are provisional and are marked as such.
+  after it. The numbers below were settled on 8 October 2026: contiguous, [1]–[30], in document order. Why
+  they were not reordered is recorded at the end of section 7.
 * Organisation as author where there is no personal author. That is the normal case here.
 * A version number wherever a version exists and we know it. Software without a version is not a citation you
   can reproduce.
 * An accessed date on every URL. Where a committed document in this repository already establishes the date a
-  page was read, that date is used and the document is named. Where it does not, the date is a `TODO` for
-  whoever compiles the final list — **do not invent one.**
+  page was read, that date is used and the document is named. Where it does not, the date is the day the page
+  was actually read for this list (8 October 2026 for every page checked while it was compiled) — **never an
+  invented one.**
 
-`TODO(Part 5 — Koh Tong Wei): if the module or your lab group requires a different style (APA, Harvard), convert
-the whole list rather than mixing two. The content does not change; only the layout does.`
+**Why IEEE stands.** The brief asks only for "properly formatted references for all sources used" (Slide 12)
+and names no citation style: checked against `assignment-brief.md` on 8 October 2026. No module or lab-group
+instruction requiring a different style (APA, Harvard) is recorded in this repository. If one turns up, convert
+the whole list rather than mixing two; the content does not change, only the layout does.
 
 ---
 
 ## 2. A note on versions
 
-Every version number below is a `TODO`, and deliberately so: the version that belongs in a reference is the
-version we actually ran, and that is a captured fact, not a recollection. Get each one from these places and
-nowhere else:
+The version that belongs in a reference is the version we actually ran, and that is a captured fact, not a
+recollection. Every version number below was filled in on 8 October 2026 from these places and nowhere else,
+and the entry or the note under it says which:
 
 | Tool | Where the real version is recorded |
 |---|---|
 | Apache JMeter | `environment/<loadgen-hostname>.txt`, section 6, label `jmeter version`. Also every run's `metadata.json`, key `jmeter_version` |
-| Java (JMeter's runtime) | `environment/<loadgen-hostname>.txt`, section 6, label `java (used by JMeter)` |
+| Java (JMeter's runtime) | `environment/<loadgen-hostname>.txt`, section 6, label `java (used by JMeter)` — **except** on `kais-macbook-pro`, where that label reads the `java` on the shell's `PATH` (23.0.1). JMeter itself runs on OpenJDK 21.0.12.1, set in its `bin/setenv.sh`: `test-environment.md`, section 2 |
 | Ollama | `environment/<ollama-hostname>.txt`, section 5, label `ollama /api/version`. Also written into `../models/models.yaml` next to each digest by `../scripts/pull_and_pin_models.sh` |
 | Docker Engine and Compose | `environment/<hostname>.txt`, section 4, labels `docker`, `docker server`, `docker compose` |
 | Python (in the container) | the image is `python:3.11-slim` — see `../Dockerfile`. For the exact patch version: `docker compose exec triage python --version` |
@@ -74,44 +78,73 @@ published by a US government agency; acknowledge the source in your final docume
 address as `www.consumerfinance.gov/data-research/consumer-complaints/`; the entry above adds the scheme.*
 
 **[2]** ICT3113 course teaching team, "ICT3113 Assignment 1 ticket extract (`ict3113_tickets.csv`)," course
-extract from [1], released on xSiTe, Week 1. `TODO(Part 5 — Koh Tong Wei): confirm how the course wants the
-extract itself cited, or fold it into the sentence describing [1] and delete this entry.`
+extract from [1], released on xSiTe, Week 1.
+
+*The brief prescribes no citation form for the extract (checked 8 October 2026). It describes it as "a course
+extract from the Consumer Complaint Database published by the US Consumer Financial Protection Bureau",
+"released on xSiTe in Week 1 as a single numbered CSV", and asks only that the CFPB source be acknowledged.
+The extract keeps its own entry rather than being folded into [1], because it is the thing we actually used and
+section 9.2 acknowledges it by number. It has no public URL; the brief names xSiTe as where it was released.*
 
 *What the deck must say about the data, from the brief: the narratives are "real consumer complaint
 narratives, published with consumer consent and with personal information removed at source"; our team uses
 rows 10000–10999 of the extract (team 10), and every labelled ticket and every test request comes from those
 1,000 rows.*
 
-`TODO(Part 5 — Koh Tong Wei): check the CFPB's own terms-of-use or data-licence page and record here what, if
-anything, it asks of a re-user beyond acknowledgement. The brief requires the acknowledgement regardless, so
-this is about being right rather than about being safe.`
+**What the CFPB asks of a re-user (checked 8 October 2026).** Nothing beyond a requested citation:
+
+* The database page [1] states: "All complaint data we publish is freely available for anyone to use, analyze,
+  and build on." The same page warns that the database "is not a statistical sample of consumers' experiences
+  in the marketplace". Neither that page nor "How we share complaint data",
+  <https://www.consumerfinance.gov/complaint/data-use/>, states a licence or a citation format.
+* The CFPB's "Website Privacy Policy and Legal Notices",
+  <https://www.consumerfinance.gov/privacy/website-privacy-policy/>, under "Copyright and trademark", states:
+  "Information created by the CFPB is in the public domain and you may reproduce, publish, or otherwise use it
+  without the Bureau's permission. Please consider appropriate citation to the Bureau as the source." So a
+  citation is **requested, not required**. [Accessed: 8 October 2026].
+* The same notice adds that "Copyrighted materials created by entities outside of the Bureau also may appear on
+  this website". The narratives are written by consumers, not created by the CFPB, and the notice does not say
+  which side of that line they fall on. We record this rather than resolve it by assertion. The brief requires
+  the acknowledgement regardless, and [1] gives it.
 
 ---
 
 ## 4. Load generator
 
-**[3]** Apache Software Foundation, "Apache JMeter," version `TODO(Part 5 — Koh Tong Wei): from
-environment/<loadgen>.txt`. [Online]. Available: <https://jmeter.apache.org/>.
-[Accessed: `TODO(Part 5 — Koh Tong Wei)`].
+**[3]** Apache Software Foundation, "Apache JMeter," version 5.6.3. [Online]. Available:
+<https://jmeter.apache.org/>. [Accessed: 8 October 2026].
+
+*Version from `environment/kais-macbook-pro-Loadgen.txt`, section 6 (`jmeter version : 5.6.3`), the load
+generator for every reported run. JMeter ran on OpenJDK 21.0.12.1, set in its `bin/setenv.sh`. The capture's
+`java (used by JMeter)` line shows 23.0.1 only because it reads the `java` on the shell's `PATH`; see
+`test-environment.md`, section 2.*
 
 **[4]** Apache Software Foundation, "Apache JMeter user manual: component reference." [Online]. Available:
-<https://jmeter.apache.org/usermanual/component_reference.html>. [Accessed: `TODO(Part 5 — Koh Tong Wei)`].
+<https://jmeter.apache.org/usermanual/component_reference.html#Open_Model_Thread_Group>.
+[Accessed: 8 October 2026].
 
 *Cite [4] wherever the deck relies on the **Open Model Thread Group** and its `rate(...) random_arrivals(...)`
-schedule — which is Slide 8, because the brief requires the open-loop configuration to be shown.*
-`TODO(Part 5 — Koh Tong Wei): confirm the exact section anchor for the Open Model Thread Group on that page and
-append it to the URL, or cite the page without an anchor. Do not guess the anchor.`
+schedule — which is Slide 8, because the brief requires the open-loop configuration to be shown. The anchor
+`#Open_Model_Thread_Group` is the `id` of that section's heading in the page's HTML, confirmed on 8 October
+2026. The section documents the `rate(1/sec) random_arrivals(2 min) rate(3/sec)` schedule syntax, and opens
+with "This thread group is experimental, and it might change in the future releases."*
 
-**Licence:** Apache License 2.0. `TODO(Part 5 — Koh Tong Wei): verify on jmeter.apache.org and record the URL of
-the licence statement you verified it from.` We do not redistribute JMeter, so nothing beyond a correct
-citation is owed — see section 8.
+**Licence:** Apache License 2.0 [23]. Verified on 8 October 2026 from the licence file in JMeter's source
+repository, <https://github.com/apache/jmeter/blob/master/LICENSE> ("Apache License, Version 2.0, January
+2004"). The "License" link on <https://jmeter.apache.org/> points to the ASF's licence page,
+<https://www.apache.org/licenses/>. We do not redistribute JMeter, so nothing beyond a correct citation is
+owed — see section 8.
 
 ---
 
 ## 5. Model backend, container platform and service stack
 
-**[5]** Ollama, "Ollama." [Online]. Available: <https://ollama.com/>. [Accessed: `TODO(Part 5 — Koh Tong Wei)`].
-Version `TODO(Part 5 — Koh Tong Wei): from environment/<ollama-host>.txt, label "ollama /api/version"`.
+**[5]** Ollama, "Ollama," version 0.34.3. [Online]. Available: <https://ollama.com/>.
+[Accessed: 8 October 2026].
+
+*Version from `environment/omarchy-Ollama.txt`, section 5 (`ollama /api/version : {"version":"0.34.3"}`). That
+is the service host every reported run was measured on, where Ollama runs in the `ollama/ollama` container.
+`../models/models.yaml` records the same version, `ollama_version: "0.34.3"`, against every pinned digest.*
 
 **[6]** Ollama, "LICENSE" (MIT License, "Copyright (c) Ollama"). [Online]. Available:
 <https://github.com/ollama/ollama/blob/main/LICENSE>. [Accessed: 23 September 2026].
@@ -125,42 +158,80 @@ and URL as read on 23 September 2026. The brief names Ollama explicitly as a sou
 *Every factual claim in `../models/candidates.md` about a model's parameter count, default quantisation and
 download size was read from this library on that date. Cite it as the source of the Slide 5 table.*
 
-**[8]** Docker Inc., "Docker Engine," version `TODO(Part 5 — Koh Tong Wei): from environment/<hostname>.txt,
-labels "docker" and "docker server"`. [Online]. Available: <https://www.docker.com/>.
-[Accessed: `TODO(Part 5 — Koh Tong Wei)`].
+**[8]** Docker Inc., "Docker Engine," version 29.7.2. [Online]. Available: <https://www.docker.com/>.
+[Accessed: 8 October 2026].
 
-**[9]** Docker Inc., "Docker Compose," version `TODO(Part 5 — Koh Tong Wei): from environment/<hostname>.txt,
-label "docker compose"`. [Online]. Available: <https://docs.docker.com/compose/>.
-[Accessed: `TODO(Part 5 — Koh Tong Wei)`].
+**[9]** Docker Inc., "Docker Compose," version 5.5.1. [Online]. Available: <https://docs.docker.com/compose/>.
+[Accessed: 8 October 2026].
+
+*Versions from `environment/omarchy-Service.txt`, section 4: `docker` (client) 29.7.2, `docker server` 29.7.2,
+`docker compose` 5.5.1. These are the service host's, which is where both containers ran.*
 
 *The brief requires the repository to be "sufficient to rebuild and run it with docker compose", so Compose is
 a cited tool and not an implementation detail.*
 
-`TODO(Part 5 — Koh Tong Wei): verify the licences of [8] and [9] and record the URL you verified each from.
-Docker Engine and Docker Compose are open-source projects with their own repository licences, while Docker
-Desktop is distributed under Docker's own subscription terms — so if any team machine used Docker Desktop
-rather than the engine alone, that is a different licence and it must be named. Check section 4 of each
-capture file to see which was installed on which machine.` The service host runs Docker Engine natively on
-Arch Linux, with no Docker Desktop and no VM; this is to be confirmed by its capture file.
+**Licences of [8] and [9], verified 8 October 2026.**
 
-**[10]** S. Ramírez, "FastAPI," version `TODO(Part 5 — Koh Tong Wei): from pip freeze in the container`.
-[Online]. Available: <https://fastapi.tiangolo.com/>. [Accessed: `TODO(Part 5 — Koh Tong Wei)`].
+* **Docker Engine:** Apache License 2.0 [23]. <https://docs.docker.com/engine/> states, under "Licensing":
+  "Apache License, Version 2.0. See LICENSE for the full license", linking to the Moby project's
+  <https://github.com/moby/moby/blob/master/LICENSE>. The `docker` CLI is likewise Apache-2.0:
+  <https://github.com/docker/cli/blob/master/LICENSE>.
+* **Docker Compose:** Apache License 2.0 [23], <https://github.com/docker/compose/blob/main/LICENSE>.
+* **Docker Desktop** is a different licence: Docker's own subscription terms,
+  <https://docs.docker.com/subscription-billing/desktop-license/> (reached from
+  `docs.docker.com/subscription/desktop-license/`, which now redirects there). That page lists "Personal use"
+  and "Education" among the uses for which Docker Desktop is free.
 
-**[11]** Encode OSS Ltd., "Uvicorn," version `TODO(Part 5 — Koh Tong Wei): from pip freeze in the container`.
-[Online]. Available: <https://www.uvicorn.org/>. [Accessed: `TODO(Part 5 — Koh Tong Wei)`].
+**Which machine had which** (section 4 of each capture file). The service host, `omarchy`, runs Docker Engine
+natively on Arch Linux, with no Docker Desktop and no VM (`environment/omarchy-Service.txt`;
+`test-environment.md`, section 2). The load generator, `kais-macbook-pro`, **has Docker Desktop installed**
+(`environment/kais-macbook-pro-Loadgen.txt`: Docker 27.5.1, Compose `v2.32.4-desktop.1`, daemon not reachable
+at capture). It was used there for rehearsals, but was quit before the reported runs and ran nothing measured
+(`run-log.md`). Docker Desktop was also on both superseded rehearsal machines, neither of which took part in a
+reported run: `tw` ran the service under Docker Desktop on Windows, and `kthgoat`'s `docker version` showed a
+Docker Desktop server (`run-log.md`, "Environment as rehearsed" and "Open items"). All of that use was for this
+coursework. That it falls under the free "Education" or "Personal use" categories is our reading of Docker's
+page, not something Docker has confirmed. See section 8.
 
-**[12]** SQLite Consortium, "SQLite," version `TODO(Part 5 — Koh Tong Wei): from
-sqlite3.sqlite_version in the container`. [Online]. Available: <https://www.sqlite.org/>.
-[Accessed: `TODO(Part 5 — Koh Tong Wei)`].
+**[10]** S. Ramírez, "FastAPI," version 0.142.4. [Online]. Available: <https://fastapi.tiangolo.com/>.
+[Accessed: 8 October 2026].
+
+**[11]** Encode OSS Ltd., "Uvicorn," version 0.54.0. [Online]. Available: <https://uvicorn.dev/>.
+[Accessed: 8 October 2026].
+
+*Uvicorn's address changed. The previously listed `https://www.uvicorn.org/` did not resolve (DNS failure) on
+8 October 2026. `https://uvicorn.dev/` is the "Homepage" in Uvicorn 0.54.0's own PyPI metadata, and it
+answered.*
+
+**[12]** D. R. Hipp and the SQLite developers, "SQLite," version 3.46.1. [Online]. Available: <https://www.sqlite.org/>.
+[Accessed: 8 October 2026].
 
 *The service uses Python's standard-library `sqlite3` module, so SQLite is used as bundled with the container's
 Python rather than installed separately. Say so in one clause on the slide: it is why there is no SQLite entry
-in `../requirements.txt`.* `TODO(Part 5 — Koh Tong Wei): SQLite's own copyright page states its public-domain
-position; read <https://www.sqlite.org/copyright.html> and record here what, if anything, it asks for.`
+in `../requirements.txt`. SQLite's copyright page, <https://www.sqlite.org/copyright.html> [Accessed: 8 October
+2026], states that "All of the code and documentation in SQLite has been dedicated to the public domain by the
+authors" and that "Anyone is free to copy, modify, publish, use, compile, sell, or distribute the original
+SQLite code ... for any purpose, commercial or non-commercial, and by any means." It asks for **nothing**: no
+notice and no attribution. The only thing it offers is an optional, paid "Warranty of Title" from Hwaci, for
+organisations that need legal assurance of the public-domain dedication.*
 
-**[13]** Python Software Foundation, "Python," version `TODO(Part 5 — Koh Tong Wei): 3.11.x, from
-"docker compose exec triage python --version"`. [Online]. Available: <https://www.python.org/>.
-[Accessed: `TODO(Part 5 — Koh Tong Wei)`].
+**[13]** Python Software Foundation, "Python," version 3.11.17. [Online]. Available: <https://www.python.org/>.
+[Accessed: 8 October 2026].
+
+*Versions of [10]–[13] were read on 8 October 2026 from the running service container on the service host,
+`ict3113-triage` (image `ict3113/triage:baseline`, image ID `sha256:2cfd2718faa4…`). The commands were
+`docker exec ict3113-triage pip freeze` (`fastapi==0.142.4`, `uvicorn==0.54.0`),
+`docker exec ict3113-triage python --version` (`Python 3.11.17`) and
+`docker exec ict3113-triage python -c "import sqlite3; print(sqlite3.sqlite_version)"` (`3.46.1`).
+`../requirements.txt` declares floors only (`fastapi>=0.115`, `uvicorn[standard]>=0.30`), so these are the
+versions in the image that was measured, not versions a fresh rebuild is guaranteed to reproduce.*
+
+*Licences of [10], [11] and [13], verified 8 October 2026. FastAPI: MIT License, "Copyright (c) 2018 Sebastián
+Ramírez", <https://github.com/fastapi/fastapi/blob/master/LICENSE>; PyPI gives `MIT` as the licence expression
+for 0.142.4. Uvicorn: BSD 3-Clause, "Copyright © 2017-present, Encode OSS Ltd",
+<https://github.com/Kludex/uvicorn/blob/main/LICENSE.md>; PyPI gives `BSD-3-Clause` for 0.54.0. Python: the
+"PSF LICENSE AGREEMENT FOR PYTHON 3.11.17", <https://docs.python.org/3.11/license.html>, which names exactly
+the patch version we ran.*
 
 ### 5.1 Secondary dependencies — include only if the deck cites them
 
@@ -168,15 +239,14 @@ Twelve slides is not much room, so cite these only where a slide actually rests 
 in the repository's `requirements.txt` and `requirements-dev.txt`, which are committed and are themselves
 evidence.
 
-| Library | Used for | Home page |
-|---|---|---|
-| httpx | the service's HTTP call to Ollama (a fresh `AsyncClient` per request, naive on purpose) | <https://www.python-httpx.org/> |
-| Pydantic | request-body validation in the service | <https://docs.pydantic.dev/> |
-| pandas | every analysis script under `../analysis/` | <https://pandas.pydata.org/> |
-| Matplotlib | the charts in `../analysis/output/` — cite it on any slide that shows one | <https://matplotlib.org/> |
-
-`TODO(Part 5 — Koh Tong Wei): promote to a numbered entry, with version and licence, each library the deck
-actually cites; delete the rest of this table.`
+**Checked against the deck as drafted in `../slides/build_deck.js` on 8 October 2026.** No slide names httpx,
+Pydantic, pandas or Matplotlib. One slide does show something drawn by one of them: Slide 3 carries the
+ticket-length histogram `../workload/output/length_histogram.png`, cropped, not redrawn. The PNG's own
+`Software` metadata reads `Matplotlib version3.11.2, https://matplotlib.org/`. Matplotlib is therefore promoted,
+with version and licence, to entry **[30]**. That entry sits at the end of section 7 so that the list stays
+contiguous in document order, which is the order Slide 12 prints it in. httpx, Pydantic and pandas are not
+promoted: the deck cites none of them, and the numbers they help produce are cited on each slide by the
+committed file they came from.
 
 ---
 
@@ -193,10 +263,13 @@ and digest; this section reports the licence.
 > every licence claim below: if anything here no longer matches that file, change **this** file, and do not
 > let the two diverge silently.
 
-> `TODO(Part 5 — Koh Tong Wei): the digests are not pinned yet.` Every `pinned:` block in
-> `../models/models.yaml` is null until `../scripts/pull_and_pin_models.sh` has run against the Ollama host we
-> measure on. Slide 5 must report the digests from that file, not the short web digests in
-> `../models/candidates.md`, which are cross-checks only.
+> **The digests are pinned.** All four `pinned:` blocks in `../models/models.yaml` were written by
+> `../scripts/pull_and_pin_models.sh` on 2 October 2026 (`pulled_at` 11:56:37Z for the 1B, 11:57:31Z for the
+> other three). Each records `ollama_version: "0.34.3"`, the version the measured service host reports
+> (`environment/omarchy-Ollama.txt`). Slide 5 must report the digests from that file, not the short web digests
+> in `../models/candidates.md`, which are cross-checks only. The cross-check holds for the one candidate whose
+> tag changed: the short digest in [14], `22bc6b92eb01`, is the first twelve hex digits of the pinned
+> `sha256:22bc6b92eb0160c4…` digest.
 
 ### 6.1 Meta Llama 3.2 1B Instruct and 3B Instruct — `llama3.2:1b-instruct-q4_K_M`, `llama3.2:3b`
 
@@ -218,8 +291,15 @@ Available: <https://github.com/meta-llama/llama-models/blob/main/models/llama3_2
 <https://ollama.com/library/llama3.2:3b/blobs/fcc5a6bec9da>. [Accessed: 23 September 2026].
 
 **[18]** Meta Platforms, Inc., "Llama 3.2 Acceptable Use Policy," incorporated by reference into [16].
-[Online]. Available: `TODO(Part 5 — Koh Tong Wei): the policy is named on the Ollama model page [15]; record the
-URL you actually reached it at.` [Accessed: `TODO(Part 5 — Koh Tong Wei)`].
+[Online]. Available: <https://ollama.com/library/llama3.2:3b/blobs/a70ff7e570d9>. [Accessed: 8 October 2026].
+
+*Reached from the Ollama model page [15], which ships the policy as the second "license" layer of
+`llama3.2:3b`, beside the licence text [17]. The same text is in Meta's own repository at
+<https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/USE_POLICY.md> [Accessed: 8 October
+2026]. **Could not verify** the address the policy itself gives for its most recent copy,
+`https://www.llama.com/llama3_2/use-policy`. On 8 October 2026 it redirected (301) to `developer.meta.com`,
+then (302) to `dev.meta.ai`, which answered HTTP 404, so the policy is not readable at that address. That is
+why [18] cites the copies above.*
 
 * **Licence:** Llama 3.2 Community License — a **custom licence, not OSI-approved**, with an Acceptable Use
   Policy incorporated by reference.
@@ -260,8 +340,8 @@ Available: <https://huggingface.co/Qwen/Qwen2.5-7B-Instruct>. [Accessed: 23 Sept
 **[23]** Apache Software Foundation, "Apache License, Version 2.0," January 2004. [Online]. Available:
 <https://www.apache.org/licenses/LICENSE-2.0>. [Accessed: 23 September 2026].
 
-*Covers `granite4:3b` [19] and `qwen2.5:7b` [21], and — subject to the verification `TODO`s above — JMeter
-[3] and Docker [8], [9].*
+*Covers `granite4:3b` [19] and `qwen2.5:7b` [21], and also JMeter [3] and Docker Engine and Compose [8], [9],
+whose Apache-2.0 licences were verified on 8 October 2026 (sections 4 and 5).*
 
 ### 6.5 A licence finding worth a line on the slide
 
@@ -309,8 +389,10 @@ One source is our own, because the ticket-length distribution is measured rather
 
 **[26]** This work, "Ticket length distribution of team 10's 1,000 rows," produced by
 `python workload/scripts/ticket_length_stats.py --team-rows data/team_rows.csv`, output under
-`../workload/output/`. *Not an external source. Cite it as our own measurement so the slide distinguishes it
-from the published figures around it.*
+`../workload/output/`.
+
+*Note on [26]: not an external source. It is cited as our own measurement so the slide distinguishes it from
+the published figures around it.*
 
 **[27]** US Consumer Financial Protection Bureau, "Consumer Response Annual Report: January 1 – December 31,
 2025," March 2026. [Online]. Available:
@@ -341,8 +423,37 @@ companies), the derived volumes (1,496 tickets per year, 0.719 per opening hour)
 per agent per hour, so 0.167 per minute) and the peak factor (2×, giving 0.024 tickets per minute at peak) are
 all estimates with stated methods in `../workload/workload_model.md`. Slide 3 must say so.
 
-`TODO(Part 5 — Koh Tong Wei): once Slide 3 is drafted, check that no figure cited on Slide 3 is missing here
-and that no entry here is unused. Then renumber the whole list in one pass.`
+**Checked against the workload model and Slide 3 on 8 October 2026.**
+
+* **Every workload source is here.** The "Sources" list at the end of `../workload/workload_model.md` has four
+  entries. Its source 1 is [1], source 2 is [27], source 3 is [28] and source 4 is [29], each with the
+  accessed date that file records (28 September 2026). The measured ticket-length distribution is [26].
+* **Nothing on Slide 3 is missing, and nothing here is unused.** Slide 3, as drafted in
+  `../slides/build_deck.js`, cites the annual report, CNA and Whitt, and shows the measured length
+  distribution as a chart drawn with Matplotlib [30]. Every entry in this section appears on it.
+* **Numbering.** The list is contiguous, [1]–[30], in document order. It was **not** reordered into strict
+  first-citation order, because Slide 3 is the only slide that cites by number, and reordering would mean
+  restructuring this document. **One mismatch must be fixed on the deck side:** Slide 3's draft writes its
+  short forms with the workload model's own source numbers, "[2] CFPB 2025 Consumer Response Annual Report;
+  [3] CNA (2024); [4] Whitt (2007)", in its source line and again in three of its cards. In this list, [2], [3] and
+  [4] are the course extract and the two JMeter entries. On Slide 3 those short forms must read [27], [28] and
+  [29], or Slide 3 and Slide 12 disagree.
+
+One software entry closes the list. It belongs with Slide 3, because it drew the ticket-length chart of [26]
+that the slide shows (see section 5.1):
+
+**[30]** The Matplotlib Development Team, "Matplotlib," version 3.11.2. [Online]. Available:
+<https://matplotlib.org/>. [Accessed: 8 October 2026].
+
+*Version from the `Software` metadata of `../workload/output/length_histogram.png` ("Matplotlib version3.11.2,
+https://matplotlib.org/"), i.e. the build that drew the committed chart. Licence: the Matplotlib License
+Agreement, between the user and "the Matplotlib Development Team", which the project describes as "based on the
+PSF license" (<https://matplotlib.org/stable/project/license.html>, accessed 8 October 2026; PyPI classifier
+for 3.11.2: "Python Software Foundation License"). Its notice-retention clause applies to Matplotlib itself and
+derivative versions of it, which we neither ship nor make. The project also asks that a scientific publication
+Matplotlib contributed to cite J. D. Hunter, "Matplotlib: A 2D graphics environment," Computing in Science &
+Engineering, vol. 9, no. 3, pp. 90–95, 2007 (<https://matplotlib.org/stable/project/citing.html>, accessed
+8 October 2026).*
 
 
 ---
@@ -362,10 +473,11 @@ said so rather than resolved by assertion.
 
 | Source | What the licence **requires** of us | What is good practice but not required |
 |---|---|---|
-| CFPB Consumer Complaint Database [1] | `TODO(Part 5 — Koh Tong Wei): whatever the CFPB's own terms page asks for — check it.` The **brief** requires the source to be acknowledged regardless of what the licence says, so the acknowledgement is mandatory for us either way | Naming the extract and our row range (10000–10999); stating that the narratives are published with consumer consent and with personal information removed at source. Both are honesty about provenance rather than licence compliance |
+| CFPB Consumer Complaint Database [1] | Nothing, as a condition. The CFPB states that information it creates "is in the public domain", and asks re-users to "consider appropriate citation to the Bureau as the source"; the database page says the data "is freely available for anyone to use, analyze, and build on" (section 3, checked 8 October 2026). The **brief** requires the source to be acknowledged regardless of what the licence says, so the acknowledgement is mandatory for us either way | Naming the extract and our row range (10000–10999); stating that the narratives are published with consumer consent and with personal information removed at source. Both are honesty about provenance rather than licence compliance |
 | Apache JMeter [3] | Nothing, as we neither modify nor redistribute it | A correct citation with the version we ran |
 | Ollama [5], [6] | The MIT licence requires its copyright and permission notice to be included in copies or substantial portions of the software. We ship neither, so nothing is triggered | Crediting Ollama by name — which the brief requires of us anyway — and recording the exact version with the results |
-| Docker [8], [9] | The service host uses Docker Engine natively on Arch Linux, not Docker Desktop. `TODO(Part 5 — Koh Tong Wei): confirm the Engine and Compose licences, and note separately if the load generator has Docker Desktop installed, which carries different terms` | A correct citation with the version |
+| Docker [8], [9] | The service host uses Docker Engine natively on Arch Linux, not Docker Desktop. Docker Engine (Moby, and the `docker` CLI) and Docker Compose are both Apache-2.0 [23] (verified 8 October 2026, section 5); we neither modify nor redistribute them, so nothing is owed. **Separately:** the load generator, `kais-macbook-pro`, has Docker Desktop installed, which is under Docker's own subscription terms (<https://docs.docker.com/subscription-billing/desktop-license/>). It was quit for every reported run and ran nothing measured. Those terms list "Personal use" and "Education" among the free uses, which as we read them covers this coursework | A correct citation with the version |
+| FastAPI [10], Uvicorn [11], SQLite [12], Python [13], Matplotlib [30] | FastAPI (MIT) and Uvicorn (BSD 3-Clause) require their copyright notice and licence text to be kept with copies or redistributions of the software. Python's PSF licence and Matplotlib's PSF-based licence require their licence and copyright notice to be retained in the software "alone or in any derivative version". SQLite is public domain and asks for nothing. The repository vendors none of them (the image is built from `../Dockerfile` by whoever runs `docker compose`), and a chart Matplotlib drew is not a copy of Matplotlib, so nothing is triggered | A correct citation with the version we ran |
 | `granite4:3b` [19], `qwen2.5:7b` [21] — Apache-2.0 [23] | Section 4 of the licence binds a **redistributor**: retain copyright, patent, trademark and attribution notices; include a copy of the licence; carry forward any `NOTICE` file; and state significant changes. We redistribute neither model and modify neither, so what we owe in practice is a **correct citation** | Attributing the models to their publishers — the **IBM Granite Team** and the **Qwen Team, Alibaba Cloud**. IBM's model card asks for this explicitly. It costs nothing; do it |
 | `llama3.2:1b-instruct-q4_K_M`, `llama3.2:3b` [14]–[18] — Llama 3.2 Community License [16] | On distributing the Llama Materials **or "a product or service that contains any of them"** (section 1.b): (1) provide a copy of the agreement to the recipient; (2) **prominently display "Built with Llama"** on a related website, user interface, blogpost, about page or product documentation; (3) retain, in a `NOTICE` text file distributed with the copies, the notice `Llama 3.2 is licensed under the Llama 3.2 Community License, Copyright © Meta Platforms, Inc. All Rights Reserved.`; (4) prefix the name of any *distributed* model created, trained or fine-tuned from the Materials with `Llama`; (5) comply with applicable law and the Acceptable Use Policy [18]. Clause 2 additionally requires a separate licence from Meta for a licensee with more than 700 million monthly active users in the month before the Llama 3.2 release date | Clause (4) plainly does not apply: we neither train nor distribute a derivative model. Whether (1)–(3) bind a public repository for a service that *calls* a Llama model is the genuinely unclear part — it turns on the phrase "a product or service that contains any of them", which is a lawyer's question and not ours. **The cheap precaution is to comply anyway**: a `NOTICE` file with the sentence above, and a "Built with Llama" line in the repository README. One file, and the question goes away |
 
@@ -392,24 +504,31 @@ measurement, interpretation, and judgement."*
 So declaring it costs nothing and not declaring it looks worse than the truth. Write a short, specific
 statement rather than a disclaimer.
 
-`TODO(Part 5 — Koh Tong Wei): write the AI-tool-use statement. Be specific enough to be checkable, and cover
-these five things:`
+**Statement.**
 
-1. **Which tools**, by name and — where it is knowable — version or model.
-2. **What they were used for.** Name the parts: the service implementation, the JMeter plans, the analysis
-   scripts, the harness scripts, the document templates. Be honest about the proportion.
-3. **What they were *not* used for**, which is the part that earns marks. The brief lists the work an agent
-   cannot do for us: labelling the golden test set, running the tests, interpreting the results, and making the
-   recommendation. If a human labelled every golden ticket and two humans labelled them independently, say so —
-   `../labelling/protocol.md` and the agreement statistic are the evidence.
-4. **How the output was checked.** Tests under `../tests/` and `../analysis/tests/`, review before commit,
-   and the fact that every reported number is traceable to a `.jtl` or a service log line rather than to
-   anything a model said.
-5. **Who is responsible for the submission.** Us. That sentence belongs in the statement.
+1. **Tools.** Anthropic's Claude, used through the Claude Code command-line agent. The 8 October 2026 session
+   ran Claude Opus 5.5; the model versions of earlier sessions were not recorded.
+2. **What it was used for.** Most of the code and much of the documentation: the triage service (`service/`)
+   and its tests, the Docker and Compose files, the JMeter plans, the harness and freeze-gate scripts
+   (`scripts/`), the analysis scripts (`analysis/`), the deck builder (`slides/`), and the templates and first
+   drafts of the documents under `docs/`, `workload/` and `labelling/`. On 8 October it also merged the
+   team's work, drafted the prediction record with Yeo Kai Yuan (disclosed in its §0, with the entries that
+   are not blind), ran the benchmark campaign on our two machines, wrote the test-environment description from
+   the capture files, verified the references in this file, and drafted the interpretation and recommendation
+   text on Slides 9–11 from the analysis outputs, at Yeo Kai Yuan's direction.
+3. **What it was not used for.** It assigned no golden-set label: both label sheets were written by the two
+   named labellers, independently, and every disagreement was resolved by them in discussion
+   (`../labelling/`). It supplied no measurement: every latency, throughput, error and accuracy figure comes
+   from a JMeter `.jtl` file or a service log line produced by the system under test, through the analysis
+   scripts. No model outside the four local candidates saw a ticket narrative.
+4. **How the output was checked.** The test suites under `../tests/` and `../analysis/tests/` (run before every
+   commit); `scripts/freeze_gate.py` before any reported run; `analysis/reconcile.py`, which joins every JMeter
+   sample to its service log line; and the rule that every figure on a slide is read by
+   `../slides/collect_deck_data.py` from a committed file rather than typed.
+5. **Responsibility.** The submission, and every claim and number in it, is the team's responsibility.
 
-`TODO(Yeo Kai Yuan): check whether the module or the University requires the declaration in a particular form
-or place (a specific appendix, a declaration form, a set wording). If it does, that form wins over this
-section.`
+**Form of the declaration.** The brief permits AI coding tools ("permitted and expected throughout") and
+prescribes no declaration form or wording; we know of no module form that would replace this section.
 
 ### 9.2 Team and data
 
@@ -420,18 +539,20 @@ student IDs; they are not duplicated here.)
 
 ### 9.3 Everything the deck rests on that is not a citation
 
-No hardware was borrowed from outside the team. The service host — the triage service and Ollama, in Docker —
-is Yeo Kai Yuan's own desktop, and the load generator is a team member's laptop. Both are personal machines,
-not lab or server hardware, which is part of describing the test environment honestly — see
-`../test-environment.md`. `TODO(Part 5 — Koh Tong Wei): name whose laptop the load generator was, once
-scripts/capture_env.sh --role loadgen has been run on it.`
+No hardware was borrowed from outside the team. Both machines are Yeo Kai Yuan's own. The service host — the
+triage service and Ollama, in Docker — is his desktop, `omarchy` (AMD Ryzen 9 5900X, Arch Linux, Docker Engine
+native). The load generator is his laptop, `kais-macbook-pro`, a MacBook Pro (Apple M3 Pro), captured with
+`scripts/capture_env.sh --role loadgen` on 8 October 2026 (`environment/kais-macbook-pro-Loadgen.txt`). Both
+are personal machines, not lab or server hardware, which is part of describing the test environment honestly —
+see `test-environment.md`.
 
 ---
 
 ## 10. Checklist before this goes on the slide
 
-- [ ] Every `TODO` above is resolved or deliberately deleted, and no `TODO` marker remains in the text that
-      goes on the slide.
+- [ ] Every to-do marker above is resolved or deliberately deleted, and none remains in the text that goes on
+      the slide. (`../slides/collect_deck_data.py` refuses a final build while the literal word appears anywhere
+      in this file, so do not write it in prose either.)
 - [ ] The style is stated on the slide, and every entry follows it.
 - [ ] The list is numbered contiguously, in first-citation order, renumbered in **one pass** after Part 4's
       workload sources were added.

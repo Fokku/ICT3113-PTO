@@ -111,10 +111,11 @@ capture file, and the `service_url` field of every run's `metadata.json`, which 
 actually posted to and must not be `localhost` or `127.0.0.1`. Say in the write-up which of the two you are
 relying on.
 
-**Our two machines, and the capture each needs.** Machine 1, the service host, is Yeo Kai Yuan's desktop and
-runs both the triage service and Ollama: capture it with `--role service` and say on Slide 7 that it is also
-the Ollama host. Machine 2, the load generator, is a team member's laptop: capture it with `--role loadgen`.
-Neither capture exists yet.
-
-`TODO(Part 5 — Koh Tong Wei): after the two captures are committed, copy their hostnames and figures into the
-table at the top of ../test-environment.md, and check that the two hostnames differ.`
+**Our two machines, and their captures (8 October 2026).** Machine 1, the service host `omarchy`, is Yeo Kai
+Yuan's desktop and runs both the triage service and Ollama: captured twice, as `omarchy-Service.txt`
+(`--role service`) and `omarchy-Ollama.txt` (`--role ollama`). Machine 2, the load generator
+`kais-macbook-pro`, is Yeo Kai Yuan's MacBook Pro: captured as `kais-macbook-pro-Loadgen.txt` (`--role loadgen`;
+macOS reports its host name as `Kais-MacBook-Pro-2.local`). The script names each file after the host, so the
+files were renamed with the role suffix, as the superseded `tw-*` pair was. The two host names differ, and their
+figures are copied into the table in `../test-environment.md`. The measured network between them is in
+`network.md`. The first pair of machines is kept, unreported, in `superseded/`.

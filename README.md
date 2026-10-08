@@ -9,17 +9,16 @@
 (Part 4), Koh Tong Wei (Part 5).
 **Repository:** <https://github.com/Fokku/ICT3113-PTO>
 **Owner of this file and of the technical core:** Yeo Kai Yuan (Part 1).
-**Repository:** <https://github.com/Fokku/ICT3113-PTO>.
 
-| Part | Role label | Name | What they own |
+| Part | Name | Student ID | What they own |
 |---|---|---|---|
-| 1 | Technical core | Yeo Kai Yuan | the service, the scripts, the plans, the freeze gate, the candidate shortlist |
-| 2 | Teammate A | Loh Wen Xuan | golden-set lead and labeller A: `labelling/protocol.md`, the agreement run, the golden set |
-| 3 | Teammate B | Jolie Ngai Ning Li | labeller B, co-resolution of disagreements, accuracy results |
-| 4 | Teammate C | Toh Si Pei | workload model and requirements |
-| 5 | Teammate D | Koh Tong Wei | test environment, playbooks and the deck |
+| 1 | Yeo Kai Yuan | 2403201 | the service, the scripts, the plans, the freeze gate, the candidate shortlist, the campaign |
+| 2 | Loh Wen Xuan | ⟪ID⟫ | golden-set lead and labeller A: `labelling/protocol.md`, the agreement run, the golden set |
+| 3 | Jolie Ngai Ning Li | ⟪ID⟫ | labeller B, co-resolution of disagreements, accuracy results |
+| 4 | Toh Si Pei | ⟪ID⟫ | workload model and requirements |
+| 5 | Koh Tong Wei | 2402162 | test environment, playbooks and the deck |
 
-`TODO(Yeo Kai Yuan): add the five student IDs, as registered on xSiTe.`
+The three ⟪ID⟫ cells are filled from `slides/team.yaml`, which Slide 1 is built from.
 
 **Licences and attribution.** Built with Llama. Two of our four candidate models, `llama3.2:1b-instruct-q4_K_M`
 and `llama3.2:3b`, are Meta Llama 3.2 models under the Llama 3.2 Community License; the required notice is in
@@ -1108,7 +1107,7 @@ slide requirements are in [`slides/outline.md`](slides/outline.md).
 3. ~~Replace every `Teammate A/B/C/D` placeholder with the real names.~~ Done. Still to do: collect the five
    student IDs and hand the list to Part 5 for Slide 1.
 
-### Part 2 — Loh Wen Xuan (Teammate A: golden set lead, labeller 1; Slide 6)
+### Part 2 — Loh Wen Xuan (golden set lead, labeller 1; Slide 6)
 
 **Folder:** [`labelling/`](labelling/), and `golden/` once the set is built.
 **Documents:** [`labelling/README.md`](labelling/README.md) (read this first — it is two pages),

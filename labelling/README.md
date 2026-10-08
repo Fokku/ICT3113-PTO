@@ -55,10 +55,12 @@ Work backwards from 29 September:
 on 24 September; both completed label sheets on 28 September; the agreement
 report and disagreement list on 30 September (kappa 0.599, 68 disagreements);
 and `protocol.md`, the resolutions (all 68 disagreements resolved) and the
-200-row `golden_set.csv` on 2 October. The `golden-freeze` tag does not exist yet,
-so the 29 September gate slipped, and nothing may be benchmarked until the tag is
-in place and `scripts/freeze_gate.py` passes.
-`TODO(Yeo Kai Yuan): record the date of the freeze commit and the golden-freeze tag here once they exist.`
+200-row `golden_set.csv` on 2 October. The 29 September gate slipped. The
+`golden-freeze` tag was first created on 8 October 2026 (commit `ef5a1b2`) over an
+unfilled prediction-record template, and re-cut the same evening onto commit
+`41d6ce2` once the record was complete (`../predictions/prediction_record.md` §0;
+`../docs/run-log.md`). The golden set itself is unchanged since 2 October; every
+reported benchmark ran under the re-cut tag.
 
 ---
 

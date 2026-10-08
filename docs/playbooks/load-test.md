@@ -96,12 +96,15 @@ evidence.
 `run_load_test.sh` runs JMeter on the load generator, but it also resets the database, recreates the triage
 container and reads the service's own log. So from the load generator it needs to run commands on the service
 host **and** read the service host's `logs/service` directory. We use the script's **remote mode**, which
-needs only key-based SSH (we use Tailscale SSH between the two machines) and `rsync`:
+needs only key-based SSH and `rsync`. In our campaign the load generator reached the service host with OpenSSH
+over its Tailscale address (the service host's firewall admits SSH only there), while every measured request
+went over the LAN to `TARGET_HOST=192.168.50.130`:
 
 ```bash
 # On the load generator, before the run:
 export SERVICE_SSH=<user>@<service-host>   # key-based SSH; BatchMode, so a password prompt fails fast
 export SERVICE_REPO=ICT3113-PTO            # the service host's checkout, relative to its home directory
+                                           # (ours: claude/ICT3113-PTO)
 ```
 
 What remote mode does, so nothing surprises you:
@@ -152,6 +155,17 @@ Things that went wrong while setting up load generators, so the next person does
 * A warm-up that fails with `HTTP 502` and `"error":"ollama_http_error"` while `/health` says Ollama is
   reachable means the model has not been pulled on the Ollama host. Check with
   `docker exec ict3113-ollama ollama list`, then pull and pin with `scripts/pull_and_pin_models.sh --model <tag>`.
+* **macOS load generator: keep the SSH session open for the whole run (found 8 October 2026).** macOS 15's
+  Local Network privacy blocks a process that has been detached from its login session from opening
+  connections to LAN addresses, unless its app has been granted "Local Network" access. JMeter's `java` had
+  not, so a campaign started over SSH with `nohup … &` (the SSH session then closed) recorded **every** sample
+  as `java.net.NoRouteToHostException: No route to host`, while `curl`, Python and a `java` started inside a
+  live SSH session all reached the service. Either grant Java access in System Settings → Privacy & Security →
+  Local Network, or do what we did: start the campaign from another machine with an SSH session that stays
+  open for the whole run, e.g. on the service host
+  `setsid nohup ssh -o ServerAliveInterval=30 <mac> 'cd ICT3113-PTO && … scripts/run_campaign.sh' > campaign.log &`.
+  The symptom is unmistakable: zero service log lines in the measured window and every `.jtl` row a
+  `NoRouteToHostException`.
 * **Fixed on 8 October 2026:** `run_load_test.sh` used to report `results.jtl has no 'request_id' column` for
   every run, because JMeter 5.6.3 writes the sample-variable names in double quotes and the check compared
   them unquoted. Both rehearsals found it independently; the check now strips the quotes.

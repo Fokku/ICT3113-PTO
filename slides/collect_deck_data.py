@@ -178,8 +178,21 @@ def workload() -> dict:
             lengths[row.get("metric", "")] = row
     else:
         missing("workload/output/length_distribution.csv")
+    # The characters panel of the generated histogram, cropped (not redrawn) so it
+    # stays legible at slide size. Source: workload/output/length_histogram.png.
+    hist_src = REPO / "workload" / "output" / "length_histogram.png"
+    hist_out = OUT.parent / "length_histogram_characters.png"
+    if hist_src.is_file():
+        from PIL import Image
+        with Image.open(hist_src) as image:
+            width, height = image.size
+            hist_out.parent.mkdir(parents=True, exist_ok=True)
+            image.crop((0, int(height * 0.09), width // 3, height)).save(hist_out)
+    else:
+        missing("workload/output/length_histogram.png")
     return {"figures": figures, "rates": rates, "sources": sources, "lengths": lengths,
-            "histogram": "workload/output/length_histogram.png"}
+            "histogram": str(hist_out.relative_to(REPO)),
+            "histogram_source": "workload/output/length_histogram.png"}
 
 
 def requirements() -> dict:
@@ -332,7 +345,18 @@ def stress_results() -> list[dict]:
         report = (run_dir / "stress_report.md").read_text(encoding="utf-8")
         limit = md_section(report, "## The limit").strip().split("\n\n")[0]
         model = json.loads(meta_path.read_text())["model_tag"]
-        out.append({"run": run_dir.name, "model": model, "steps": steps, "limit": strip_md(limit)})
+        # The same rule stress_summary.py applies (first step with p95 above R1's
+        # 10 s or an error rate above 5%), restated as one short line for the slide.
+        rates = [s["offered_per_min"] for s in steps]
+        ramp = f"{rates[0]:g}–{rates[-1]:g}/min ramp"
+        first = next((s for s in steps if (num(s["p95_ms"]) or 0) > 10000 or (num(s["error_rate"]) or 0) > 0.05), None)
+        if first:
+            short = (f"{ramp}: limit at {first['offered_per_min']:g}/min — p95 {num(first['p95_ms']) / 1000:.1f} s, "
+                     f"errors {num(first['error_rate']) * 100:.0f}%")
+        else:
+            top = steps[-1]
+            short = f"{ramp}: no limit up to {top['offered_per_min']:g}/min (p95 {num(top['p95_ms']) / 1000:.1f} s at the top step)"
+        out.append({"run": run_dir.name, "model": model, "steps": steps, "limit": strip_md(limit), "limit_short": short})
     if not out:
         missing("analysis/output/stress/<run>/ for at least one real stress run")
     return out
@@ -406,14 +430,32 @@ def predictions() -> dict:
         frozen = (REPO / "predictions" / "prediction_record.md").read_text(encoding="utf-8")
         source = "predictions/prediction_record.md (working copy, NOT the frozen version)"
         missing("a frozen prediction record (golden-freeze tag on a commit with no ⟪…⟫ placeholders)")
+    tag = re.compile(r"[a-z0-9.]+:[0-9A-Za-z._-]+")
     rows = []
     for table in md_tables(md_section(frozen, "## Section 2 — Per-candidate-model predictions")):
         for row in table:
             model = strip_md(row.get("Model (exact Ollama tag)", ""))
-            if re.fullmatch(r"[a-z0-9.]+:[0-9a-z.]+", model):
+            if tag.fullmatch(model):
                 rows.append({"model": model, **{k: strip_md(v) for k, v in row.items()}})
+    section1 = md_section(frozen, "## Section 1 — Where we expect the bottleneck to be under load")
+    service_time, stress = [], []
+    for table in md_tables(section1):
+        for row in table:
+            model = strip_md(row.get("Model", ""))
+            if not tag.fullmatch(model):
+                continue
+            entry = {"model": model, **{k: strip_md(v) for k, v in row.items()}}
+            (stress if "1–21/min ramp" in row else service_time).append(entry)
+    requirement_rows = []
+    for table in md_tables(md_section(frozen, "## Section 2 — Per-candidate-model predictions")):
+        for row in table:
+            if re.match(r"R\d", strip_md(row.get("Requirement", ""))):
+                requirement_rows.append({k: strip_md(v) for k, v in row.items()})
+    hardest = re.findall(r"^\d\.\s+\*\*(.+?)\*\*", md_section(frozen, "## Section 3 — Which categories we expect to be hardest, and why"), re.M)
     bottleneck = re.search(r"\*\*Component: (.*?)\*\*", frozen)
-    return {"source": source, "rows": rows, "bottleneck": strip_md(bottleneck.group(1)) if bottleneck else None}
+    return {"source": source, "rows": rows, "service_time": service_time, "stress": stress,
+            "requirements": requirement_rows, "hardest_categories": hardest,
+            "bottleneck": strip_md(bottleneck.group(1)) if bottleneck else None}
 
 
 def references() -> list[dict]:
@@ -428,18 +470,103 @@ def references() -> list[dict]:
     return refs
 
 
+def bottleneck_summary(runs: list[dict]) -> list[dict]:
+    """Mean of each component's per-run mean, per model, plan and rate (three runs each)."""
+    groups: dict[tuple, list[dict]] = {}
+    for run in runs:
+        groups.setdefault((run["model"], run["plan"], run["rate"]), []).append(run)
+    out = []
+    for (model, plan, rate), members in sorted(groups.items(), key=lambda kv: (str(kv[0][0]), str(kv[0][1]), float(kv[0][2] or 0))):
+        comps: dict[str, list[float]] = {}
+        for run in members:
+            for comp in run["components"]:
+                comps.setdefault(comp["component"], []).append(float(comp["mean_ms"]))
+        rates: dict[str, list[float]] = {}
+        for run in members:
+            for tok in run["tokens"]:
+                rates.setdefault(tok["stage"], []).append(float(tok["aggregate_tokens_per_s"]))
+                rates.setdefault(tok["stage"] + " tokens/request", []).append(float(tok["mean_tokens_per_request"]))
+        out.append({"model": model, "plan": plan, "rate": rate, "runs": len(members),
+                    "components_mean_ms": {k: sum(v) / len(v) for k, v in comps.items()},
+                    "tokens": {k: sum(v) / len(v) for k, v in rates.items()}})
+    return out
+
+
+def verdicts(load: dict, accuracy: list[dict]) -> list[dict]:
+    """Each requirement, per model, judged exactly as workload/requirements.md says.
+
+    R1, R2 and R5 on the worst of the three runs; R3 and R4 on the single serial pass.
+    """
+    per_run = ANALYSIS / "load" / "load_per_run.csv"
+    runs = pd.read_csv(per_run) if per_run.is_file() else pd.DataFrame()
+    if not runs.empty:
+        runs = runs[runs["mode"] == "real"]
+    by_label = ANALYSIS / "load" / "load_per_run_by_label.csv"
+    labels = pd.read_csv(by_label) if by_label.is_file() else pd.DataFrame()
+    out = []
+    for model in [m["tag"] for m in models()]:
+        row: dict = {"model": model}
+        if not runs.empty:
+            r1 = runs[(runs["model_tag"] == model) & (runs["plan"] == "load_post_tickets") & (runs["rate_per_min"] == 1)]
+            if len(r1):
+                row["R1"] = {"value_ms": float(r1["client_p95_ms"].max()), "runs": int(len(r1)),
+                             "ok": bool(r1["client_p95_ms"].max() <= 10000)}
+            r2 = runs[(runs["model_tag"] == model) & (runs["plan"] == "load_post_tickets") & (runs["rate_per_min"] == 12)]
+            if len(r2):
+                worst_err, worst_span = float(r2["error_rate_pct"].max()), float(r2["span_s"].max())
+                row["R2"] = {"error_pct": worst_err, "span_s": worst_span, "runs": int(len(r2)),
+                             "ok_per_hour_min": float(r2["ok_throughput_per_hour"].min()),
+                             "ok": bool(worst_err <= 5 and worst_span <= 660)}
+        if not labels.empty:
+            r5 = labels[(labels["model_tag"] == model) & (labels["plan"] == "mixed_load") & (labels["label"] == "GET /search")]
+            r5 = r5[r5["run_id"].isin(runs["run_id"])] if not runs.empty else r5
+            if len(r5):
+                row["R5"] = {"value_ms": float(r5["client_p95_ms"].max()), "runs": int(len(r5)),
+                             "ok": bool(r5["client_p95_ms"].max() <= 2000)}
+        acc = next((a for a in accuracy if a["model_tag"] == model), None)
+        if acc:
+            row["R3"] = {"value": acc["accuracy"], "ok": bool((acc["accuracy"] or 0) >= 0.90)}
+            recalls = {c["category"]: c["recall"] for c in acc["per_category"]}
+            failing = [c for c, v in recalls.items() if v is None or v != v or v < 0.80]
+            row["R4"] = {"min_recall": min((v for v in recalls.values() if v == v), default=None),
+                         "failing": failing, "ok": not failing}
+        out.append(row)
+    return out
+
+
+def narrative() -> dict:
+    """The team's words for the judgement slides: interpretation, recommendation.
+
+    Numbers never live here; the slides take them from analysis/output/. This file
+    holds only the sentences that interpret them, so the two cannot drift silently.
+    """
+    path = REPO / "slides" / "narrative.yaml"
+    if not path.is_file():
+        missing("slides/narrative.yaml (interpretation and recommendation text)")
+        return {}
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    for key, value in data.items():
+        if isinstance(value, str) and ("TODO" in value or "⟪" in value):
+            missing(f"slides/narrative.yaml: {key} is not written yet")
+    return data
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--final", action="store_true", help="fail on any missing input")
     args = parser.parse_args()
+    load = load_results()
+    accuracy = accuracy_results()
+    bottleneck = bottleneck_results()
     data = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "git_commit": git("rev-parse", "--short", "HEAD"),
         "team": team(), "architecture": architecture(), "workload": workload(),
         "requirements": requirements(), "models": models(), "golden": golden(),
-        "environment": environment(), "load": load_results(), "stress": stress_results(),
-        "bottleneck": bottleneck_results(), "reconcile": reconcile_summary(),
-        "accuracy": accuracy_results(), "predictions": predictions(), "references": references(),
+        "environment": environment(), "load": load, "stress": stress_results(),
+        "bottleneck": bottleneck, "bottleneck_summary": bottleneck_summary(bottleneck),
+        "reconcile": reconcile_summary(), "accuracy": accuracy, "verdicts": verdicts(load, accuracy),
+        "predictions": predictions(), "references": references(), "narrative": narrative(),
     }
     data["missing"] = MISSING
     OUT.parent.mkdir(parents=True, exist_ok=True)

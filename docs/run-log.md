@@ -127,7 +127,60 @@ These entries record decisions and rehearsals, not measurements. Times are UTC (
 - Verdict: **rehearsal**. The final rehearsal ran accuracy, load, mixed and stress end to end with exit 0, and every
   run reconciled with its service log.
 
+### 11:30–11:50 UTC (19:30–19:50 SGT) — the freeze re-cut, and the environment every reported run uses
+- **Local work merged.** The service host's uncommitted work of 2 October (the Q4_K_M 1B pin with real digests in
+  `../models/models.yaml`, and freeze-gate condition 6) was merged onto the 8 October history; where the two
+  disagreed, the 2 October decisions stand (commit `e09e772`). The 1B candidate is `llama3.2:1b-instruct-q4_K_M`.
+- **Prediction record finished and frozen.** The hardware-dependent entries were filled from the service host's
+  capture (no model had answered a request on it since the 2 October smoke test), the sign-off table records that
+  no teammate responded before the freeze, and `golden-freeze` was moved with `git tag -f` to commit
+  `41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba` and force-pushed. `python scripts/freeze_gate.py --json`:
+  `{"ok": true, "freeze_commit": "41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba", "golden_rows": 200,
+  "golden_sha": "12100cc67565be773c9aebccc1e072114bf1b708", "prediction_sha": "c1d1da3f0e2db2487d8f38a231affc6ddee0e608"}`.
+- **Machines.** Service host `omarchy` (Yeo Kai Yuan's desktop: Ryzen 9 5900X, 31.3 GiB, Arch Linux, Docker
+  Engine 29.7.2, Ollama 0.34.3 in the `ollama/ollama` container, CPU only; wired Ethernet, 192.168.50.130).
+  Load generator `kais-macbook-pro` (Yeo Kai Yuan's MacBook Pro, Apple M3 Pro, 18 GiB, macOS 15.1.1, JMeter
+  5.6.3 on OpenJDK 21 via `bin/setenv.sh`; Wi-Fi, 192.168.50.35, same subnet). Captures:
+  `environment/omarchy-Service.txt`, `environment/omarchy-Ollama.txt`, `environment/kais-macbook-pro-Loadgen.txt`.
+- **Harness wiring.** The campaign runs on the MacBook with `SERVICE_SSH=omarchy` (SSH over the tailnet address
+  100.85.101.39, control only: compose, `reset.sh`, `rsync` of `logs/service`) and `TARGET_HOST=192.168.50.130`
+  (every measured request goes over the LAN, not the tailnet). The service host's `ufw` blocks LAN SSH;
+  Docker-published ports 8000 and 11434 are reachable on the LAN.
+- **Done by hand.** On the MacBook: the triage and Ollama containers left over from the afternoon rehearsals were
+  stopped and Docker Desktop was quit, so the load generator runs no model; mains power, `caffeinate`
+  held by the campaign script. On the service host: `docker compose build triage` from the frozen commit.
+
+### 11:49–12:15 UTC (19:49–20:15 SGT) — three rehearsals of the campaign on the new machines — dev, not evidence
+- What: `scripts/run_campaign.sh --dev --models llama3.2:1b-instruct-q4_K_M` on the MacBook, remote mode against
+  `omarchy`, synthetic tickets only, 45 s windows at 30/min (and a mixed test at 1 then 20/min), output under the
+  gitignored `results/dev/`. These were the first requests any model answered on the service host since the freeze.
+- Rehearsal 1 (started with `nohup … &` over an SSH session that then closed): the accuracy driver (Python) worked;
+  **every JMeter sample failed** with `java.net.NoRouteToHostException: No route to host`, and no service log line
+  fell in the measured window. Rehearsal 2, same launch: the same failure.
+- Diagnosis: macOS 15 Local Network privacy. A `java` process started inside a live SSH session reached
+  `192.168.50.130:8000`; the same program started with `nohup` and left running after the session closed got
+  `No route to host`. JMeter run by hand inside a live session posted 8 of 8 tickets with HTTP 200.
+- Fix: the campaign is launched from the service host as
+  `setsid nohup systemd-inhibit … ssh -o ServerAliveInterval=30 mac '… scripts/run_campaign.sh'`, so the MacBook
+  side stays inside a live SSH session for the whole run (and the service host cannot suspend). Recorded as a
+  load-generator gotcha in `playbooks/load-test.md` section 2.3.
+- Rehearsal 3 (launched that way): accuracy skipped (done), load 22/22 HTTP 200, mixed 15 + 15 HTTP 200; both runs
+  `analysis/reconcile.py` **PASS** (every sample joined to its log line). `scripts/run_analysis.sh --results
+  results/dev` produced every output type the deck reads.
+- Verdict: **rehearsal**.
+
 ## Real runs
+
+### Campaign `20261008T121603Z` — the reported runs (started 2026-10-08 12:16:03 UTC, 20:16 SGT)
+- Command, from the service host (the MacBook side runs inside the SSH session, see the rehearsal entry above):
+  `STRESS_MODELS="llama3.2:1b-instruct-q4_K_M llama3.2:3b granite4:3b qwen2.5:7b" scripts/run_campaign.sh` with
+  `SERVICE_SSH=omarchy SERVICE_REPO=claude/ICT3113-PTO TARGET_HOST=192.168.50.130`, defaults otherwise: rates 1, 4
+  and 12 per minute, 600 s, 3 runs; mixed 1 + 1 per minute; stress ramp 1–21 per minute in 120 s steps.
+- Code and freeze: both checkouts at `41d6ce2` (the re-cut `golden-freeze` commit); `freeze_gate.py` passes.
+- Who: started by the AI coding assistant at Yeo Kai Yuan's instruction; unattended overnight.
+- The per-configuration record (run directories, wall-clock, reconciliation) is in the section
+  "Campaign record" below, generated from each run's `metadata.json` and the campaign log
+  `../results/campaign/campaign_20261008T121603Z.log`.
 
 ### 2026-10-08 05:25:11–05:42:22 UTC (2026-10-08 13:25:11–13:42:22 SGT) — accuracy — llama3.2:1b — EXCLUDED (predates the prediction record)
 

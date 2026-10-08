@@ -1,0 +1,81 @@
+============================================================================
+ICT3113 Assignment 1 (Team 10) -- test environment capture
+============================================================================
+Host                    : Kais-MacBook-Pro-2.local
+Declared role           : loadgen
+Captured at (UTC)       : 2026-10-08T11:49:10Z
+Captured by             : scripts/capture_env.sh
+
+This file is generated evidence for Slide 7 (Test Environment) and for the
+service_host_info / load_generator_host_info fields of every run's
+metadata.json. It is regenerated in place, so do NOT hand-edit it: record
+the narrative (network between the machines, anything that could make the
+measurements unrepresentative, how results scale to the client) in the Part 5
+test-environment playbook and cite this file from there.
+
+-- 1. Operating system -----------------------------------------------------
+uname -s                : Darwin
+uname -r (kernel)       : 24.1.0
+uname -m (arch)         : arm64
+macOS version           : 15.1.1
+macOS build             : 24B91
+Hardware model          : Mac15,6
+
+-- 2. CPU ------------------------------------------------------------------
+Model name              : Apple M3 Pro
+Physical cores          : 11
+Logical cores           : 11
+CPU family              : unknown
+Byte order/arch         : 1234 / arm64
+Vector extensions       : unknown unknown
+
+-- 3. Memory and storage ---------------------------------------------------
+Total RAM               : 18.0 GiB (19327352832 bytes)
+Repo filesystem         : 460Gi total, 6.8Gi free on /dev/disk3s5 (4.1M)
+
+-- 4. Software versions ----------------------------------------------------
+python3                 : Python 3.13.1
+repo .venv python       : Python 3.12.2
+docker                  : Docker version 27.5.1, build 9f9e405
+docker server           : daemon not reachable from this shell
+docker compose          : Docker Compose version v2.32.4-desktop.1
+curl                    : curl 8.7.1 (x86_64-apple-darwin24.0) libcurl/8.7.1 (SecureTransport) LibreSSL/3.3.6 zlib/1.2.12 nghttp2/1.62.0
+git                     : git version 2.55.0
+
+-- 5. Model backend (Ollama) -----------------------------------------------
+ollama CLI              : not installed (normal on a machine that only runs the container)
+OLLAMA_BASE_URL         : http://localhost:11434
+ollama /api/version     : not reachable at http://localhost:11434
+OLLAMA_NUM_PARALLEL     : unset (Ollama default)
+OLLAMA_MAX_LOADED_MODELS: unset (Ollama default)
+OLLAMA_NUM_THREADS      : unset (Ollama default)
+OLLAMA_KEEP_ALIVE       : unset (Ollama default)
+Note: the candidate model tags and digests are pinned in models/models.yaml
+and are recorded again in every run's metadata.json; they are not captured
+here, because this file describes the machine and not the experiment.
+
+-- 6. Load generator (JMeter) ----------------------------------------------
+jmeter binary           : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter
+jmeter version          : 5.6.3
+java (used by JMeter)   : java version "23.0.1" 2024-10-15
+JMETER_HOME             : /Users/kaiyuan/tools/apache-jmeter-5.6.3
+
+-- 7. Network ---------------------------------------------------------------
+IPv4 address            : 192.168.50.35
+IPv4 address            : 100.92.152.125
+
+TODO(Part 5 -- Koh Tong Wei): describe the network between the machines
+  (link speed, switch or Wi-Fi, same subnet or not, anything shared with
+  other traffic) and anything that could make these measurements
+  unrepresentative of the client's deployment. Put it in the Part 5
+  test-environment section and cite this file. Do not write it here: this
+  file is regenerated.
+
+-- 8. Repository state -----------------------------------------------------
+Repository path         : /Users/kaiyuan/claude/ICT3113-PTO
+Commit                  : 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba
+Branch                  : main
+Working tree            : clean
+golden-freeze tag       : 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba
+
+-- end of capture ----------------------------------------------------------

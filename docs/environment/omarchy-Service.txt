@@ -1,0 +1,96 @@
+============================================================================
+ICT3113 Assignment 1 (Team 10) -- test environment capture
+============================================================================
+Host                    : omarchy
+Declared role           : service
+Captured at (UTC)       : 2026-10-08T11:41:50Z
+Captured by             : scripts/capture_env.sh
+
+This file is generated evidence for Slide 7 (Test Environment) and for the
+service_host_info / load_generator_host_info fields of every run's
+metadata.json. It is regenerated in place, so do NOT hand-edit it: record
+the narrative (network between the machines, anything that could make the
+measurements unrepresentative, how results scale to the client) in the Part 5
+test-environment playbook and cite this file from there.
+
+-- 1. Operating system -----------------------------------------------------
+uname -s                : Linux
+uname -r (kernel)       : 7.2.3-arch1-3
+uname -m (arch)         : x86_64
+Distribution            : Arch Linux
+libc                    : glibc 2.44
+
+-- 2. CPU ------------------------------------------------------------------
+Model name              : AMD Ryzen 9 5900X 12-Core Processor
+Vendor                  : AuthenticAMD
+Architecture            : x86_64
+Sockets                 : 1
+Cores per socket        : 12
+Threads per core        : 2
+Logical CPUs            : 24
+CPU max MHz             : 4954.5649
+L3 cache                : 64 MiB (2 instances)
+Virtualisation          : unknown
+Vector extensions       : avx avx2 f16c fma 
+nproc (online CPUs)     : 24
+/proc/cpuinfo model     : AMD Ryzen 9 5900X 12-Core Processor
+
+-- 3. Memory and storage ---------------------------------------------------
+Total RAM               : 31.3 GiB (32775132 kB)
+Total swap              : 15.6 GiB (16389116 kB)
+Repo filesystem         : 930G total, 634G free on /dev/mapper/root (/home)
+
+-- 4. Software versions ----------------------------------------------------
+python3                 : Python 3.14.7
+repo .venv python       : Python 3.14.7
+docker                  : Docker version 29.7.2, build a7dcaa6fdb
+docker server           : 29.7.2
+docker compose          : Docker Compose version 5.5.1
+curl                    : curl 8.22.0 (x86_64-pc-linux-gnu) libcurl/8.22.0 OpenSSL/3.6.4 zlib/1.3.2 brotli/1.2.0 zstd/1.5.7 libidn2/2.3.8 libpsl/0.21.5 libssh2/1.11.1 nghttp2/1.70.0 ngtcp2/1.25.0 nghttp3/1.18.0 mit-krb5/1.22.2
+git                     : git version 2.55.0
+
+-- 5. Model backend (Ollama) -----------------------------------------------
+ollama CLI              : not installed (normal on a machine that only runs the container)
+OLLAMA_BASE_URL         : http://localhost:11434
+ollama /api/version     : {"version":"0.34.3"}
+OLLAMA_NUM_PARALLEL     : unset (Ollama default)
+OLLAMA_MAX_LOADED_MODELS: unset (Ollama default)
+OLLAMA_NUM_THREADS      : unset (Ollama default)
+OLLAMA_KEEP_ALIVE       : unset (Ollama default)
+Note: the candidate model tags and digests are pinned in models/models.yaml
+and are recorded again in every run's metadata.json; they are not captured
+here, because this file describes the machine and not the experiment.
+
+-- 6. Load generator (JMeter) ----------------------------------------------
+jmeter binary           : not installed
+jmeter version          : not installed
+java                    : openjdk version "26.0.2.1" 2026-08-18
+JMETER_HOME             : unset
+
+-- 7. Network ---------------------------------------------------------------
+IPv4 address            : 192.168.50.130/24 on enp38s0
+IPv4 address            : 100.85.101.39/32 on tailscale0
+IPv4 address            : 172.28.0.1/16 on br-6a5fdf558819
+IPv4 address            : 172.18.0.1/16 on br-81db432457c3
+IPv4 address            : 172.21.0.1/16 on br-bd57e16d1249
+IPv4 address            : 172.22.0.1/16 on br-c4d5740c8023
+IPv4 address            : 172.17.0.1/16 on docker0
+IPv4 address            : 172.19.0.1/16 on br-13e40739b98a
+IPv4 address            : 172.29.0.1/16 on br-35c6bbb99daf
+IPv4 address            : 172.20.0.1/16 on br-5f85d324627c
+
+TODO(Part 5 -- Koh Tong Wei): describe the network between the machines
+  (link speed, switch or Wi-Fi, same subnet or not, anything shared with
+  other traffic) and anything that could make these measurements
+  unrepresentative of the client's deployment. Put it in the Part 5
+  test-environment section and cite this file. Do not write it here: this
+  file is regenerated.
+
+-- 8. Repository state -----------------------------------------------------
+Repository path         : /home/fokku/claude/ICT3113-PTO
+Commit                  : e09e772a98ea876ab282c216e50c9fb7517f678f
+Branch                  : main
+Working tree            : DIRTY (uncommitted changes at capture time)
+golden-freeze tag       : ef5a1b21f5030966047a2bb438082ab80a893f8c
+
+-- end of capture ----------------------------------------------------------

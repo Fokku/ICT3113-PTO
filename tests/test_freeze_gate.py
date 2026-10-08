@@ -330,6 +330,20 @@ def test_warns_about_an_unfinished_prediction_record_before_tagging(tmp_path: Pa
     assert any("on disk" in r and "TODO(" in r for r in status.reasons)
 
 
+def test_blocks_when_the_tagged_record_still_has_draft_placeholders(tmp_path: Path) -> None:
+    """The draft's ⟪HW⟫ placeholders are as unfinished as a TODO(."""
+    repo = new_repo(tmp_path)
+    write_golden(repo)
+    write_prediction(repo, "# Prediction record\n\n| Model | Latency |\n|---|---|\n| qwen2.5:7b | ⟪HW⟫ |\n")
+    commit_all(repo, "Freeze golden set and prediction record")
+    tag_freeze(repo)
+
+    status = freeze_gate.check_freeze(repo)
+    assert not status.ok
+    assert len(status.reasons) == 1, reasons_text(status)
+    assert "line(s): lines 5" in status.reasons[0]
+
+
 def test_blocks_when_the_tag_is_missing(tmp_path: Path) -> None:
     repo = new_repo(tmp_path)
     write_golden(repo)

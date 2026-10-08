@@ -31,7 +31,8 @@ We state this here because the commit history shows it anyway, and an unexplaine
    and the test is repeated after this commit on the new environment.
 3. **The test environment changed.** The original machines (`tw` and `kthgoat`) became unavailable on
    8 October. Every measurement is now made with the service and Ollama on a separate desktop
-   (⟪HW: service host name, CPU, cores/threads, RAM, OS⟫, captured in `../docs/environment/`), and JMeter on
+   (`omarchy`: AMD Ryzen 9 5900X, 12 cores / 24 threads, 31.3 GiB RAM, Arch Linux, Docker Engine 29.7.2,
+   Ollama 0.34.3 — captured in `../docs/environment/omarchy-Ollama.txt`), and JMeter on
    an Apple M3 Pro MacBook. **Every latency prediction below is for that service host.**
 4. **Who wrote this, and what they had seen.** This record was drafted on 8 October by Yeo Kai Yuan with an
    AI coding assistant (the brief permits AI tools), from: the hardware facts in `../docs/environment/`,
@@ -42,7 +43,7 @@ We state this here because the commit history shows it anyway, and an unexplaine
    **predicted-category counts** of the excluded `llama3.2:1b` run (Credit reporting 100, Bank account or
    service 85, Consumer loan 10, `UNPARSEABLE` 3, Mortgage 1, Credit card 1, out of 200), though not its
    accuracy score, and that run's start and end times (about 17 minutes for 200 tickets on `tw`, a
-   different machine). **The `llama3.2:1b` accuracy, hardest-category and `UNPARSEABLE` entries are
+   different machine). **The 1B model's accuracy, hardest-category and `UNPARSEABLE` entries are
    therefore not blind, and we claim no credit for them.** Knowing that the 1B model leans on the first
    listed category may also have coloured the error-direction prediction for `llama3.2:3b` (same family);
    we flag that entry too. While fixing the test harness, the drafter also saw rehearsal timings for
@@ -51,7 +52,7 @@ We state this here because the commit history shows it anyway, and an unexplaine
    model had run on the service host when this record was written. Every other entry — the bottleneck,
    the latency figures for the service host, and the accuracy rows for `llama3.2:3b`, `granite4:3b` and
    `qwen2.5:7b` — is blind to our own measurements. After the first draft of this record was committed
-   (the `llama3.2:1b` accuracy entry of 38% included), the drafter read a teammate's run-log entry
+   (the 1B accuracy entry of 38% included), the drafter read a teammate's run-log entry
    giving the excluded run's score, 35.0%. The draft commit is the evidence that the 38% came first; the
    entry is still marked not blind.
 5. **The template's own rule was broken.** The template said no tool and no single member should supply the
@@ -62,6 +63,17 @@ We state this here because the commit history shows it anyway, and an unexplaine
    to this commit with `git tag -f` — the re-cut procedure documented in `../scripts/freeze_gate.py` — and the
    move is logged in `../docs/run-log.md`. Every run directory carries the freeze it ran under in its
    `freeze.json`.
+7. **The 1B build changed before the freeze.** The earlier draft named the default `llama3.2:1b` build
+   (Q8_0). The service host had already pulled and pinned `llama3.2:1b-instruct-q4_K_M` on 2 October, and that
+   matched-quantisation decision (`../models/candidates.md`, decision 2) stands: the 1B candidate measured is
+   the Q4_K_M build. The excluded run in item 2 was the Q8_0 build on a different machine, so it is not even
+   the same weights; the 1B accuracy entries stay marked not blind all the same.
+8. **The hardware-dependent entries were completed last, and blind.** The service-time, latency, stress and
+   R1/R2 entries (left as hardware placeholders in the circulated draft) were filled in on the evening of 8 October by the same
+   drafter and assistant, from three things only: the capture file named in item 3, published
+   characteristics of llama.cpp CPU inference on AVX2 desktop processors, and the ticket-length statistics in
+   `../workload/output/ticket_length_stats.md`. No model had answered a request on the service host since
+   three synthetic smoke-test requests on 2 October, whose timings were not looked at.
 
 ---
 
@@ -85,12 +97,23 @@ dominated by `prompt_eval_duration`, and the queue forms when the arrival rate e
 **Where in our workload it starts to bind.** The modelled peak (0.024 tickets/minute) never binds anything.
 Among the rates we test (1, 4 and 12 per minute, and the stress ramp 1 → 21 per minute), we expect:
 
-| Model | Predicted service time S at the median prompt | Predicted saturation rate ≈ 60 / S | First tested rate at which the queue grows without bound |
+| Model | Predicted service time S at the median ticket | Predicted mean S (mean ticket) | Predicted saturation rate ≈ 60 / mean S | First tested rate at which the queue grows without bound |
+|---|---|---|---|---|
+| `llama3.2:1b-instruct-q4_K_M` | 0.85 s | 0.96 s | ≈ 62 / min | none — not even the steeper ramp's 60/min top step |
+| `llama3.2:3b` | 2.0 s | 2.3 s | ≈ 26 / min | 30/min (step 3 of the steeper ramp) |
+| `granite4:3b` | 2.2 s | 2.45 s | ≈ 24 / min | 30/min (step 3 of the steeper ramp) |
+| `qwen2.5:7b` | 4.6 s | 5.2 s | ≈ 11.5 / min | **12/min — the load test's top rate** (and the ramp's 13/min step) |
+
+**The stress limit we predict for each model** (limit = the first step whose p95 exceeds R1's 10 s or whose
+error rate exceeds 5%, as `../docs/playbooks/stress-test.md` defines it; the steeper 10–60/min ramp is run only
+when the 1–21/min ramp finds nothing, as that playbook decided in advance):
+
+| Model | 1–21/min ramp | Steeper 10–60/min ramp | First HTTP 502 (`ollama_timeout`) |
 |---|---|---|---|
-| `llama3.2:1b` | ⟪HW⟫ | ⟪HW⟫ | ⟪HW⟫ |
-| `llama3.2:3b` | ⟪HW⟫ | ⟪HW⟫ | ⟪HW⟫ |
-| `granite4:3b` | ⟪HW⟫ | ⟪HW⟫ | ⟪HW⟫ |
-| `qwen2.5:7b` | ⟪HW⟫ | ⟪HW⟫ | ⟪HW⟫ |
+| `llama3.2:1b-instruct-q4_K_M` | no limit (p95 at 21/min ≈ 2 s) | no limit (p95 at 60/min below 10 s) | none in either ramp |
+| `llama3.2:3b` | no limit (p95 at 21/min ≈ 8 s) | limit at **30/min** | 40/min step or later |
+| `granite4:3b` | limit at **21/min** (p95 ≈ 11 s) — the one 3B-class difference we predict | (run only if the first ramp finds nothing) | none in the 1–21/min ramp |
+| `qwen2.5:7b` | limit at **9/min** (p95 > 10 s, queueing on top of a ~5 s service time) | not run | 21/min step or the drain after it |
 
 **Where the wait will show up in our own analysis — a deliberate, checkable claim.** Ollama starts its
 `total_duration` clock *before* a request waits for the slot, and only `load_duration`, `prompt_eval_duration`
@@ -153,24 +176,32 @@ stretching with concurrency.
 Single request, warm (model resident, `load_duration` under 50 ms), measured as the service's
 `total_latency_ms` and as JMeter `elapsed`. Latency ≈ prompt tokens ÷ prefill rate + reply tokens ÷ decode
 rate + about 30 ms of HTTP, JSON and SQLite. We assume a median prompt of ~330 tokens (p95 ~560), a reply of
-~5 tokens, and these CPU rates on the service host — prefill bound by compute, decode by memory bandwidth:
+~5 tokens, and these CPU rates on the service host — prefill bound by compute, decode by memory bandwidth.
+
+**Prefix reuse — a checkable claim of its own.** The instructions (~115 tokens) come before the narrative and
+are identical in every request, and Ollama keeps the previous request's KV cache in its one slot, so we predict
+it evaluates only the part after the common prefix: about the narrative plus ~15 tokens (median ≈ 200,
+p95 ≈ 465), not the whole prompt. We would be wrong if the median `prompt_eval_count` in the service log is
+above 300 for any model at 1/min. Every latency below is computed on the ~200 / ~465 evaluated tokens. Decode
+rates assume ~38 GB/s of effective dual-channel DDR4 bandwidth divided by the weights' size; prefill rates scale
+a ~50 tokens/s figure for a 7B-class Q4_K_M model on 12 Zen 3 cores by non-embedding parameter count:
 
 | Model | Weights (quantisation, size) | Assumed prefill rate (tokens/s) | Assumed decode rate (tokens/s) |
 |---|---|---|---|
-| `llama3.2:1b` | 1.24B, Q8_0, 1.3 GB | ⟪HW⟫ | ⟪HW⟫ |
-| `llama3.2:3b` | 3.21B, Q4_K_M, 2.0 GB | ⟪HW⟫ | ⟪HW⟫ |
-| `granite4:3b` | 3.4B, Q4_K_M, 2.1 GB | ⟪HW⟫ | ⟪HW⟫ |
-| `qwen2.5:7b` | 7.62B, Q4_K_M, 4.7 GB | ⟪HW⟫ | ⟪HW⟫ |
+| `llama3.2:1b-instruct-q4_K_M` | 1.24B, Q4_K_M, 808 MB | 280 | 45 |
+| `llama3.2:3b` | 3.21B, Q4_K_M, 2.0 GB | 115 | 19 |
+| `granite4:3b` | 3.4B, Q4_K_M, 2.1 GB | 108 | 18 |
+| `qwen2.5:7b` | 7.62B, Q4_K_M, 4.7 GB | 50 | 9 |
 
 The measured rates are `prompt_eval_count / prompt_eval_duration` and `eval_count / eval_duration`, which
 `analysis/bottleneck_hints.py` reports per run.
 
 | Model (exact Ollama tag) | Expected overall accuracy (%) | Expected hardest category | Expected single-request latency (p50, ms, warm) | Expected p95 at the lowest tested rate, 1/min (R1's condition) | Confidence | Reasoning |
 |---|---|---|---|---|---|---|
-| `llama3.2:1b` | **38** (accept 33–43) — **not blind, see §0** | Debt collection and Money transfer or service, both near 0% — **not blind** | ⟪HW⟫ | ⟪HW⟫ | latency: med; accuracy: n/a (not blind) | Smallest model; with only category names in the prompt it falls back on the two broadest categories. Q8_0 makes it heavier per parameter than the others, which narrows its speed advantage. |
-| `llama3.2:3b` | **55** (accept 49–61) | Money transfer or service | ⟪HW⟫ | ⟪HW⟫ | accuracy: low; latency: med | Follows the one-line instruction reliably, but with no definitions it over-uses Credit reporting (listed first, mentioned in many complaints) and Bank account or service; the last-listed category, Money transfer or service, is under-predicted. The error direction may be coloured by §0, item 4. |
-| `granite4:3b` | **60** (accept 54–66) | Credit card | ⟪HW⟫ | ⟪HW⟫ | accuracy: low; latency: med | Same size class as `llama3.2:3b` but newer and tuned for instruction following, so slightly fewer broad-category fall-backs. Its hardest category is decided by our protocol, not the model: rule R4 puts prepaid and gift cards and PayPal Credit under Credit card, which no model told only the category names will guess. |
-| `qwen2.5:7b` | **70** (accept 64–76) | Credit card | ⟪HW⟫ | ⟪HW⟫ | accuracy: med; latency: med | More than twice the parameters of the 3B class, so the clear-cut tickets (Mortgage, Debt collection, credit-file disputes) are nearly all right. What remains are the boundaries our protocol drew (R4, R6, R2) that are not visible from category names. About 2.3× the 3B models' latency, because prefill cost scales with parameter count. |
+| `llama3.2:1b-instruct-q4_K_M` | **38** (accept 33–43) — **not blind, see §0** | Debt collection and Money transfer or service, both near 0% — **not blind** | **850** | **1,800** | latency: med; accuracy: n/a (not blind) | Smallest model; with only category names in the prompt it falls back on the two broadest categories. At Q4_K_M, like the other three, it is about 2.4× faster than `llama3.2:3b`, a little less than the 2.9× parameter ratio because small matrices use the cores less efficiently. |
+| `llama3.2:3b` | **55** (accept 49–61) | Money transfer or service | **2,000** | **4,300** | accuracy: low; latency: med | Follows the one-line instruction reliably, but with no definitions it over-uses Credit reporting (listed first, mentioned in many complaints) and Bank account or service; the last-listed category, Money transfer or service, is under-predicted. The error direction may be coloured by §0, item 4. |
+| `granite4:3b` | **60** (accept 54–66) | Credit card | **2,200** | **4,600** | accuracy: low; latency: med | Same size class as `llama3.2:3b` but newer and tuned for instruction following, so slightly fewer broad-category fall-backs. Its hardest category is decided by our protocol, not the model: rule R4 puts prepaid and gift cards and PayPal Credit under Credit card, which no model told only the category names will guess. |
+| `qwen2.5:7b` | **70** (accept 64–76) | Credit card | **4,600** | **10,500** | accuracy: med; latency: med | More than twice the parameters of the 3B class, so the clear-cut tickets (Mortgage, Debt collection, credit-file disputes) are nearly all right. What remains are the boundaries our protocol drew (R4, R6, R2) that are not visible from category names. About 2.3× the 3B models' latency, because prefill cost scales with parameter count. |
 
 **Rows we would call wrong:** any measured overall accuracy outside its accepted band; a different hardest
 category (lowest per-category accuracy in `analysis/output/accuracy/`); a measured warm p50 more than 30%
@@ -180,8 +211,8 @@ away from the predicted figure; a measured p95 at 1/min above the predicted figu
 
 | Requirement | Prediction | Would be wrong if |
 |---|---|---|
-| R1 — `POST /tickets` p95 ≤ 10 s at 1/min | ⟪HW⟫ | ⟪HW⟫ |
-| R2 — ≤ 5% errors and no backlog at 12/min | ⟪HW⟫ | ⟪HW⟫ |
+| R1 — `POST /tickets` p95 ≤ 10 s at 1/min | **Met by the three smaller models, failed by `qwen2.5:7b`.** Worst-run p95 at 1/min: 1.8 s, 4.3 s and 4.6 s for `llama3.2:1b-instruct-q4_K_M`, `llama3.2:3b` and `granite4:3b`; about 10.5 s for `qwen2.5:7b`, whose longest tickets alone take ~10 s to evaluate. | any of the three smaller models misses it, or `qwen2.5:7b` meets it in all three runs |
+| R2 — ≤ 5% errors and no backlog at 12/min | **Met by the three smaller models (utilisation ≈ 0.2, 0.46 and 0.49), failed by `qwen2.5:7b`** (utilisation ≈ 1.04): its queue grows for the whole run, p95 passes 30 s, and at least one of its three runs finishes later than 660 s. Its error rate still stays under 5%, because no wait reaches the 120 s timeout within 600 s of arrivals. | any of the three smaller models fails it, `qwen2.5:7b` meets it, or `qwen2.5:7b` fails it on errors rather than backlog |
 | R3 — overall accuracy ≥ 90% | **No candidate meets it.** The best, `qwen2.5:7b`, reaches about 70%. Our own two labellers agreed with each other on only 66% of tickets before resolution (κ = 0.599), and a model given no category definitions cannot learn the boundaries our protocol drew. | any candidate reaches 90% |
 | R4 — every category ≥ 80% | **No candidate meets it.** Mortgage clears 80% for `qwen2.5:7b`, `granite4:3b` and `llama3.2:3b`; Credit card and Bank account or service fail for every model. | any candidate has all seven categories at 80% or more |
 | R5 — `GET /search` p95 ≤ 2 s under `mixed_load` | **Every candidate meets it**, with `/search` p95 below 100 ms in every run. | any run's `/search` p95 is above 2 s, or above 100 ms |
@@ -222,7 +253,7 @@ of every product mention a credit report or credit score.
 **Where `UNPARSEABLE` will land.** Most replies will be a single category name. The normaliser maps a reply
 that contains two category names to `UNPARSEABLE` (rule 6), so the few unparseable replies will come from
 tickets on the **Credit reporting ↔ Debt collection** boundary, where a model hedges with both names.
-Predicted counts out of 200: `qwen2.5:7b` 0–1, `granite4:3b` 0–3, `llama3.2:3b` 0–3, `llama3.2:1b` 1–5 (not
+Predicted counts out of 200: `qwen2.5:7b` 0–1, `granite4:3b` 0–3, `llama3.2:3b` 0–3, `llama3.2:1b-instruct-q4_K_M` 1–5 (not
 blind). A count above 5 for any 3B-or-larger model would make this entry wrong.
 
 **Tie to the labelling evidence.** The three hardest categories for models are the three with the lowest
@@ -249,7 +280,7 @@ prediction differed from the team entry.
 | Member | Part | Date | Response to the draft, and where they would have predicted differently |
 |---|---|---|---|
 | Yeo Kai Yuan | Part 1 — service, instrumentation, benchmark harness | 2026-10-08 | Drafted the record (with an AI assistant, see §0). |
-| Loh Wen Xuan | Part 2 — labelling protocol, labeller A | ⟪SIGN⟫ | ⟪SIGN⟫ |
-| Jolie Ngai Ning Li | Part 3 — labeller B, accuracy results | ⟪SIGN⟫ | ⟪SIGN⟫ |
-| Toh Si Pei | Part 4 — workload model and requirements | ⟪SIGN⟫ | ⟪SIGN⟫ |
-| Koh Tong Wei | Part 5 — test environment, playbooks, references | ⟪SIGN⟫ | ⟪SIGN⟫ |
+| Loh Wen Xuan | Part 2 — labelling protocol, labeller A | — | Draft circulated 8 October 2026; **no response received before the freeze**. |
+| Jolie Ngai Ning Li | Part 3 — labeller B, accuracy results | — | Draft circulated 8 October 2026; **no response received before the freeze**. |
+| Toh Si Pei | Part 4 — workload model and requirements | — | Draft circulated 8 October 2026; **no response received before the freeze**. |
+| Koh Tong Wei | Part 5 — test environment, playbooks, references | — | Draft circulated 8 October 2026; **no response received before the freeze**. |

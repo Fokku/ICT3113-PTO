@@ -46,6 +46,9 @@ What "frozen" means (all of these must hold)
    disk while there is no tag yet -- contains no ``TODO(`` placeholder. The
    template ships full of them, so without this check an untouched template
    could be committed and tagged and every other condition above would pass.
+   The ``⟪...⟫`` placeholder style counts as unfinished too: the 8 October draft
+   used it for the hardware-dependent entries, and an empty freeze on that day
+   is the reason this condition exists.
 
 Exit codes (CLI)
 ----------------
@@ -77,9 +80,11 @@ REQUIRED_PATHS: tuple[str, ...] = (GOLDEN_SET_PATH, PREDICTION_RECORD_PATH)
 #: The tag that marks the freeze commit.
 FREEZE_TAG = "golden-freeze"
 
-#: The placeholder the templates use for an undecided entry. A prediction record
-#: still carrying one is unfinished, and an unfinished record is not a freeze.
-UNFINISHED_MARKER = "TODO("
+#: The placeholders used for an undecided entry: the templates' ``TODO(`` and the
+#: ``⟪...⟫`` style of the circulated draft. A prediction record still carrying
+#: either is unfinished, and an unfinished record is not a freeze.
+UNFINISHED_MARKERS: tuple[str, ...] = ("TODO(", "⟪")
+UNFINISHED_MARKER = UNFINISHED_MARKERS[0]
 
 #: Exit code used everywhere for "the gate blocked you". Distinct from 1 (an
 #: internal error) and from 2 (a misuse of a script's arguments) so a caller can
@@ -355,14 +360,15 @@ def check_freeze(repo: Path) -> FreezeStatus:
                 _Failure(
                     reason=(
                         f"{PREDICTION_RECORD_PATH} {record_where} still contains "
-                        f"{len(unfinished)} unfinished '{UNFINISHED_MARKER}' "
+                        f"{len(unfinished)} unfinished "
+                        f"{' or '.join(repr(m) for m in UNFINISHED_MARKERS)} "
                         f"placeholder line(s): lines {shown}{more}."
                     ),
                     fix=(
-                        f"Replace every {UNFINISHED_MARKER}...) in the prediction record "
+                        f"Replace every placeholder in the prediction record "
                         f"with the team's decision (sign-off included), commit it, and "
                         f"only then tag:\n"
-                        f"       grep -n '{UNFINISHED_MARKER}' {PREDICTION_RECORD_PATH}"
+                        f"       grep -nE 'TODO\\(|⟪' {PREDICTION_RECORD_PATH}"
                     ),
                 )
             )
@@ -392,7 +398,7 @@ def _unfinished_lines(text: str) -> list[int]:
     return [
         number
         for number, line in enumerate(text.splitlines(), start=1)
-        if UNFINISHED_MARKER in line
+        if any(marker in line for marker in UNFINISHED_MARKERS)
     ]
 
 

@@ -50,7 +50,10 @@ We state this here because the commit history shows it anyway, and an unexplaine
    Desktop's VM) — a different machine and CPU architecture from the service host, and never team rows. No
    model had run on the service host when this record was written. Every other entry — the bottleneck,
    the latency figures for the service host, and the accuracy rows for `llama3.2:3b`, `granite4:3b` and
-   `qwen2.5:7b` — is blind to our own measurements.
+   `qwen2.5:7b` — is blind to our own measurements. After the first draft of this record was committed
+   (the `llama3.2:1b` accuracy entry of 38% included), the drafter read a teammate's run-log entry
+   giving the excluded run's score, 35.0%. The draft commit is the evidence that the 38% came first; the
+   entry is still marked not blind.
 5. **The template's own rule was broken.** The template said no tool and no single member should supply the
    predictions. Under the deadline, one member drafted with an AI assistant and circulated the draft to the
    other four before the freeze. Their responses are in the sign-off table exactly as given, including

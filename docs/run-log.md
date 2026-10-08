@@ -1,7 +1,7 @@
 # Run log — ICT3113 Assignment 1 (Team 10)
 
 **Owner:** Part 5 (Teammate D).
-**Status:** rehearsals only. No real (post-freeze) run has been made, so nothing below is evidence for any slide.
+**Status:** rehearsals and one completed post-freeze accuracy attempt. Its results are provisional; the recorded dirty working tree and missing model digest prevent it from being reportable under the accuracy playbook.
 
 ## Rules
 1. One dated entry per configuration (one model x one plan x one rate), written straight after its runs.
@@ -85,7 +85,39 @@
 - [ ] Freeze gate passes (`python scripts/freeze_gate.py`) and the tag `golden-freeze` exists.
 
 ## Real runs
-*No entries yet. Real runs cannot start until the freeze gate passes.*
+
+### 2026-10-08 05:25:11–05:42:22 UTC (2026-10-08 13:25:11–13:42:22 SGT) — accuracy — llama3.2:1b — completed, provisional
+
+- Run directory: [llama3.2-1b_20261008T052511Z](../results/accuracy/llama3.2-1b_20261008T052511Z/).
+- Who ran it: [operator not recorded]. Driver hostname: `tw`; service URL: `http://localhost:8000`.
+- Wall-clock duration: **17 min 11.175 s**, calculated from `metadata.json` start/end timestamps. This is scheduling information, not a latency benchmark.
+- Database reset beforehand: [not recorded]. Other activity, physical setup and manual changes: [not recorded].
+- Freeze gate: **PASS**, 200 golden rows; tag `golden-freeze`, commit `ef5a1b21f5030966047a2bb438082ab80a893f8c`.
+- Configuration: prompt hash `sha256:681131c48bdc15a1`; context `4096`; seed `42`; recorded git commit `a21b38f26f849ff1626e92e354df10cef66a39ab`; `git_dirty: true`; `model_digest: null`.
+- Response coverage: **200 unique golden row numbers, 200 HTTP 200 responses**, with no response error slugs. There were **3 UNPARSEABLE predictions (1.5%)**, counted as incorrect.
+- Service-log check: all **200 response request IDs** have matching log lines. The captured file contains **201 lines** because it also includes request `8a3cbf49-c190-4a8c-b6ae-9d6d57854bb4`, source row `10028`, timestamp `2026-10-08T05:25:08.637Z`. This precedes the run start by 2.551 s and falls inside the driver's default five-second slicing margin. It is excluded from the response-based scores below; its originating activity is [not confirmed]. The original evidence is preserved.
+
+#### Provisional accuracy results
+
+These figures were calculated by joining this run's `responses.csv` to `golden/golden_set.csv` on `row_number`, counting exact category matches. They are response-based calculations; the formal analysis tables and confusion-matrix chart have not yet been generated for this entry.
+
+| Golden category | Correct / total | Recall | R4: ≥ 80% |
+|---|---:|---:|---|
+| Bank account or service | 29 / 40 | 72.50% | Fail |
+| Consumer loan | 3 / 23 | 13.04% | Fail |
+| Credit card | 1 / 27 | 3.70% | Fail |
+| Credit reporting | 36 / 41 | 87.80% | Pass |
+| Debt collection | 0 / 23 | 0.00% | Fail |
+| Money transfer or service | 0 / 19 | 0.00% | Fail |
+| Mortgage | 1 / 27 | 3.70% | Fail |
+
+**Overall: 70 / 200 = 35.00%; 130 incorrect classifications, including 3 UNPARSEABLE. R3 (≥ 90%) fails. R4 fails because six of seven categories are below 80% recall.**
+
+Predicted-category counts: Bank account or service 85; Consumer loan 10; Credit card 1; Credit reporting 100; Debt collection 0; Money transfer or service 0; Mortgage 1; UNPARSEABLE 3. The model never predicted Debt collection or Money transfer or service in this attempt.
+
+- Verdict: **rehearsal / provisional diagnostic attempt; not reportable** under playbook section 9. Although recorded in real mode after the freeze, the run has a dirty working tree and no recorded model digest. A low score alone would not invalidate a run.
+- Next steps: establish the model pin using the pinning script, run from a committed clean state, and repeat the entire golden set. Preserve this attempt. Generate formal accuracy tables and confusion matrices for the replacement run; do not retrofit a digest or change this attempt's metadata.
+- Other attempts: `results/accuracy/llama3.2-1b_20261008T052403Z/` contains only `responses.csv`; no metadata, freeze verdict or service-log snapshot is available in that directory. It is not used for the scores above.
 
 ### Entry template (copy for each configuration)
 ```

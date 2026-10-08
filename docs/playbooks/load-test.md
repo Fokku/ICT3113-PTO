@@ -5,8 +5,7 @@ written to the brief's standard: *"Each test playbook must be described in suffi
 software tester could carry it out without seeking or inventing further information from your team."* If you
 have to ask us a question to follow it, that question is a defect in this document — fix the document.
 
-**Owner:** Part 5 — Teammate D.
-`TODO(Yeo Kai Yuan): replace "Teammate D" with the real name.`
+**Owner:** Part 5 — Tong Wei
 
 **What "done" looks like.** Three completed run directories per configuration under `../../results/runs/`,
 each reconciling cleanly with the service log, and one summary table under `../../analysis/output/load/`.
@@ -123,13 +122,53 @@ docker compose -f docker-compose.yml ps          # must list the containers on t
 ls -l "$SERVICE_LOG_DIR"                          # must show the service's <UTC-date>.jsonl
 ```
 
-`TODO(Part 5 — Teammate D): record which arrangement the team actually used — sshfs, NFS, or something else —
-and the absolute repository path on both machines. The next person to run this needs the answer, not the
-options.`
+**The arrangement this team used** — set up on 8 October 2026 with `kthgoat` as the load generator and `tw`
+as the service host. Both are Ubuntu on WSL2 under Windows, which adds two steps the options above do not
+mention.
 
-`TODO(Yeo Kai Yuan): confirm this arrangement during the rehearsal run. If neither sshfs nor NFS is workable
-in our setup, scripts/run_load_test.sh needs an option for fetching the service log over SSH, and this section
-must be rewritten to match whatever it grows.`
+| Piece | What we did |
+|---|---|
+| Docker over SSH | `export DOCKER_HOST=ssh://tongw@192.168.50.73`, with key-based login: an ed25519 key made on `kthgoat` (`ssh-keygen -t ed25519`, no passphrase) and installed with `ssh-copy-id tongw@192.168.50.73`. The login name is the Ubuntu user on `tw` (`whoami` there), not the machine name |
+| Reaching SSH inside WSL2 on `tw` | An OpenSSH server runs inside `tw`'s Ubuntu (`sudo apt install -y openssh-server && sudo service ssh start`). Windows on `tw` forwards port 22 to it, from an Administrator PowerShell: `netsh interface portproxy add v4tov4 listenport=22 listenaddress=0.0.0.0 connectport=22 connectaddress=<tw's WSL address, from hostname -I>`, plus `New-NetFirewallRule -DisplayName "WSL SSH" -Direction Inbound -Protocol TCP -LocalPort 22 -Action Allow`. The WSL address can change after a restart; if SSH stops answering, delete the rule and add it again with the new address |
+| Live view of the service log | sshfs: `mkdir -p ~/tw-logs`, then `sshfs tongw@192.168.50.73:"<repository path>/logs/service" ~/tw-logs`, then `export SERVICE_LOG_DIR=~/tw-logs` |
+| Repository path, identical on both machines | `/mnt/c/SIT/Y3T1/ICT 3113 Performance Testing and Optimisation/ICT3113-PTO`. Quote it everywhere: it contains spaces |
+| Every new terminal on the load generator | Re-run the two `export` lines, and re-mount with `sshfs` if `ls ~/tw-logs` is empty |
+
+Things that went wrong while setting this up, so the next person does not repeat them:
+
+* `sudo apt install jmeter` installs JMeter 2.13, which cannot open the plans. Install 5.6.3 from
+  <https://dlcdn.apache.org/jmeter/binaries/apache-jmeter-5.6.3.tgz> and set `JMETER_HOME` and `PATH` in
+  `~/.bashrc`.
+* A copy of the repository unpacked from a zip on Windows has CRLF line endings, and the scripts fail with
+  `env: 'bash\r': No such file or directory`. Fix the scripts only:
+  `sed -i 's/\r$//' scripts/*.sh scripts/*.py .env`. Never do this to `data/`, `golden/` or `labelling/`. A
+  `git clone` inside Ubuntu avoids the problem, and is required for reported runs anyway, because the freeze
+  gate needs the repository history and the `golden-freeze` tag.
+* A Python virtual environment does not survive being copied to another path. Re-create it in place:
+  `python3 -m venv --clear .venv && .venv/bin/pip install -r requirements-dev.txt`.
+
+* Ubuntu's default Java can take over from Java 21. `java -version` must say 17 or 21 before every session;
+  if it does not, run `sudo update-alternatives --config java` and pick the Java 21 entry. On a newer Java the
+  plans can drop samples silently (section 2.4).
+* On a load generator that gets its `docker` command from Docker Desktop, Docker Desktop must be running, or
+  the script stops at the reset with "The command 'docker' could not be found in this WSL 2 distro".
+* If the header block printed by `run_load_test.sh` shows `Service log :` pointing inside the repository on
+  the load generator, the `export` lines were not run in that terminal. It must show the mounted folder.
+* A warm-up that fails with `HTTP 502` and `"error":"ollama_http_error"` while `/health` says Ollama is
+  reachable means the model has not been pulled on the Ollama host. Check with
+  `docker exec ict3113-ollama ollama list`, then pull and pin with `scripts/pull_and_pin_models.sh --model <tag>`.
+* The script prints `results.jtl has no 'request_id' column` and `no 'source_row' column` and counts the run
+  as failed even when both columns are present. JMeter writes the two names in double quotes in the header
+  (`../../jmeter/README.md` section 4) and the script's check looks for them unquoted. Confirm with
+  `head -1 results.jtl`; `analysis/reconcile.py` reads the file correctly and is the real test.
+  `TODO(Yeo Kai Yuan): fix the header check in scripts/run_load_test.sh (strip the quotes before comparing),
+  otherwise every reported run is marked failed and carries "jtl missing request_id column" in its metadata
+  notes.`
+
+**Rehearsed.** The arrangement above ran all six steps of `run_load_test.sh` in `--dev` mode on 8 October
+2026 (run directory `20261007T174042Z_llama3.2-1b_load_post_tickets_60pm_run1` under `results/dev/runs/`).
+A `--dev` run uses synthetic tickets and is not evidence; no figure from it may be quoted.
+
 
 ### 2.4 Everything else
 
@@ -400,11 +439,6 @@ export RUN_NOTES="operator <name>; wired ethernet; service host otherwise idle; 
 
 `scripts/run_load_test.sh` copies it verbatim into `metadata.json`'s `notes` field, alongside its own notes.
 `scripts/run_accuracy.py` honours the same variable.
-
-`TODO(Part 5 — Teammate D): create a single run log for the longer narrative — one dated entry per
-configuration, with the seven items above — and name it here so this playbook points at a real file. It is not
-created by this playbook because Part 5 owns it; a markdown file under docs/ is enough, and it must be
-committed, because it is the record that explains the numbers.`
 
 ---
 

@@ -5,8 +5,7 @@ every golden-set ticket through POST /tickets for each candidate model, and repo
 accuracy against your golden labels, with a confusion matrix."* It is written so that a competent tester who
 cannot ask us anything can carry it out.
 
-**Owner:** Part 5 — Teammate D.
-`TODO(Yeo Kai Yuan): replace "Teammate D" with the real name.`
+**Owner:** Tong Wei
 
 **What "done" looks like.** One completed run directory per candidate model under `../../results/accuracy/`,
 each covering **every** row of the golden set, and one scored set of tables and confusion matrices under
@@ -37,9 +36,9 @@ means the repository's own virtual environment — `.venv/bin/python`, or activa
 
 | What | Where it lives |
 |---|---|
-| The overall accuracy requirement | `TODO(Part 4 — Teammate C)`: `../../workload/requirements.md`, requirement **R3**. |
-| The per-category accuracy requirement | `TODO(Part 4 — Teammate C)`: `../../workload/requirements.md`, requirement **R4**. |
-| How `UNPARSEABLE` counts towards accuracy | `TODO(Part 4 — Teammate C)`: `../../workload/requirements.md` flags this as an open decision under R3. It matters: a reply the parser could not map is a *wrong routing decision* in production, but it is a different failure from a confident wrong category. Whatever is decided, it must be decided before the numbers are looked at, and stated on Slide 10. |
+| The overall accuracy requirement | **R3: ≥ 90% overall accuracy**, measured serially on the golden set, once per candidate model. See [requirements](../../workload/requirements.md). |
+| The per-category accuracy requirement | **R4: ≥ 80% recall for every category**, measured serially on the golden set, once per candidate model. Recall is correct predictions divided by golden tickets in that category. See [requirements](../../workload/requirements.md). |
+| How `UNPARSEABLE` counts towards accuracy | **Counts as incorrect** for both R3 and R4; it remains in the denominator and is reported separately as a predicted-only confusion-matrix column. This is the policy already stated in [requirements](../../workload/requirements.md), and must also be stated on Slide 10. |
 | Which models to test | `../../models/candidates.md` and `../../models/models.yaml`. Every candidate, one run each. Use the exact tag, never `latest`. |
 
 This playbook produces the numbers; it does not decide whether they pass.
@@ -99,8 +98,9 @@ Multiply by the number of candidates. Plan for it, run the largest candidate whe
 and do not interrupt a run to save time — a partial `responses.csv` fails `analysis/accuracy.py`'s coverage
 check, which is the correct behaviour.
 
-`TODO(Part 5 — Teammate D): after the first candidate, record how long one golden-set run actually took, so
-the remaining candidates can be scheduled. Put it in the run log, not here.`
+The first completed candidate's observed wall-clock duration is recorded in the
+[run log](../run-log.md), so the remaining candidates can be scheduled. This is scheduling information,
+not a request-latency measurement.
 
 ---
 
@@ -281,8 +281,8 @@ into the `notes` field:
 export RUN_NOTES="operator <name>; candidate <tag>; database reset first; service host otherwise idle"
 ```
 
-`TODO(Part 5 — Teammate D): the longer narrative belongs in the single committed run log named in
-docs/playbooks/load-test.md section 7. Create that file and point this section at it.`
+The longer narrative belongs in the shared [run log](../run-log.md). Record unknown operator details as
+unconfirmed rather than inferring them from the machine hostname.
 
 ---
 

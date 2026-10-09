@@ -26,8 +26,11 @@ FastAPI, uvicorn, httpx, pydantic, python-dotenv, pytest, pandas, matplotlib and
 
 * **Freeze:** passed late. The 29 September gate slipped; `golden-freeze` was re-cut on 8 October onto commit
   `41d6ce2` once the prediction record was complete (`predictions/prediction_record.md` §0, `docs/run-log.md`).
-* **Campaign:** accuracy for all four candidates, then load, mixed and stress runs, on `omarchy` (service and
-  Ollama) driven from `kais-macbook-pro` (JMeter), started 8 October 20:16 SGT, unattended overnight.
+* **Campaign:** done. Accuracy for all four candidates, 36 load, 12 mixed and 7 stress runs on `omarchy` (service
+  and Ollama) driven from `kais-macbook-pro` (JMeter), 8 October 20:16 to 9 October 09:03 SGT; every run
+  reconciled. Analysis in `analysis/output/`, the account in `predictions/outcomes.md`, the deck in
+  `slides/Group10.pptx` (`scripts/build_submission.sh`).
+* **Still open at submission:** the three missing student IDs on Slide 1 (`slides/team.yaml`), and the upload.
 * **Ticked boxes** are ones whose artefact is in the repository. Boxes left open are either still to come
   (results, deck, submission) or were not done as written — for example the protocol was completed after
   labelling rather than before (`labelling/protocol.md` revision R0), and no team walkthrough or prediction
@@ -219,7 +222,7 @@ JSONL request log), `service/prompt.py`, `service/categories.py` and `service/lo
 - [x] `python analysis/bottleneck_hints.py --run-dir results/runs/<dir>` — splits our own wall-clock latency
       against Ollama's reported `prompt_eval`/`eval` durations to show where the time actually goes.
 - [x] Analysis tests pass on fabricated evidence: `.venv/bin/pytest analysis/tests`.
-- [ ] After the runs: check every derived table in `analysis/output/` against the raw files and confirm no
+- [x] After the runs: check every derived table in `analysis/output/` against the raw files and confirm no
       figure in the deck exists outside these outputs.
 
 ### 1.7 A separate load-generator machine
@@ -245,23 +248,23 @@ Nothing in this block may start before `python scripts/freeze_gate.py` exits 0.
 - [x] Confirm the freeze: `python scripts/freeze_gate.py --json` exits 0, and keep its output.
 - [x] Run the accuracy test for every candidate model: `python scripts/run_accuracy.py --model <tag>` once per
       model against `golden/golden_set.csv`.
-- [ ] Run `jmeter/load_post_tickets.jmx` at every arrival rate Part 4's requirements ask for, for every
+- [x] Run `jmeter/load_post_tickets.jmx` at every arrival rate Part 4's requirements ask for, for every
       candidate model, **three runs each**: `scripts/run_load_test.sh --plan load_post_tickets --model <tag>
       --rate <per_min> --duration <seconds> --runs 3`.
-- [ ] Run `jmeter/mixed_load.jmx` at the peak rate with the agent search rate from the workload model, three
+- [x] Run `jmeter/mixed_load.jmx` at the peak rate with the agent search rate from the workload model, three
       runs, so we can state `GET /search` latency under mixed load.
-- [ ] Run the stress test: `scripts/run_load_test.sh --plan stress_ramp --model <tag> --rate <first step
+- [x] Run the stress test: `scripts/run_load_test.sh --plan stress_ramp --model <tag> --rate <first step
       per_min> --duration <seconds>` (for `stress_ramp`, `--rate` is the first step's rate), then
       `python analysis/stress_summary.py --run-dir results/runs/<dir> --step-seconds <step duration>` to name
       the limit found.
-- [ ] Reconcile every run: `python analysis/reconcile.py --run-dir results/runs/<dir>` for each directory. A
+- [x] Reconcile every run: `python analysis/reconcile.py --run-dir results/runs/<dir>` for each directory. A
       non-zero exit here must be fixed, not reported around.
-- [ ] Summarise: `python analysis/summarise_load.py --runs results/runs` and
+- [x] Summarise: `python analysis/summarise_load.py --runs results/runs` and
       `python analysis/accuracy.py --results results/accuracy`.
-- [ ] Diagnose the bottleneck with `python analysis/bottleneck_hints.py --run-dir results/runs/<dir>` plus the
+- [x] Diagnose the bottleneck with `python analysis/bottleneck_hints.py --run-dir results/runs/<dir>` plus the
       service logs, and write the diagnosis up for Slide 9. The brief wants it diagnosed and stated, not fixed
       — fixing it is Assignment 2.
-- [ ] Note plainly any requirement no candidate meets, and pass that to the Slide 11 discussion.
+- [x] Note plainly any requirement no candidate meets, and pass that to the Slide 11 discussion.
 
 ### 1.9 Team walkthrough
 
@@ -282,7 +285,7 @@ Nothing in this block may start before `python scripts/freeze_gate.py` exits 0.
       no caching and no queuing.
 - [x] **Slide 5 — Candidate models.** Each candidate with its Ollama tag **and digest** from
       `models/models.yaml`, the size classes spanned, and the justification for the set.
-- [ ] **Slide 9 — Load and stress results.** p50, p95, p99, achieved throughput and error rate at each tested
+- [x] **Slide 9 — Load and stress results.** p50, p95, p99, achieved throughput and error rate at each tested
       arrival rate, per model, across three runs with the spread shown; the stress test and the limit it
       found; and the diagnosed bottleneck. Every figure taken from `analysis/output/`.
 
@@ -417,22 +420,22 @@ TODO(Yeo Kai Yuan): choose one split and correct the other document.
 
 Blocked until Part 1 has run the accuracy tests. Nothing here needs new code.
 
-- [ ] Read the outputs of `python analysis/accuracy.py --results results/accuracy` in
+- [x] Read the outputs of `python analysis/accuracy.py --results results/accuracy` in
       `analysis/output/accuracy/`: overall accuracy per model, per-category accuracy per model, and the
       confusion matrix per model.
-- [ ] For each candidate model, name the categories it gets wrong most and which category it confuses them
+- [x] For each candidate model, name the categories it gets wrong most and which category it confuses them
       with. Explain the confusion from the category definitions in `labelling/protocol.md` where you can.
-- [ ] Report the `UNPARSEABLE` count per model separately from misclassification: a model that will not answer
+- [x] Report the `UNPARSEABLE` count per model separately from misclassification: a model that will not answer
       in the requested format is a different failure from a model that answers wrongly, and the client would
       treat them differently.
-- [ ] Compare what you found against what the team predicted in `predictions/prediction_record.md` about the
+- [x] Compare what you found against what the team predicted in `predictions/prediction_record.md` about the
       hardest categories, and write down where the prediction was wrong. The account of being wrong earns
       marks; being right does not.
-- [ ] Check every figure you quote appears in `analysis/output/accuracy/`. Nothing typed from memory.
+- [x] Check every figure you quote appears in `analysis/output/accuracy/`. Nothing typed from memory.
 
 ### 3.4 Slide 10
 
-- [ ] **Slide 10 — Accuracy results.** Overall and per-category accuracy on the golden set, per model, plus
+- [x] **Slide 10 — Accuracy results.** Overall and per-category accuracy on the golden set, per model, plus
       confusion matrix highlights showing where each model goes wrong.
 
 ---
@@ -598,19 +601,19 @@ Everyone attends. This is the last thing done before the freeze, and it cannot b
 
 - [ ] Meet once `analysis/output/` holds the load, accuracy and stress summaries, and decide which single
       model we recommend to the client.
-- [ ] Check the recommendation against `workload/requirements.md` requirement by requirement. A
+- [x] Check the recommendation against `workload/requirements.md` requirement by requirement. A
       recommendation that contradicts our own requirements fails regardless of which model it names.
-- [ ] Write down, plainly, any requirement that **no** candidate meets. A carefully measured "no candidate
+- [x] Write down, plainly, any requirement that **no** candidate meets. A carefully measured "no candidate
       meets this" is a strong result, not a failure.
-- [ ] Go back through `predictions/prediction_record.md` and account for each prediction that was wrong and
+- [x] Go back through `predictions/prediction_record.md` and account for each prediction that was wrong and
       why. That account is marked; being right is not.
-- [ ] **Slide 11 — Predictions, recommendation and defence.** Predictions against outcomes, the recommended
+- [x] **Slide 11 — Predictions, recommendation and defence.** Predictions against outcomes, the recommended
       model defended against our stated requirements, and any requirement no candidate meets.
 
 ### W.3 Submission checklist
 
 - [ ] `Group10.pptx`, maximum 12 slides, assembled and proofread.
-- [ ] Supporting files in the same submission: the final golden set (`golden/golden_set.csv`, tickets
+- [x] Supporting files in the same submission: the final golden set (`golden/golden_set.csv`, tickets
       identified by row number), the prediction record (`predictions/prediction_record.md`), the labelling
       protocol with its revisions (`labelling/protocol.md`), both independent label sheets
       (`labelling/labeller_A.csv`, `labelling/labeller_B.csv`) and the agreement statistic.

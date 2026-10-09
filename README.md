@@ -26,6 +26,24 @@ and `llama3.2:3b`, are Meta Llama 3.2 models under the Llama 3.2 Community Licen
 Apache License 2.0. Every licence and its obligations are set out in
 [`docs/references.md`](docs/references.md) section 8.
 
+## Results at a glance (campaign of 8–9 October 2026)
+
+Every figure below is read from `analysis/output/`, produced by `scripts/run_analysis.sh` from the raw `.jtl` files
+and service logs in `results/` and `logs/service/`; all 55 JMeter runs reconcile with the service log.
+The deck is [`slides/Group10.pptx`](slides/Group10.pptx), rebuilt by `scripts/build_submission.sh`.
+
+| Model | Accuracy (R3 ≥ 90%) | Lowest category recall (R4 ≥ 80%) | p95 at 1/min (R1 ≤ 10 s) | 12/min (R2) | Search p95 (R5 ≤ 2 s) | Stress limit |
+|---|---|---|---|---|---|---|
+| `llama3.2:1b-instruct-q4_K_M` | 26.0% | 0% | 0.96 s | 0% errors, done by 598 s | 17 ms | none up to 60/min |
+| `llama3.2:3b` | 48.5% | 0% | 2.32 s | 0% errors, 587 s | 17 ms | 40/min |
+| `granite4:3b` | 66.0% | 35% | 2.40 s | 0% errors, 598 s | 17 ms | 40/min |
+| `qwen2.5:7b` | 74.0% | 57% | 5.52 s | 0% errors, 603 s | 140 ms | 21/min |
+
+Every candidate meets R1, R2 and R5; none meets R3 or R4. The recommendation (Slide 11) is `qwen2.5:7b`, as a
+route suggestion for an agent to confirm, not as an autonomous router. The bottleneck is Ollama's single request
+slot; our own handler adds ~0.2 s per ticket in the SQLite commit. Predictions against outcomes:
+[`predictions/outcomes.md`](predictions/outcomes.md). The run, in order: [`docs/run-log.md`](docs/run-log.md).
+
 This README is written for a teammate opening a fresh clone who has never seen the repository. Follow it in
 order and you will not have to ask anyone a question. Every script and file it names exists, and every
 `--help` quoted here came from running that script. The JMeter commands were first transcribed from the plans;
@@ -1557,6 +1575,7 @@ recorded here when they change.
 | Date | What changed | Old value | New value | Consequence |
 |---|---|---|---|---|
 | 2026-09-23 | Initial baseline. `LOG_SCHEMA_VERSION = 1`; the prompt template pinned in `tests/test_prompt.py`. | — | — | Nothing measured yet. |
+| 2026-10-08 | Reported campaign run. Neither identifier changed: every reported run has `prompt_hash` `sha256:681131c48bdc15a1` and schema version 1. | — | — | All 55 runs and 4 accuracy passes are poolable by model. |
 
 **`LOG_SCHEMA_VERSION`** — [`service/log_schema.py`](service/log_schema.py). Bump it whenever `LOG_FIELDS`
 changes, add the new field at the end, and say here which runs predate the change. Runs recorded under

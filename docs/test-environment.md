@@ -111,8 +111,13 @@ threshold for every sample.
 | The machine JMeter ran on | `load_generator_host_info.hostname` in the same files | the MacBook, a different host name from `omarchy` |
 | Same code on both machines | `scripts/run_load_test.sh` refuses a real run when `git rev-parse HEAD` differs between the two checkouts | every run's `git_commit` is the frozen commit or later |
 
-The per-run check over every directory cited on the slides is recorded in section 4.1 once the campaign is
-complete.
+### 4.1 The per-run check, over every run
+
+Checked on 9 October 2026 over all 55 run directories under `../results/runs/` and the 4 under
+`../results/accuracy/`: every one has `mode: real`, `service_url: http://192.168.50.130:8000` (never a loopback
+address), `load_generator_host_info.hostname: Kais-MacBook-Pro-2.local` (macOS's name for `kais-macbook-pro`,
+different from `omarchy`), and `freeze_commit` and `git_commit` `41d6ce2`. The check is a few lines of Python over
+the `metadata.json` files, recorded with its result in `run-log.md` ("After the campaign").
 
 ---
 

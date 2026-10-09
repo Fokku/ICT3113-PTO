@@ -153,12 +153,68 @@ it with a backlog (utilisation ≈ 1.04). With its measured model time of about 
 | JMeter `elapsed` minus the service's `total_latency_ms` below 100 ms at the median | Median per run 10.5–53 ms (median of runs 14 ms) | **Right** |
 | `service_overhead_ms` below 100 ms | 172–197 ms median | **Wrong** (2.2) |
 
-STRESS-PENDING
+### 2.5 The stress limits (Section 1's stress table)
 
-### 2.5 R5 — search under mixed load
+Steps are cut from the instant JMeter started the arrival schedule (`--origin jmeter-log`; see
+`../docs/run-log.md`, 9 October). Limit = the first step whose p95 exceeds 10 s or whose error rate exceeds 5%.
+Source: `../analysis/output/stress/<run>/stress_steps.csv` and `stress_report.md`.
+
+| Model | Predicted | Measured | Verdict |
+|---|---|---|---|
+| `llama3.2:1b-instruct-q4_K_M` | no limit in 1–21/min (p95 ≈ 2 s at 21); no limit in 10–60/min; no 502s | 1–21/min: none (p95 1.2 s at 21/min); 10–60/min: **none** (p95 1.8 s at 60/min); 0 errors | **Right** |
+| `llama3.2:3b` | no limit in 1–21/min (p95 ≈ 8 s at 21); limit at **30/min** in 10–60/min; first 502 at 40/min or later | 1–21/min: none (p95 4.8 s); 10–60/min: limit at **40/min** (p95 13.6 s); **no 502 in either ramp**, even at 60/min (p95 65.7 s) | First ramp right; limit **wrong** by one step; no timeout ever fired |
+| `granite4:3b` | limit at **21/min** in the 1–21/min ramp (p95 ≈ 11 s) — "the one 3B-class difference we predict" | 1–21/min: **none** (p95 5.8 s at 21/min); 10–60/min: limit at **40/min** (p95 14.6 s), the same step as `llama3.2:3b` | **Wrong**: no difference between the two 3B models |
+| `qwen2.5:7b` | limit at **9/min**; first 502 at the 21/min step or in the drain | limit at **21/min** (p95 26.4 s; 9.8 s at 17/min); **0 errors** | **Wrong** (limit more than twice as high; no errors) |
+
+**Saturation (Section 1's first table).** Measured service time per request in Ollama's slot (prefill + decode,
+1/min runs): about 0.27 s (1B), 1.07 s (`llama3.2:3b`), 0.91 s (`granite4:3b`) and 2.05 s (`qwen2.5:7b`), against
+predicted mean service times of 0.96, 2.3, 2.45 and 5.2 s. The queue grows without bound first at 21/min for
+`qwen2.5:7b` (we said 12/min) and at 40/min for the 3B models (we said 30/min), and never for the 1B up to 60/min
+(we said the same). **Wrong for three models, right for the 1B**, and all for the reason in 2.1.
+
+**Was it one slot?** Yes. Under the heaviest stress (`llama3.2:3b`, 10–60/min) the median prefill per request
+moved only from 863 ms at 1/min to 987 ms (312 → 294 tokens/s), while the median wait inside Ollama
+(`ollama_other_ms`) rose from 10 ms to 9.1 s (p95 58.6 s): requests wait their turn rather than share the CPU,
+which is mechanism B, not A. The record's refutation test (prefill up more than 50%) was not met.
+
+**Why no errors.** The service's 120 s model timeout never fired: the worst request in any ramp took 91 s
+(`granite4:3b`, 60/min step). The drain let every in-flight request finish, so overload showed as latency
+(p95 up to 86 s) rather than as failures — which is also why the error-rate half of the limit criterion never
+tripped.
+
+### 2.6 R5 — search under mixed load
 
 `GET /search` p95, worst of three runs at 1 ticket + 1 search per minute: 17.2 ms (1B), 17.0 ms (`llama3.2:3b`),
 16.5 ms (`granite4:3b`), 139.7 ms (`qwen2.5:7b`) (`load_per_run_by_label.csv`). **R5 passes for all four.** We
 predicted every run's search p95 below 100 ms: **right for three models, wrong for `qwen2.5:7b`**, whose worst
 run had one slow search — the store is near-empty, so that is CPU contention with a concurrent model call, not
 the scan.
+
+---
+
+## 3. Scoreboard
+
+| Prediction | Verdict |
+|---|---|
+| Accuracy per model (4 bands) | 2 right (`granite4:3b`, `qwen2.5:7b`), 2 wrong (both Llama models, below) |
+| Accuracy ranking by size, and R3/R4 failed by every model | Right |
+| Hardest category per model | 1 right (`llama3.2:3b`), 2 wrong (Consumer loan, not Credit card), 1 not blind |
+| Error directions (Section 3) | Money transfer → Bank account and Debt collection → Credit reporting right for every model; the others mixed |
+| Mortgage easiest; Credit reporting the top false positive for every model | Wrong |
+| Warm p50 latency (4 models) | All wrong, about half the predicted value |
+| p95 at 1/min (4 models) | All right (below the prediction) |
+| R1 and R2 fail for `qwen2.5:7b` | Wrong: all four pass both |
+| Prefill rates / decode rates | Prefill wrong by 3–6×; decode right to within 20% |
+| Prefix reuse (~200 evaluated tokens) | Wrong: the whole prompt is evaluated every time |
+| Bottleneck: Ollama's single slot, wait in `ollama_other_ms`, per-request work flat | Right |
+| Magnitude of the wait at 12/min for `qwen2.5:7b` (> 10 s) | Wrong (0.86 s) |
+| Service overhead < 100 ms | Wrong (~0.2 s: the SQLite commit) |
+| Network share < 100 ms | Right (median 14 ms) |
+| Stress limits | 1B right; `llama3.2:3b` one step off; `granite4:3b` and `qwen2.5:7b` wrong |
+| R5 met, search p95 < 100 ms | R5 right for all four; the 100 ms figure wrong for `qwen2.5:7b` (140 ms) |
+
+**What we would change about how we predict.** The one assumption that did the most damage was a guessed prefill
+rate. Both wrong latency predictions and the wrong capacity predictions follow from it, and one short warm-up
+measurement of a single synthetic ticket per model would have replaced the guess with a number. That is what the
+prediction record's §0 forbade before the freeze, and rightly: but the record could have stated its latency
+predictions *conditionally* on a measured prefill rate, which would have been both blind and testable.

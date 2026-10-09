@@ -365,8 +365,9 @@ const shortDigest = (d) => d ? d.replace(/^sha256:/, "").slice(0, 12) : null;
     if (!h) { pending(s, x + 0.15, 2.05, 3.7, 1.0, pendingText); return; }
     const lines = [
       ["Host", h.host], ["CPU", h.cpu], ["Cores / threads", `${h.physical_cores ?? "–"} / ${h.logical_cpus ?? "–"}`],
-      ["Memory", h.ram], ["OS", [h.os, h.kernel].filter(Boolean).join(", ")], ["Docker", h.docker],
-      h.role === "loadgen" ? ["JMeter / Java", `JMeter ${h.jmeter} on OpenJDK 21 (bin/setenv.sh)`] : ["Ollama", (h.ollama ?? "").replace(/[{}"]|version:/g, "")],
+      ["Memory", h.ram], ["OS", [h.os, h.kernel].filter(Boolean).join(", ")],
+      ["Docker", h.role === "loadgen" ? "not used (Docker Desktop quit for the campaign)" : `Engine ${h.docker}, native`],
+      h.role === "loadgen" ? ["JMeter / Java", `JMeter ${h.jmeter} on OpenJDK 21 (bin/setenv.sh)`] : ["Ollama", (h.ollama ?? "").replace(/[{}"]/g, "").replace("version:", "") + " (container)"],
     ];
     const rows = lines.map(([k, v]) => [{ text: k, options: { bold: true, color: C.muted, fontSize: 10 } }, { text: String(v ?? "–"), options: { color: C.ink, fontSize: 10 } }]);
     s.addTable(rows, { x: x + 0.1, y: 1.95, w: 3.8, colW: [1.1, 2.7], fontFace: BODY, border: { type: "none" }, margin: [2, 3, 2, 3], autoPage: false });
@@ -416,7 +417,7 @@ const shortDigest = (d) => d ? d.replace(/^sha256:/, "").slice(0, 12) : null;
   const tests = [
     ["Load", "load_post_tickets at 1, 4 and 12 tickets/min; 600 s each; 3 runs per rate per model (36 runs)"],
     ["Mixed", "mixed_load: 1 ticket/min + 1 search/min, 600 s, 3 runs per model; GET /search judged separately (R5)"],
-    ["Stress", "stress_ramp: 1, 5, 9, 13, 17, 21 tickets/min, 120 s per step + 150 s drain; once per model; limit = first step with p95 > 10 s or > 5% errors"],
+    ["Stress", "stress_ramp: 1, 5, 9, 13, 17, 21 tickets/min, 120 s steps + 150 s drain, once per model; then 10–60/min for any model with no limit (decided in advance). Limit = first step with p95 > 10 s or > 5% errors"],
     ["Accuracy", "all 200 golden tickets, one at a time, once per model; the driver never reads the labels; scored afterwards by analysis/accuracy.py"],
   ];
   tests.forEach(([t, d], i) => {
@@ -478,17 +479,17 @@ const spread = (m) => {
     const primary = stress.filter((r) => Number(r.steps[0].offered_per_min) <= 1);
     const labels = (primary[0] ?? stress[0]).steps.map((st) => String(st.offered_per_min));
     const series = primary.map((r) => ({ name: shortTag(r.model), labels, values: r.steps.map((st) => Math.max(0.1, Number(st.p95_ms) / 1000)) }));
-    s.addChart(pres.ChartType.line, series, { x: 8.75, y: 1.42, w: 4.05, h: 2.45, chartColors: [C.teal, C.amber, "6C5B7B", C.fail],
+    s.addChart(pres.ChartType.line, series, { x: 8.75, y: 1.38, w: 4.05, h: 2.3, chartColors: [C.teal, C.amber, "6C5B7B", C.fail],
       lineSize: 2, lineDataSymbolSize: 5, valAxisLogScaleBase: 10, valAxisTitle: "p95 (s, log)", showValAxisTitle: true, valAxisTitleFontSize: 9,
       catAxisTitle: "offered tickets / min (120 s steps)", showCatAxisTitle: true, catAxisTitleFontSize: 9, catAxisLabelFontSize: 9, valAxisLabelFontSize: 9,
       showLegend: true, legendPos: "b", legendFontSize: 8.5, showTitle: true, title: "Stress ramp: p95 per step", titleFontSize: 10.5, titleFontFace: BODY,
       valGridLine: { color: "E3E9EA", size: 0.5 }, catGridLine: { style: "none" } });
-    const lim = [["Model", "Limit found (first step with p95 > 10 s or > 5% errors)"]];
+    const lim = [["Model", "Limit: first step with p95 > 10 s or > 5% errors"]];
     for (const tag of MODEL_ORDER) {
       const mine = stress.filter((x) => x.model === tag).sort((p, q) => Number(p.steps[0].offered_per_min) - Number(q.steps[0].offered_per_min));
-      if (mine.length) lim.push([{ text: shortTag(tag), bold: true }, { text: mine.map((r) => r.limit_short ?? r.limit).join("; then "), size: 8 }]);
+      if (mine.length) lim.push([{ text: shortTag(tag), bold: true }, { text: mine.map((r) => r.limit_short ?? r.limit).join("; "), size: 7.5 }]);
     }
-    table(s, lim, 8.75, 3.95, 4.05, [1.15, 2.9], { size: 8, headSize: 8.5, margin: [1.5, 3, 1.5, 3] });
+    table(s, lim, 8.75, 3.72, 4.05, [1.2, 2.85], { size: 7.5, headSize: 8, margin: [1, 3, 1, 3] });
   } else {
     pending(s, 8.75, 1.5, 4.05, 1.2, "stress ramp results");
   }
@@ -595,7 +596,10 @@ const spread = (m) => {
            { text: N.recommendation ?? "PENDING — the recommended model, defended requirement by requirement.", options: { color: C.white, breakLine: true } },
            { text: " ", options: { breakLine: true, fontSize: 6 } },
            { text: "Requirements no candidate meets", options: { bold: true, color: C.amber, breakLine: true } },
-           { text: N.unmet ?? "PENDING", options: { color: C.white } }],
+           { text: N.unmet ?? "PENDING", options: { color: C.white, breakLine: true } },
+           { text: " ", options: { breakLine: true, fontSize: 6 } },
+           { text: "Evidence", options: { bold: true, color: C.amber, breakLine: true } },
+           { text: `Every figure here is read from analysis/output/. All ${D.reconcile.runs} JMeter runs reconcile sample-for-sample with the service log (${D.reconcile.failed.length} failures); predictions are the version frozen under the golden-freeze tag before the first run.`, options: { color: C.white } }],
        8.52, 1.52, 4.15, 5.4, { size: 10.5, para: 3 });
 })();
 

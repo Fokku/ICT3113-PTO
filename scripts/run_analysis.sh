@@ -77,7 +77,13 @@ done
 
 # --- 2. load and mixed runs ---------------------------------------------------
 if compgen -G "$RESULTS/runs/*_load_post_tickets_*" > /dev/null || compgen -G "$RESULTS/runs/*_mixed_load_*" > /dev/null; then
-    "$PY" analysis/summarise_load.py --runs "$RESULTS/runs" --out-dir "$OUT/load" \
+    # Load and mixed runs only: a stress ramp is one run per ramp by design and is read by
+    # stress_summary.py; summarised here it would carry a misleading "fewer than 3 runs" flag.
+    LOAD_RUNS="$(mktemp -d)"
+    for run in "$RESULTS"/runs/*_load_post_tickets_*_run* "$RESULTS"/runs/*_mixed_load_*_run*; do
+        ln -s "$(cd "$run" && pwd -P)" "$LOAD_RUNS/$(basename "$run")"
+    done
+    "$PY" analysis/summarise_load.py --runs "$LOAD_RUNS" --out-dir "$OUT/load" \
         || { echo "summarise_load FAILED" >&2; STATUS=1; }
 fi
 
@@ -107,7 +113,18 @@ PYEOF
     "$PY" analysis/stress_summary.py --run-dir "$run" --step-seconds "$step_s" --origin jmeter-log \
         --offered-rates "$rates" --p95-limit-ms "$P95_LIMIT_MS" \
         --error-rate-limit "$ERROR_RATE_LIMIT" --label "POST /tickets" --out-dir "$OUT/stress/$name" \
-        || { echo "stress_summary FAILED for $name" >&2; STATUS=1; }
+        || {
+            # stress_summary.py exits 1 both for a broken analysis and for a ramp that
+            # found no limit. The second is a result: docs/playbooks/stress-test.md
+            # decided in advance that a model with no limit in either ramp is
+            # reported as "no limit below the top rate", not re-run. Tell them apart
+            # by the report, which is written either way.
+            if grep -q "No step crossed either criterion" "$OUT/stress/$name/stress_report.md" 2>/dev/null; then
+                echo "stress_summary: $name found no limit within its ramp (a result, reported as such)" >&2
+            else
+                echo "stress_summary FAILED for $name" >&2; STATUS=1
+            fi
+        }
 done
 
 # --- 5. where the time went, per run ----------------------------------------

@@ -348,14 +348,14 @@ def stress_results() -> list[dict]:
         # The same rule stress_summary.py applies (first step with p95 above R1's
         # 10 s or an error rate above 5%), restated as one short line for the slide.
         rates = [s["offered_per_min"] for s in steps]
-        ramp = f"{rates[0]:g}–{rates[-1]:g}/min ramp"
+        ramp = f"{rates[0]:g}–{rates[-1]:g}/min"
         first = next((s for s in steps if (num(s["p95_ms"]) or 0) > 10000 or (num(s["error_rate"]) or 0) > 0.05), None)
         if first:
-            short = (f"{ramp}: limit at {first['offered_per_min']:g}/min — p95 {num(first['p95_ms']) / 1000:.1f} s, "
-                     f"errors {num(first['error_rate']) * 100:.0f}%")
+            short = (f"{ramp}: limit at {first['offered_per_min']:g}/min (p95 {num(first['p95_ms']) / 1000:.1f} s, "
+                     f"{num(first['error_rate']) * 100:.0f}% errors)")
         else:
             top = steps[-1]
-            short = f"{ramp}: no limit up to {top['offered_per_min']:g}/min (p95 {num(top['p95_ms']) / 1000:.1f} s at the top step)"
+            short = f"{ramp}: none (p95 {num(top['p95_ms']) / 1000:.1f} s at {top['offered_per_min']:g}/min)"
         out.append({"run": run_dir.name, "model": model, "steps": steps, "limit": strip_md(limit), "limit_short": short})
     if not out:
         missing("analysis/output/stress/<run>/ for at least one real stress run")

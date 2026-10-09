@@ -418,6 +418,8 @@ TODO(Yeo Kai Yuan): choose one split and correct the other document.
 
 ### 3.3 After the benchmarks: interpret the accuracy results
 
+Completed interpretation: [analysis/accuracy_interpretation.md](analysis/accuracy_interpretation.md), with per-model confusions, separate `UNPARSEABLE` counts, and corrections to the hardest-category predictions.
+
 Blocked until Part 1 has run the accuracy tests. Nothing here needs new code.
 
 - [x] Read the outputs of `python analysis/accuracy.py --results results/accuracy` in

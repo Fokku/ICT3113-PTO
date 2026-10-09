@@ -1,0 +1,2723 @@
+2026-10-08T12:16:03Z  campaign 20261008T121603Z (real): models=(llama3.2:1b-instruct-q4_K_M llama3.2:3b granite4:3b qwen2.5:7b) rates=(1 4 12) duration=600s runs=3 freeze=41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba
+2026-10-08T12:16:03Z  service http://192.168.50.130:8000 via omarchy; stress models=(llama3.2:1b-instruct-q4_K_M llama3.2:3b granite4:3b qwen2.5:7b)
+2026-10-08T12:16:03Z  switch service to llama3.2:1b-instruct-q4_K_M (pinned digest sha256:22bc6b92eb0160c4629782fca05a9032c59d306ab2058b7dacc8a4644fbafa02)
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+2026-10-08T12:16:12Z  service is serving llama3.2:1b-instruct-q4_K_M with the pinned digest
+2026-10-08T12:16:12Z  START llama3.2:1b-instruct-q4_K_M accuracy :: /Users/kaiyuan/claude/ICT3113-PTO/.venv/bin/python scripts/run_accuracy.py --model llama3.2:1b-instruct-q4_K_M --host 192.168.50.130 --port 8000
+Freeze gate: PASS (commit 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba, tag 'golden-freeze').
+Model    : llama3.2:1b-instruct-q4_K_M (digest sha256:22bc6b92eb0160c4629782fca05a9032c59d306ab2058b7dacc8a4644fbafa02)
+Service  : http://192.168.50.130:8000
+Input    : golden/golden_set.csv
+Tickets  : 200
+Output   : /Users/kaiyuan/claude/ICT3113-PTO/results/accuracy/llama3.2-1b-instruct-q4_K_M_20261008T121612Z
+
+  [   1/200] posted; HTTP errors so far: 0
+  [  10/200] posted; HTTP errors so far: 0
+  [  20/200] posted; HTTP errors so far: 0
+  [  30/200] posted; HTTP errors so far: 0
+  [  40/200] posted; HTTP errors so far: 0
+  [  50/200] posted; HTTP errors so far: 0
+  [  60/200] posted; HTTP errors so far: 0
+  [  70/200] posted; HTTP errors so far: 0
+  [  80/200] posted; HTTP errors so far: 0
+  [  90/200] posted; HTTP errors so far: 0
+  [ 100/200] posted; HTTP errors so far: 0
+  [ 110/200] posted; HTTP errors so far: 0
+  [ 120/200] posted; HTTP errors so far: 0
+  [ 130/200] posted; HTTP errors so far: 0
+  [ 140/200] posted; HTTP errors so far: 0
+  [ 150/200] posted; HTTP errors so far: 0
+  [ 160/200] posted; HTTP errors so far: 0
+  [ 170/200] posted; HTTP errors so far: 0
+  [ 180/200] posted; HTTP errors so far: 0
+  [ 190/200] posted; HTTP errors so far: 0
+  [ 200/200] posted; HTTP errors so far: 0
+
+Wrote /Users/kaiyuan/claude/ICT3113-PTO/results/accuracy/llama3.2-1b-instruct-q4_K_M_20261008T121612Z
+  responses.csv : 200 rows
+  service.jsonl : 200 log lines
+  HTTP status counts: {200: 200}
+
+No accuracy was computed here, by design. Score the run with:
+    python analysis/accuracy.py --results results/accuracy
+2026-10-08T12:18:38Z  DONE  llama3.2:1b-instruct-q4_K_M accuracy (146s)
+2026-10-08T12:18:38Z  switch service to llama3.2:3b (pinned digest sha256:a80c4f17acd55265feec403c7aef86be0c25983ab279d83f3bcd3abbcb5b8b72)
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+2026-10-08T12:18:47Z  service is serving llama3.2:3b with the pinned digest
+2026-10-08T12:18:47Z  START llama3.2:3b accuracy :: /Users/kaiyuan/claude/ICT3113-PTO/.venv/bin/python scripts/run_accuracy.py --model llama3.2:3b --host 192.168.50.130 --port 8000
+Freeze gate: PASS (commit 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba, tag 'golden-freeze').
+Model    : llama3.2:3b (digest sha256:a80c4f17acd55265feec403c7aef86be0c25983ab279d83f3bcd3abbcb5b8b72)
+Service  : http://192.168.50.130:8000
+Input    : golden/golden_set.csv
+Tickets  : 200
+Output   : /Users/kaiyuan/claude/ICT3113-PTO/results/accuracy/llama3.2-3b_20261008T121848Z
+
+  [   1/200] posted; HTTP errors so far: 0
+  [  10/200] posted; HTTP errors so far: 0
+  [  20/200] posted; HTTP errors so far: 0
+  [  30/200] posted; HTTP errors so far: 0
+  [  40/200] posted; HTTP errors so far: 0
+  [  50/200] posted; HTTP errors so far: 0
+  [  60/200] posted; HTTP errors so far: 0
+  [  70/200] posted; HTTP errors so far: 0
+  [  80/200] posted; HTTP errors so far: 0
+  [  90/200] posted; HTTP errors so far: 0
+  [ 100/200] posted; HTTP errors so far: 0
+  [ 110/200] posted; HTTP errors so far: 0
+  [ 120/200] posted; HTTP errors so far: 0
+  [ 130/200] posted; HTTP errors so far: 0
+  [ 140/200] posted; HTTP errors so far: 0
+  [ 150/200] posted; HTTP errors so far: 0
+  [ 160/200] posted; HTTP errors so far: 0
+  [ 170/200] posted; HTTP errors so far: 0
+  [ 180/200] posted; HTTP errors so far: 0
+  [ 190/200] posted; HTTP errors so far: 0
+  [ 200/200] posted; HTTP errors so far: 0
+
+Wrote /Users/kaiyuan/claude/ICT3113-PTO/results/accuracy/llama3.2-3b_20261008T121848Z
+  responses.csv : 200 rows
+  service.jsonl : 200 log lines
+  HTTP status counts: {200: 200}
+
+No accuracy was computed here, by design. Score the run with:
+    python analysis/accuracy.py --results results/accuracy
+2026-10-08T12:24:20Z  DONE  llama3.2:3b accuracy (333s)
+2026-10-08T12:24:20Z  switch service to granite4:3b (pinned digest sha256:89962fcc75239ac434cdebceb6b7e0669397f92eaef9c487774b718bc36a3e5f)
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+2026-10-08T12:24:29Z  service is serving granite4:3b with the pinned digest
+2026-10-08T12:24:29Z  START granite4:3b accuracy :: /Users/kaiyuan/claude/ICT3113-PTO/.venv/bin/python scripts/run_accuracy.py --model granite4:3b --host 192.168.50.130 --port 8000
+Freeze gate: PASS (commit 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba, tag 'golden-freeze').
+Model    : granite4:3b (digest sha256:89962fcc75239ac434cdebceb6b7e0669397f92eaef9c487774b718bc36a3e5f)
+Service  : http://192.168.50.130:8000
+Input    : golden/golden_set.csv
+Tickets  : 200
+Output   : /Users/kaiyuan/claude/ICT3113-PTO/results/accuracy/granite4-3b_20261008T122430Z
+
+  [   1/200] posted; HTTP errors so far: 0
+  [  10/200] posted; HTTP errors so far: 0
+  [  20/200] posted; HTTP errors so far: 0
+  [  30/200] posted; HTTP errors so far: 0
+  [  40/200] posted; HTTP errors so far: 0
+  [  50/200] posted; HTTP errors so far: 0
+  [  60/200] posted; HTTP errors so far: 0
+  [  70/200] posted; HTTP errors so far: 0
+  [  80/200] posted; HTTP errors so far: 0
+  [  90/200] posted; HTTP errors so far: 0
+  [ 100/200] posted; HTTP errors so far: 0
+  [ 110/200] posted; HTTP errors so far: 0
+  [ 120/200] posted; HTTP errors so far: 0
+  [ 130/200] posted; HTTP errors so far: 0
+  [ 140/200] posted; HTTP errors so far: 0
+  [ 150/200] posted; HTTP errors so far: 0
+  [ 160/200] posted; HTTP errors so far: 0
+  [ 170/200] posted; HTTP errors so far: 0
+  [ 180/200] posted; HTTP errors so far: 0
+  [ 190/200] posted; HTTP errors so far: 0
+  [ 200/200] posted; HTTP errors so far: 0
+
+Wrote /Users/kaiyuan/claude/ICT3113-PTO/results/accuracy/granite4-3b_20261008T122430Z
+  responses.csv : 200 rows
+  service.jsonl : 200 log lines
+  HTTP status counts: {200: 200}
+
+No accuracy was computed here, by design. Score the run with:
+    python analysis/accuracy.py --results results/accuracy
+2026-10-08T12:30:29Z  DONE  granite4:3b accuracy (360s)
+2026-10-08T12:30:29Z  switch service to qwen2.5:7b (pinned digest sha256:845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e)
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+2026-10-08T12:30:44Z  service is serving qwen2.5:7b with the pinned digest
+2026-10-08T12:30:44Z  START qwen2.5:7b accuracy :: /Users/kaiyuan/claude/ICT3113-PTO/.venv/bin/python scripts/run_accuracy.py --model qwen2.5:7b --host 192.168.50.130 --port 8000
+Freeze gate: PASS (commit 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba, tag 'golden-freeze').
+Model    : qwen2.5:7b (digest sha256:845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e)
+Service  : http://192.168.50.130:8000
+Input    : golden/golden_set.csv
+Tickets  : 200
+Output   : /Users/kaiyuan/claude/ICT3113-PTO/results/accuracy/qwen2.5-7b_20261008T123045Z
+
+  [   1/200] posted; HTTP errors so far: 0
+  [  10/200] posted; HTTP errors so far: 0
+  [  20/200] posted; HTTP errors so far: 0
+  [  30/200] posted; HTTP errors so far: 0
+  [  40/200] posted; HTTP errors so far: 0
+  [  50/200] posted; HTTP errors so far: 0
+  [  60/200] posted; HTTP errors so far: 0
+  [  70/200] posted; HTTP errors so far: 0
+  [  80/200] posted; HTTP errors so far: 0
+  [  90/200] posted; HTTP errors so far: 0
+  [ 100/200] posted; HTTP errors so far: 0
+  [ 110/200] posted; HTTP errors so far: 0
+  [ 120/200] posted; HTTP errors so far: 0
+  [ 130/200] posted; HTTP errors so far: 0
+  [ 140/200] posted; HTTP errors so far: 0
+  [ 150/200] posted; HTTP errors so far: 0
+  [ 160/200] posted; HTTP errors so far: 0
+  [ 170/200] posted; HTTP errors so far: 0
+  [ 180/200] posted; HTTP errors so far: 0
+  [ 190/200] posted; HTTP errors so far: 0
+  [ 200/200] posted; HTTP errors so far: 0
+
+Wrote /Users/kaiyuan/claude/ICT3113-PTO/results/accuracy/qwen2.5-7b_20261008T123045Z
+  responses.csv : 200 rows
+  service.jsonl : 200 log lines
+  HTTP status counts: {200: 200}
+
+No accuracy was computed here, by design. Score the run with:
+    python analysis/accuracy.py --results results/accuracy
+2026-10-08T12:42:12Z  DONE  qwen2.5:7b accuracy (688s)
+2026-10-08T12:42:12Z  START llama3.2:1b-instruct-q4_K_M load_post_tickets 1pm :: scripts/run_load_test.sh --plan load_post_tickets --model llama3.2:1b-instruct-q4_K_M --rate 1 --host 192.168.50.130 --port 8000 --duration 600 --runs 3 --yes --jmeter-home /Users/kaiyuan/tools/apache-jmeter-5.6.3
+Plan          : load_post_tickets  (/Users/kaiyuan/claude/ICT3113-PTO/jmeter/load_post_tickets.jmx)
+Model         : llama3.2:1b-instruct-q4_K_M
+Arrival rate  : 1/min
+Duration      : 600s per run
+Runs          : 3
+Service       : http://192.168.50.130:8000
+Input CSV     : data/team_rows.csv
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step 1: freeze gate
+  PASS: frozen at 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba (tag 'golden-freeze')
+run_load_test.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Run 1 of 3: 20261008T124213Z_llama3.2-1b-instruct-q4_K_M_load_post_tickets_1pm_run1
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:1b-instruct-q4_K_M, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-1df82bd2-dc14-4b33-b821-42b9a1bf6418 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 10 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 10 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T124213Z_llama3.2-1b-instruct-q4_K_M_load_post_tickets_1pm_run1/metadata.json
+
+== Run 2 of 3: 20261008T124213Z_llama3.2-1b-instruct-q4_K_M_load_post_tickets_1pm_run2
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+Waiting up to 90s for triage to report healthy...
+ Container ict3113-triage Started 
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:1b-instruct-q4_K_M, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-101514af-67c6-4a7b-bbee-9168a8039467 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 10 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 10 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T124213Z_llama3.2-1b-instruct-q4_K_M_load_post_tickets_1pm_run2/metadata.json
+
+== Run 3 of 3: 20261008T124213Z_llama3.2-1b-instruct-q4_K_M_load_post_tickets_1pm_run3
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:1b-instruct-q4_K_M, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-a641ce13-eeae-4e66-bd44-f90bb2e74a49 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 10 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 10 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T124213Z_llama3.2-1b-instruct-q4_K_M_load_post_tickets_1pm_run3/metadata.json
+
+== Summary
+Wrote 3 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+Next: python analysis/reconcile.py --run-dir <run dir>   (prove .jtl and service log agree)
+      python analysis/summarise_load.py --runs /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+2026-10-08T13:21:38Z  DONE  llama3.2:1b-instruct-q4_K_M load_post_tickets 1pm (2366s)
+2026-10-08T13:21:38Z  START llama3.2:1b-instruct-q4_K_M load_post_tickets 4pm :: scripts/run_load_test.sh --plan load_post_tickets --model llama3.2:1b-instruct-q4_K_M --rate 4 --host 192.168.50.130 --port 8000 --duration 600 --runs 3 --yes --jmeter-home /Users/kaiyuan/tools/apache-jmeter-5.6.3
+Plan          : load_post_tickets  (/Users/kaiyuan/claude/ICT3113-PTO/jmeter/load_post_tickets.jmx)
+Model         : llama3.2:1b-instruct-q4_K_M
+Arrival rate  : 4/min
+Duration      : 600s per run
+Runs          : 3
+Service       : http://192.168.50.130:8000
+Input CSV     : data/team_rows.csv
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step 1: freeze gate
+  PASS: frozen at 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba (tag 'golden-freeze')
+run_load_test.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Run 1 of 3: 20261008T132139Z_llama3.2-1b-instruct-q4_K_M_load_post_tickets_4pm_run1
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:1b-instruct-q4_K_M, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-0b7746b4-b14d-4e18-9594-e90622aa4447 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 40 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 40 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T132139Z_llama3.2-1b-instruct-q4_K_M_load_post_tickets_4pm_run1/metadata.json
+
+== Run 2 of 3: 20261008T132139Z_llama3.2-1b-instruct-q4_K_M_load_post_tickets_4pm_run2
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:1b-instruct-q4_K_M, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-eb2930f5-0342-4de1-91c1-7911aecb835b (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 40 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 40 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T132139Z_llama3.2-1b-instruct-q4_K_M_load_post_tickets_4pm_run2/metadata.json
+
+== Run 3 of 3: 20261008T132139Z_llama3.2-1b-instruct-q4_K_M_load_post_tickets_4pm_run3
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:1b-instruct-q4_K_M, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-b4660a8e-f31e-4737-bad6-09efc3f5afeb (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 40 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 40 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T132139Z_llama3.2-1b-instruct-q4_K_M_load_post_tickets_4pm_run3/metadata.json
+
+== Summary
+Wrote 3 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+Next: python analysis/reconcile.py --run-dir <run dir>   (prove .jtl and service log agree)
+      python analysis/summarise_load.py --runs /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+2026-10-08T14:00:41Z  DONE  llama3.2:1b-instruct-q4_K_M load_post_tickets 4pm (2343s)
+2026-10-08T14:00:41Z  START llama3.2:1b-instruct-q4_K_M load_post_tickets 12pm :: scripts/run_load_test.sh --plan load_post_tickets --model llama3.2:1b-instruct-q4_K_M --rate 12 --host 192.168.50.130 --port 8000 --duration 600 --runs 3 --yes --jmeter-home /Users/kaiyuan/tools/apache-jmeter-5.6.3
+Plan          : load_post_tickets  (/Users/kaiyuan/claude/ICT3113-PTO/jmeter/load_post_tickets.jmx)
+Model         : llama3.2:1b-instruct-q4_K_M
+Arrival rate  : 12/min
+Duration      : 600s per run
+Runs          : 3
+Service       : http://192.168.50.130:8000
+Input CSV     : data/team_rows.csv
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step 1: freeze gate
+  PASS: frozen at 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba (tag 'golden-freeze')
+run_load_test.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Run 1 of 3: 20261008T140042Z_llama3.2-1b-instruct-q4_K_M_load_post_tickets_12pm_run1
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:1b-instruct-q4_K_M, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-a49ded9d-23ed-435e-b287-7d90dcaf5e6c (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 120 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 120 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T140042Z_llama3.2-1b-instruct-q4_K_M_load_post_tickets_12pm_run1/metadata.json
+
+== Run 2 of 3: 20261008T140042Z_llama3.2-1b-instruct-q4_K_M_load_post_tickets_12pm_run2
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:1b-instruct-q4_K_M, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-e7b34f1c-1826-4be8-b6b4-447eb432dc76 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 120 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 120 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T140042Z_llama3.2-1b-instruct-q4_K_M_load_post_tickets_12pm_run2/metadata.json
+
+== Run 3 of 3: 20261008T140042Z_llama3.2-1b-instruct-q4_K_M_load_post_tickets_12pm_run3
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:1b-instruct-q4_K_M, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-8c10b063-f78d-420b-a09c-a8b034df3d44 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 120 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 120 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T140042Z_llama3.2-1b-instruct-q4_K_M_load_post_tickets_12pm_run3/metadata.json
+
+== Summary
+Wrote 3 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+Next: python analysis/reconcile.py --run-dir <run dir>   (prove .jtl and service log agree)
+      python analysis/summarise_load.py --runs /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+2026-10-08T14:39:46Z  DONE  llama3.2:1b-instruct-q4_K_M load_post_tickets 12pm (2345s)
+2026-10-08T14:39:46Z  START llama3.2:3b load_post_tickets 1pm :: scripts/run_load_test.sh --plan load_post_tickets --model llama3.2:3b --rate 1 --host 192.168.50.130 --port 8000 --duration 600 --runs 3 --yes --jmeter-home /Users/kaiyuan/tools/apache-jmeter-5.6.3
+Plan          : load_post_tickets  (/Users/kaiyuan/claude/ICT3113-PTO/jmeter/load_post_tickets.jmx)
+Model         : llama3.2:3b
+Arrival rate  : 1/min
+Duration      : 600s per run
+Runs          : 3
+Service       : http://192.168.50.130:8000
+Input CSV     : data/team_rows.csv
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step 1: freeze gate
+  PASS: frozen at 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba (tag 'golden-freeze')
+run_load_test.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Run 1 of 3: 20261008T143947Z_llama3.2-3b_load_post_tickets_1pm_run1
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+Waiting up to 90s for triage to report healthy...
+ Container ict3113-triage Started 
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-2d67e1f4-40da-443b-8af8-9a4e5e83e169 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 10 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 10 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T143947Z_llama3.2-3b_load_post_tickets_1pm_run1/metadata.json
+
+== Run 2 of 3: 20261008T143947Z_llama3.2-3b_load_post_tickets_1pm_run2
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-f90cf596-2a47-4eb3-9d20-4d16856fe633 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 10 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 10 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T143947Z_llama3.2-3b_load_post_tickets_1pm_run2/metadata.json
+
+== Run 3 of 3: 20261008T143947Z_llama3.2-3b_load_post_tickets_1pm_run3
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-491675eb-ba25-4d9c-9d3c-8f12da73dbd2 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 10 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 10 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T143947Z_llama3.2-3b_load_post_tickets_1pm_run3/metadata.json
+
+== Summary
+Wrote 3 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+Next: python analysis/reconcile.py --run-dir <run dir>   (prove .jtl and service log agree)
+      python analysis/summarise_load.py --runs /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+2026-10-08T15:19:16Z  DONE  llama3.2:3b load_post_tickets 1pm (2370s)
+2026-10-08T15:19:16Z  START llama3.2:3b load_post_tickets 4pm :: scripts/run_load_test.sh --plan load_post_tickets --model llama3.2:3b --rate 4 --host 192.168.50.130 --port 8000 --duration 600 --runs 3 --yes --jmeter-home /Users/kaiyuan/tools/apache-jmeter-5.6.3
+Plan          : load_post_tickets  (/Users/kaiyuan/claude/ICT3113-PTO/jmeter/load_post_tickets.jmx)
+Model         : llama3.2:3b
+Arrival rate  : 4/min
+Duration      : 600s per run
+Runs          : 3
+Service       : http://192.168.50.130:8000
+Input CSV     : data/team_rows.csv
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step 1: freeze gate
+  PASS: frozen at 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba (tag 'golden-freeze')
+run_load_test.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Run 1 of 3: 20261008T151917Z_llama3.2-3b_load_post_tickets_4pm_run1
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+Waiting up to 90s for triage to report healthy...
+ Container ict3113-triage Started 
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-761e59b8-27ec-4419-b31a-6283c669ec30 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 40 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 40 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T151917Z_llama3.2-3b_load_post_tickets_4pm_run1/metadata.json
+
+== Run 2 of 3: 20261008T151917Z_llama3.2-3b_load_post_tickets_4pm_run2
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-fef33952-b59c-4968-abe6-4d670cadc376 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 40 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 40 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T151917Z_llama3.2-3b_load_post_tickets_4pm_run2/metadata.json
+
+== Run 3 of 3: 20261008T151917Z_llama3.2-3b_load_post_tickets_4pm_run3
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-604363c5-73f7-4874-a312-01c9354d88f5 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 40 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 40 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T151917Z_llama3.2-3b_load_post_tickets_4pm_run3/metadata.json
+
+== Summary
+Wrote 3 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+Next: python analysis/reconcile.py --run-dir <run dir>   (prove .jtl and service log agree)
+      python analysis/summarise_load.py --runs /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+2026-10-08T15:58:26Z  DONE  llama3.2:3b load_post_tickets 4pm (2350s)
+2026-10-08T15:58:26Z  START llama3.2:3b load_post_tickets 12pm :: scripts/run_load_test.sh --plan load_post_tickets --model llama3.2:3b --rate 12 --host 192.168.50.130 --port 8000 --duration 600 --runs 3 --yes --jmeter-home /Users/kaiyuan/tools/apache-jmeter-5.6.3
+Plan          : load_post_tickets  (/Users/kaiyuan/claude/ICT3113-PTO/jmeter/load_post_tickets.jmx)
+Model         : llama3.2:3b
+Arrival rate  : 12/min
+Duration      : 600s per run
+Runs          : 3
+Service       : http://192.168.50.130:8000
+Input CSV     : data/team_rows.csv
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step 1: freeze gate
+  PASS: frozen at 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba (tag 'golden-freeze')
+run_load_test.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Run 1 of 3: 20261008T155827Z_llama3.2-3b_load_post_tickets_12pm_run1
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-2074d7de-007e-4401-a911-1c913d9de987 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 120 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 120 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T155827Z_llama3.2-3b_load_post_tickets_12pm_run1/metadata.json
+
+== Run 2 of 3: 20261008T155827Z_llama3.2-3b_load_post_tickets_12pm_run2
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-f3880c13-a0d5-4c96-9535-1263c74184f9 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 120 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 120 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T155827Z_llama3.2-3b_load_post_tickets_12pm_run2/metadata.json
+
+== Run 3 of 3: 20261008T155827Z_llama3.2-3b_load_post_tickets_12pm_run3
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+Waiting up to 90s for triage to report healthy...
+ Container ict3113-triage Started 
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-0c877a75-6b20-4908-be60-75358fb35536 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 120 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 120 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T155827Z_llama3.2-3b_load_post_tickets_12pm_run3/metadata.json
+
+== Summary
+Wrote 3 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+Next: python analysis/reconcile.py --run-dir <run dir>   (prove .jtl and service log agree)
+      python analysis/summarise_load.py --runs /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+2026-10-08T16:37:57Z  DONE  llama3.2:3b load_post_tickets 12pm (2371s)
+2026-10-08T16:37:57Z  START granite4:3b load_post_tickets 1pm :: scripts/run_load_test.sh --plan load_post_tickets --model granite4:3b --rate 1 --host 192.168.50.130 --port 8000 --duration 600 --runs 3 --yes --jmeter-home /Users/kaiyuan/tools/apache-jmeter-5.6.3
+Plan          : load_post_tickets  (/Users/kaiyuan/claude/ICT3113-PTO/jmeter/load_post_tickets.jmx)
+Model         : granite4:3b
+Arrival rate  : 1/min
+Duration      : 600s per run
+Runs          : 3
+Service       : http://192.168.50.130:8000
+Input CSV     : data/team_rows.csv
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step 1: freeze gate
+  PASS: frozen at 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba (tag 'golden-freeze')
+run_load_test.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Run 1 of 3: 20261008T163758Z_granite4-3b_load_post_tickets_1pm_run1
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model granite4:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-9f8594f7-027b-4d3e-a177-e70bd180c720 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 10 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 10 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T163758Z_granite4-3b_load_post_tickets_1pm_run1/metadata.json
+
+== Run 2 of 3: 20261008T163758Z_granite4-3b_load_post_tickets_1pm_run2
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model granite4:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-af5b82bb-dd04-4fee-9428-9ac71cd6923a (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 10 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 10 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T163758Z_granite4-3b_load_post_tickets_1pm_run2/metadata.json
+
+== Run 3 of 3: 20261008T163758Z_granite4-3b_load_post_tickets_1pm_run3
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+Waiting up to 90s for triage to report healthy...
+ Container ict3113-triage Started 
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model granite4:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-29a65e0c-66c0-4098-ac3b-417eacd88641 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 10 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 10 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T163758Z_granite4-3b_load_post_tickets_1pm_run3/metadata.json
+
+== Summary
+Wrote 3 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+Next: python analysis/reconcile.py --run-dir <run dir>   (prove .jtl and service log agree)
+      python analysis/summarise_load.py --runs /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+2026-10-08T17:17:54Z  DONE  granite4:3b load_post_tickets 1pm (2397s)
+2026-10-08T17:17:54Z  START granite4:3b load_post_tickets 4pm :: scripts/run_load_test.sh --plan load_post_tickets --model granite4:3b --rate 4 --host 192.168.50.130 --port 8000 --duration 600 --runs 3 --yes --jmeter-home /Users/kaiyuan/tools/apache-jmeter-5.6.3
+Plan          : load_post_tickets  (/Users/kaiyuan/claude/ICT3113-PTO/jmeter/load_post_tickets.jmx)
+Model         : granite4:3b
+Arrival rate  : 4/min
+Duration      : 600s per run
+Runs          : 3
+Service       : http://192.168.50.130:8000
+Input CSV     : data/team_rows.csv
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step 1: freeze gate
+  PASS: frozen at 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba (tag 'golden-freeze')
+run_load_test.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Run 1 of 3: 20261008T171755Z_granite4-3b_load_post_tickets_4pm_run1
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model granite4:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-1eedd4ec-f9e0-4715-ac7b-d3f1c81c191f (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 40 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 40 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T171755Z_granite4-3b_load_post_tickets_4pm_run1/metadata.json
+
+== Run 2 of 3: 20261008T171755Z_granite4-3b_load_post_tickets_4pm_run2
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model granite4:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-48e41b01-63a5-4efb-a494-79e300d50aad (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 40 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 40 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T171755Z_granite4-3b_load_post_tickets_4pm_run2/metadata.json
+
+== Run 3 of 3: 20261008T171755Z_granite4-3b_load_post_tickets_4pm_run3
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model granite4:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-ba66f504-c420-4001-8d7e-9d6724c54900 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 40 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 40 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T171755Z_granite4-3b_load_post_tickets_4pm_run3/metadata.json
+
+== Summary
+Wrote 3 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+Next: python analysis/reconcile.py --run-dir <run dir>   (prove .jtl and service log agree)
+      python analysis/summarise_load.py --runs /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+2026-10-08T17:57:14Z  DONE  granite4:3b load_post_tickets 4pm (2360s)
+2026-10-08T17:57:14Z  START granite4:3b load_post_tickets 12pm :: scripts/run_load_test.sh --plan load_post_tickets --model granite4:3b --rate 12 --host 192.168.50.130 --port 8000 --duration 600 --runs 3 --yes --jmeter-home /Users/kaiyuan/tools/apache-jmeter-5.6.3
+Plan          : load_post_tickets  (/Users/kaiyuan/claude/ICT3113-PTO/jmeter/load_post_tickets.jmx)
+Model         : granite4:3b
+Arrival rate  : 12/min
+Duration      : 600s per run
+Runs          : 3
+Service       : http://192.168.50.130:8000
+Input CSV     : data/team_rows.csv
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step 1: freeze gate
+  PASS: frozen at 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba (tag 'golden-freeze')
+run_load_test.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Run 1 of 3: 20261008T175715Z_granite4-3b_load_post_tickets_12pm_run1
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model granite4:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-ca0a4dc2-c7f4-42b1-a507-4e68ff593549 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 120 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 120 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T175715Z_granite4-3b_load_post_tickets_12pm_run1/metadata.json
+
+== Run 2 of 3: 20261008T175715Z_granite4-3b_load_post_tickets_12pm_run2
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+Waiting up to 90s for triage to report healthy...
+ Container ict3113-triage Started 
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model granite4:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-fac8120e-3fb0-4ad0-a6df-3cc1eca56060 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 120 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 120 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T175715Z_granite4-3b_load_post_tickets_12pm_run2/metadata.json
+
+== Run 3 of 3: 20261008T175715Z_granite4-3b_load_post_tickets_12pm_run3
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model granite4:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-ec38cc55-9d6f-4d64-93c9-51e129a9628d (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 120 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 120 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T175715Z_granite4-3b_load_post_tickets_12pm_run3/metadata.json
+
+== Summary
+Wrote 3 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+Next: python analysis/reconcile.py --run-dir <run dir>   (prove .jtl and service log agree)
+      python analysis/summarise_load.py --runs /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+2026-10-08T18:37:09Z  DONE  granite4:3b load_post_tickets 12pm (2395s)
+2026-10-08T18:37:09Z  START qwen2.5:7b load_post_tickets 1pm :: scripts/run_load_test.sh --plan load_post_tickets --model qwen2.5:7b --rate 1 --host 192.168.50.130 --port 8000 --duration 600 --runs 3 --yes --jmeter-home /Users/kaiyuan/tools/apache-jmeter-5.6.3
+Plan          : load_post_tickets  (/Users/kaiyuan/claude/ICT3113-PTO/jmeter/load_post_tickets.jmx)
+Model         : qwen2.5:7b
+Arrival rate  : 1/min
+Duration      : 600s per run
+Runs          : 3
+Service       : http://192.168.50.130:8000
+Input CSV     : data/team_rows.csv
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step 1: freeze gate
+  PASS: frozen at 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba (tag 'golden-freeze')
+run_load_test.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Run 1 of 3: 20261008T183710Z_qwen2.5-7b_load_post_tickets_1pm_run1
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model qwen2.5:7b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-1939ff60-548d-42c0-baf9-2ea02076eca4 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 10 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 10 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T183710Z_qwen2.5-7b_load_post_tickets_1pm_run1/metadata.json
+
+== Run 2 of 3: 20261008T183710Z_qwen2.5-7b_load_post_tickets_1pm_run2
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model qwen2.5:7b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-309db31c-35e6-4aac-a779-c2991f72d3c6 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 10 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 10 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T183710Z_qwen2.5-7b_load_post_tickets_1pm_run2/metadata.json
+
+== Run 3 of 3: 20261008T183710Z_qwen2.5-7b_load_post_tickets_1pm_run3
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+Waiting up to 90s for triage to report healthy...
+ Container ict3113-triage Started 
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model qwen2.5:7b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-eef936e5-291d-475a-bb90-d3eda0007afc (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 10 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 10 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T183710Z_qwen2.5-7b_load_post_tickets_1pm_run3/metadata.json
+
+== Summary
+Wrote 3 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+Next: python analysis/reconcile.py --run-dir <run dir>   (prove .jtl and service log agree)
+      python analysis/summarise_load.py --runs /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+2026-10-08T19:18:12Z  DONE  qwen2.5:7b load_post_tickets 1pm (2463s)
+2026-10-08T19:18:12Z  START qwen2.5:7b load_post_tickets 4pm :: scripts/run_load_test.sh --plan load_post_tickets --model qwen2.5:7b --rate 4 --host 192.168.50.130 --port 8000 --duration 600 --runs 3 --yes --jmeter-home /Users/kaiyuan/tools/apache-jmeter-5.6.3
+Plan          : load_post_tickets  (/Users/kaiyuan/claude/ICT3113-PTO/jmeter/load_post_tickets.jmx)
+Model         : qwen2.5:7b
+Arrival rate  : 4/min
+Duration      : 600s per run
+Runs          : 3
+Service       : http://192.168.50.130:8000
+Input CSV     : data/team_rows.csv
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step 1: freeze gate
+  PASS: frozen at 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba (tag 'golden-freeze')
+run_load_test.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Run 1 of 3: 20261008T191813Z_qwen2.5-7b_load_post_tickets_4pm_run1
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+Waiting up to 90s for triage to report healthy...
+ Container ict3113-triage Started 
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model qwen2.5:7b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-324869ab-0ef4-490c-96bb-7580c81056ab (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 40 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 40 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T191813Z_qwen2.5-7b_load_post_tickets_4pm_run1/metadata.json
+
+== Run 2 of 3: 20261008T191813Z_qwen2.5-7b_load_post_tickets_4pm_run2
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model qwen2.5:7b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-3cf09a41-ebda-4bcb-9720-ca50c40fe8fd (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 40 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 40 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T191813Z_qwen2.5-7b_load_post_tickets_4pm_run2/metadata.json
+
+== Run 3 of 3: 20261008T191813Z_qwen2.5-7b_load_post_tickets_4pm_run3
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model qwen2.5:7b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-a9f2b67b-c381-4e33-b9f8-79dcf183089d (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 40 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 40 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T191813Z_qwen2.5-7b_load_post_tickets_4pm_run3/metadata.json
+
+== Summary
+Wrote 3 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+Next: python analysis/reconcile.py --run-dir <run dir>   (prove .jtl and service log agree)
+      python analysis/summarise_load.py --runs /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+2026-10-08T19:57:32Z  DONE  qwen2.5:7b load_post_tickets 4pm (2360s)
+2026-10-08T19:57:32Z  START qwen2.5:7b load_post_tickets 12pm :: scripts/run_load_test.sh --plan load_post_tickets --model qwen2.5:7b --rate 12 --host 192.168.50.130 --port 8000 --duration 600 --runs 3 --yes --jmeter-home /Users/kaiyuan/tools/apache-jmeter-5.6.3
+Plan          : load_post_tickets  (/Users/kaiyuan/claude/ICT3113-PTO/jmeter/load_post_tickets.jmx)
+Model         : qwen2.5:7b
+Arrival rate  : 12/min
+Duration      : 600s per run
+Runs          : 3
+Service       : http://192.168.50.130:8000
+Input CSV     : data/team_rows.csv
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step 1: freeze gate
+  PASS: frozen at 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba (tag 'golden-freeze')
+run_load_test.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Run 1 of 3: 20261008T195733Z_qwen2.5-7b_load_post_tickets_12pm_run1
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+Waiting up to 90s for triage to report healthy...
+ Container ict3113-triage Started 
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model qwen2.5:7b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-fecddbd5-14f7-40d8-af00-57d05544cb7d (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 120 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 120 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T195733Z_qwen2.5-7b_load_post_tickets_12pm_run1/metadata.json
+
+== Run 2 of 3: 20261008T195733Z_qwen2.5-7b_load_post_tickets_12pm_run2
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model qwen2.5:7b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-be8f2527-845f-44da-8284-2d880a9909cd (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 120 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 120 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T195733Z_qwen2.5-7b_load_post_tickets_12pm_run2/metadata.json
+
+== Run 3 of 3: 20261008T195733Z_qwen2.5-7b_load_post_tickets_12pm_run3
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model qwen2.5:7b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-13e00ef3-1e84-41ad-b484-ce91ea52de3c (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 120 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 120 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T195733Z_qwen2.5-7b_load_post_tickets_12pm_run3/metadata.json
+
+== Summary
+Wrote 3 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+Next: python analysis/reconcile.py --run-dir <run dir>   (prove .jtl and service log agree)
+      python analysis/summarise_load.py --runs /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+2026-10-08T20:36:48Z  DONE  qwen2.5:7b load_post_tickets 12pm (2356s)
+2026-10-08T20:36:48Z  START llama3.2:1b-instruct-q4_K_M mixed_load 1pm :: scripts/run_load_test.sh --plan mixed_load --model llama3.2:1b-instruct-q4_K_M --rate 1 --search-rate 1 --host 192.168.50.130 --port 8000 --duration 600 --runs 3 --yes --jmeter-home /Users/kaiyuan/tools/apache-jmeter-5.6.3
+Plan          : mixed_load  (/Users/kaiyuan/claude/ICT3113-PTO/jmeter/mixed_load.jmx)
+Model         : llama3.2:1b-instruct-q4_K_M
+Arrival rate  : 1/min
+Duration      : 600s per run
+Runs          : 3
+Service       : http://192.168.50.130:8000
+Input CSV     : data/team_rows.csv
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step 1: freeze gate
+  PASS: frozen at 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba (tag 'golden-freeze')
+run_load_test.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Run 1 of 3: 20261008T203649Z_llama3.2-1b-instruct-q4_K_M_mixed_load_1pm_run1
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:1b-instruct-q4_K_M, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-7ac1b63c-957e-4a3b-9311-e2bc56298aca (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 20 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 20 measured line(s); warmup.jsonl: +0 warm-up line(s) added (1 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T203649Z_llama3.2-1b-instruct-q4_K_M_mixed_load_1pm_run1/metadata.json
+
+== Run 2 of 3: 20261008T203649Z_llama3.2-1b-instruct-q4_K_M_mixed_load_1pm_run2
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:1b-instruct-q4_K_M, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-caf994d6-d6f8-405f-b0d2-30e313365c7e (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 20 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 20 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T203649Z_llama3.2-1b-instruct-q4_K_M_mixed_load_1pm_run2/metadata.json
+
+== Run 3 of 3: 20261008T203649Z_llama3.2-1b-instruct-q4_K_M_mixed_load_1pm_run3
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:1b-instruct-q4_K_M, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-411022fd-db7c-4c9a-9b9d-6bf48c8448f7 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 20 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 20 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T203649Z_llama3.2-1b-instruct-q4_K_M_mixed_load_1pm_run3/metadata.json
+
+== Summary
+Wrote 3 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+Next: python analysis/reconcile.py --run-dir <run dir>   (prove .jtl and service log agree)
+      python analysis/summarise_load.py --runs /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+2026-10-08T21:16:08Z  DONE  llama3.2:1b-instruct-q4_K_M mixed_load 1pm (2360s)
+2026-10-08T21:16:08Z  START llama3.2:3b mixed_load 1pm :: scripts/run_load_test.sh --plan mixed_load --model llama3.2:3b --rate 1 --search-rate 1 --host 192.168.50.130 --port 8000 --duration 600 --runs 3 --yes --jmeter-home /Users/kaiyuan/tools/apache-jmeter-5.6.3
+Plan          : mixed_load  (/Users/kaiyuan/claude/ICT3113-PTO/jmeter/mixed_load.jmx)
+Model         : llama3.2:3b
+Arrival rate  : 1/min
+Duration      : 600s per run
+Runs          : 3
+Service       : http://192.168.50.130:8000
+Input CSV     : data/team_rows.csv
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step 1: freeze gate
+  PASS: frozen at 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba (tag 'golden-freeze')
+run_load_test.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Run 1 of 3: 20261008T211609Z_llama3.2-3b_mixed_load_1pm_run1
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-dd05ee54-f182-4756-bc57-f537b0381a40 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 20 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 20 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T211609Z_llama3.2-3b_mixed_load_1pm_run1/metadata.json
+
+== Run 2 of 3: 20261008T211609Z_llama3.2-3b_mixed_load_1pm_run2
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-2d35cc91-742b-46ce-838a-d807d705b032 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 20 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 20 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T211609Z_llama3.2-3b_mixed_load_1pm_run2/metadata.json
+
+== Run 3 of 3: 20261008T211609Z_llama3.2-3b_mixed_load_1pm_run3
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-7c01250b-50d0-4630-935e-a69e84e62a76 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 20 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 20 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T211609Z_llama3.2-3b_mixed_load_1pm_run3/metadata.json
+
+== Summary
+Wrote 3 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+Next: python analysis/reconcile.py --run-dir <run dir>   (prove .jtl and service log agree)
+      python analysis/summarise_load.py --runs /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+2026-10-08T21:55:37Z  DONE  llama3.2:3b mixed_load 1pm (2369s)
+2026-10-08T21:55:37Z  START granite4:3b mixed_load 1pm :: scripts/run_load_test.sh --plan mixed_load --model granite4:3b --rate 1 --search-rate 1 --host 192.168.50.130 --port 8000 --duration 600 --runs 3 --yes --jmeter-home /Users/kaiyuan/tools/apache-jmeter-5.6.3
+Plan          : mixed_load  (/Users/kaiyuan/claude/ICT3113-PTO/jmeter/mixed_load.jmx)
+Model         : granite4:3b
+Arrival rate  : 1/min
+Duration      : 600s per run
+Runs          : 3
+Service       : http://192.168.50.130:8000
+Input CSV     : data/team_rows.csv
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step 1: freeze gate
+  PASS: frozen at 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba (tag 'golden-freeze')
+run_load_test.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Run 1 of 3: 20261008T215538Z_granite4-3b_mixed_load_1pm_run1
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model granite4:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-34fc472f-f9b3-4aef-ad37-2fd94952f489 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 20 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 20 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T215538Z_granite4-3b_mixed_load_1pm_run1/metadata.json
+
+== Run 2 of 3: 20261008T215538Z_granite4-3b_mixed_load_1pm_run2
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model granite4:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-e7c904bd-2d07-4b6e-a0ed-374622c115a3 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 20 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 20 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T215538Z_granite4-3b_mixed_load_1pm_run2/metadata.json
+
+== Run 3 of 3: 20261008T215538Z_granite4-3b_mixed_load_1pm_run3
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model granite4:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-0daf0722-d2a3-4a90-bc75-97e4972e4d4f (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 20 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 20 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T215538Z_granite4-3b_mixed_load_1pm_run3/metadata.json
+
+== Summary
+Wrote 3 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+Next: python analysis/reconcile.py --run-dir <run dir>   (prove .jtl and service log agree)
+      python analysis/summarise_load.py --runs /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+2026-10-08T22:35:10Z  DONE  granite4:3b mixed_load 1pm (2373s)
+2026-10-08T22:35:10Z  START qwen2.5:7b mixed_load 1pm :: scripts/run_load_test.sh --plan mixed_load --model qwen2.5:7b --rate 1 --search-rate 1 --host 192.168.50.130 --port 8000 --duration 600 --runs 3 --yes --jmeter-home /Users/kaiyuan/tools/apache-jmeter-5.6.3
+Plan          : mixed_load  (/Users/kaiyuan/claude/ICT3113-PTO/jmeter/mixed_load.jmx)
+Model         : qwen2.5:7b
+Arrival rate  : 1/min
+Duration      : 600s per run
+Runs          : 3
+Service       : http://192.168.50.130:8000
+Input CSV     : data/team_rows.csv
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step 1: freeze gate
+  PASS: frozen at 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba (tag 'golden-freeze')
+run_load_test.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Run 1 of 3: 20261008T223511Z_qwen2.5-7b_mixed_load_1pm_run1
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model qwen2.5:7b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-57f5788b-f65a-40be-85e3-4729cdb70a65 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 20 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 20 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T223511Z_qwen2.5-7b_mixed_load_1pm_run1/metadata.json
+
+== Run 2 of 3: 20261008T223511Z_qwen2.5-7b_mixed_load_1pm_run2
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model qwen2.5:7b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-5491e174-ab84-4272-9dd9-5ce1294b9169 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 20 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 20 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T223511Z_qwen2.5-7b_mixed_load_1pm_run2/metadata.json
+
+== Run 3 of 3: 20261008T223511Z_qwen2.5-7b_mixed_load_1pm_run3
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model qwen2.5:7b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-2faaf2a6-ddc5-4a54-9bc2-bbccdae0e557 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 20 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 20 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T223511Z_qwen2.5-7b_mixed_load_1pm_run3/metadata.json
+
+== Summary
+Wrote 3 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+Next: python analysis/reconcile.py --run-dir <run dir>   (prove .jtl and service log agree)
+      python analysis/summarise_load.py --runs /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+2026-10-08T23:15:07Z  DONE  qwen2.5:7b mixed_load 1pm (2397s)
+2026-10-08T23:15:07Z  START llama3.2:1b-instruct-q4_K_M stress_ramp ramp :: env RAMP_STEP_PER_MIN=4 RAMP_STEPS=6 RAMP_STEP_DURATION_S=120 RAMP_START_PER_MIN=1 scripts/run_load_test.sh --plan stress_ramp --model llama3.2:1b-instruct-q4_K_M --rate 1 --host 192.168.50.130 --port 8000 --duration 870 --runs 1 --yes --jmeter-home /Users/kaiyuan/tools/apache-jmeter-5.6.3
+Plan          : stress_ramp  (/Users/kaiyuan/claude/ICT3113-PTO/jmeter/stress_ramp.jmx)
+Model         : llama3.2:1b-instruct-q4_K_M
+Arrival rate  : 1/min (first ramp step)
+Duration      : 870s per run
+Runs          : 1
+Service       : http://192.168.50.130:8000
+Input CSV     : data/team_rows.csv
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step 1: freeze gate
+  PASS: frozen at 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba (tag 'golden-freeze')
+run_load_test.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Run 1 of 1: 20261008T231508Z_llama3.2-1b-instruct-q4_K_M_stress_ramp_ramp_run1
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:1b-instruct-q4_K_M, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-cc50e088-dd95-4244-9f16-cd2d82f6e818 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 132 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 132 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T231508Z_llama3.2-1b-instruct-q4_K_M_stress_ramp_ramp_run1/metadata.json
+
+== Summary
+Wrote 1 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+Next: python analysis/reconcile.py --run-dir <run dir>   (prove .jtl and service log agree)
+      python analysis/summarise_load.py --runs /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+2026-10-08T23:30:14Z  DONE  llama3.2:1b-instruct-q4_K_M stress_ramp ramp (907s)
+2026-10-08T23:30:14Z  START llama3.2:3b stress_ramp ramp :: env RAMP_STEP_PER_MIN=4 RAMP_STEPS=6 RAMP_STEP_DURATION_S=120 RAMP_START_PER_MIN=1 scripts/run_load_test.sh --plan stress_ramp --model llama3.2:3b --rate 1 --host 192.168.50.130 --port 8000 --duration 870 --runs 1 --yes --jmeter-home /Users/kaiyuan/tools/apache-jmeter-5.6.3
+Plan          : stress_ramp  (/Users/kaiyuan/claude/ICT3113-PTO/jmeter/stress_ramp.jmx)
+Model         : llama3.2:3b
+Arrival rate  : 1/min (first ramp step)
+Duration      : 870s per run
+Runs          : 1
+Service       : http://192.168.50.130:8000
+Input CSV     : data/team_rows.csv
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step 1: freeze gate
+  PASS: frozen at 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba (tag 'golden-freeze')
+run_load_test.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Run 1 of 1: 20261008T233015Z_llama3.2-3b_stress_ramp_ramp_run1
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+Waiting up to 90s for triage to report healthy...
+ Container ict3113-triage Started 
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model llama3.2:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-6a2ff0cc-e6dc-481a-b42a-bb9015f7a541 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 132 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 132 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T233015Z_llama3.2-3b_stress_ramp_ramp_run1/metadata.json
+
+== Summary
+Wrote 1 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+Next: python analysis/reconcile.py --run-dir <run dir>   (prove .jtl and service log agree)
+      python analysis/summarise_load.py --runs /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+2026-10-08T23:45:34Z  DONE  llama3.2:3b stress_ramp ramp (920s)
+2026-10-08T23:45:34Z  START granite4:3b stress_ramp ramp :: env RAMP_STEP_PER_MIN=4 RAMP_STEPS=6 RAMP_STEP_DURATION_S=120 RAMP_START_PER_MIN=1 scripts/run_load_test.sh --plan stress_ramp --model granite4:3b --rate 1 --host 192.168.50.130 --port 8000 --duration 870 --runs 1 --yes --jmeter-home /Users/kaiyuan/tools/apache-jmeter-5.6.3
+Plan          : stress_ramp  (/Users/kaiyuan/claude/ICT3113-PTO/jmeter/stress_ramp.jmx)
+Model         : granite4:3b
+Arrival rate  : 1/min (first ramp step)
+Duration      : 870s per run
+Runs          : 1
+Service       : http://192.168.50.130:8000
+Input CSV     : data/team_rows.csv
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step 1: freeze gate
+  PASS: frozen at 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba (tag 'golden-freeze')
+run_load_test.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Run 1 of 1: 20261008T234535Z_granite4-3b_stress_ramp_ramp_run1
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model granite4:3b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-14dc0e00-7acd-4267-98fa-87264c17f18e (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 132 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 132 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261008T234535Z_granite4-3b_stress_ramp_ramp_run1/metadata.json
+
+== Summary
+Wrote 1 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+Next: python analysis/reconcile.py --run-dir <run dir>   (prove .jtl and service log agree)
+      python analysis/summarise_load.py --runs /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+2026-10-09T00:00:49Z  DONE  granite4:3b stress_ramp ramp (915s)
+2026-10-09T00:00:49Z  START qwen2.5:7b stress_ramp ramp :: env RAMP_STEP_PER_MIN=4 RAMP_STEPS=6 RAMP_STEP_DURATION_S=120 RAMP_START_PER_MIN=1 scripts/run_load_test.sh --plan stress_ramp --model qwen2.5:7b --rate 1 --host 192.168.50.130 --port 8000 --duration 870 --runs 1 --yes --jmeter-home /Users/kaiyuan/tools/apache-jmeter-5.6.3
+Plan          : stress_ramp  (/Users/kaiyuan/claude/ICT3113-PTO/jmeter/stress_ramp.jmx)
+Model         : qwen2.5:7b
+Arrival rate  : 1/min (first ramp step)
+Duration      : 870s per run
+Runs          : 1
+Service       : http://192.168.50.130:8000
+Input CSV     : data/team_rows.csv
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step 1: freeze gate
+  PASS: frozen at 41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba (tag 'golden-freeze')
+run_load_test.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Run 1 of 1: 20261009T000050Z_qwen2.5-7b_stress_ramp_ramp_run1
+  [2/6] reset and switch model
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+ Container ict3113-triage Stopped 
+Going to remove ict3113-triage
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+      /health: model qwen2.5:7b, Ollama reachable
+  [3/6] warm-up request (excluded from analysis)
+      warm-up request_id warmup-7e6994a3-3873-41d4-9030-1134e36a3eb1 (dev row 900000), HTTP 200
+      warm-up log line captured (1 line(s), warmup=true)
+  [4/6] JMeter (non-GUI, open model arrivals)
+      results.jtl: 132 sample line(s)
+  [5/6] slice the service log into the run directory
+      service.jsonl: 132 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window)
+  [6/6] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261009T000050Z_qwen2.5-7b_stress_ramp_ramp_run1/metadata.json
+
+== Summary
+Wrote 1 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+Next: python analysis/reconcile.py --run-dir <run dir>   (prove .jtl and service log agree)
+      python analysis/summarise_load.py --runs /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+2026-10-09T00:16:20Z  DONE  qwen2.5:7b stress_ramp ramp (931s)
+2026-10-09T00:16:21Z  CAMPAIGN COMPLETE

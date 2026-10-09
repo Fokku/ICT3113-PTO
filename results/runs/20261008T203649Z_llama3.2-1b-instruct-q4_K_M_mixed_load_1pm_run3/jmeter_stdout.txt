@@ -1,0 +1,17 @@
+WARNING: package sun.awt.X11 not in java.desktop
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+Creating summariser <summary>
+Created the tree successfully using /Users/kaiyuan/claude/ICT3113-PTO/jmeter/mixed_load.jmx
+Starting standalone test @ 2026 Oct 9 05:03:35 SGT (1791493415370)
+Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+summary +      6 in 00:02:27 =    0.0/s Avg:    98 Min:     7 Max:   535 Err:     0 (0.00%) Active: 1 Started: 6 Finished: 5
+summary +      3 in 00:01:28 =    0.0/s Avg:   191 Min:     9 Max:   286 Err:     0 (0.00%) Active: 1 Started: 9 Finished: 8
+summary =      9 in 00:03:56 =    0.0/s Avg:   129 Min:     7 Max:   535 Err:     0 (0.00%)
+summary +     11 in 00:06:04 =    0.0/s Avg:   283 Min:    11 Max:   576 Err:     0 (0.00%) Active: 1 Started: 20 Finished: 19
+summary =     20 in 00:10:00 =    0.0/s Avg:   213 Min:     7 Max:   576 Err:     0 (0.00%)
+summary =     20 in 00:12:30 =    0.0/s Avg:   213 Min:     7 Max:   576 Err:     0 (0.00%)
+Tidying up ...    @ 2026 Oct 9 05:16:05 SGT (1791494165397)
+... end of run

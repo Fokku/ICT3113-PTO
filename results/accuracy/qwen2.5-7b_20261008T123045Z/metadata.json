@@ -1,0 +1,42 @@
+{
+  "run_id": "qwen2.5-7b_20261008T123045Z",
+  "mode": "real",
+  "plan": "accuracy",
+  "plan_file": null,
+  "model_tag": "qwen2.5:7b",
+  "model_digest": "sha256:845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+  "rate_per_min": null,
+  "duration_s": null,
+  "run_index": 1,
+  "runs_total": 1,
+  "started_at_utc": "2026-10-08T12:30:45.095Z",
+  "ended_at_utc": "2026-10-08T12:42:10.228Z",
+  "git_commit": "41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba",
+  "git_dirty": true,
+  "freeze_commit": "41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba",
+  "freeze_tag": "golden-freeze",
+  "prompt_hash": "sha256:681131c48bdc15a1",
+  "num_ctx": 4096,
+  "seed": 42,
+  "input_csv": "golden/golden_set.csv",
+  "service_url": "http://192.168.50.130:8000",
+  "service_host_info": {
+    "target_url": "http://192.168.50.130:8000",
+    "ollama_base_url": "http://ollama:11434",
+    "db_path": "/data/triage.db",
+    "uvicorn_workers": 1,
+    "threadpool_size": 40,
+    "note": "hardware is recorded by scripts/capture_env.sh on the service host"
+  },
+  "load_generator_host_info": {
+    "hostname": "Kais-MacBook-Pro-2.local",
+    "platform": "Darwin 24.1.0 arm64",
+    "python": "3.12.2",
+    "environment_capture": "docs/environment/<hostname>.txt (scripts/capture_env.sh)"
+  },
+  "jmeter_version": null,
+  "ollama_num_parallel": "default",
+  "ollama_max_loaded_models": "default",
+  "warmup_request_id": null,
+  "notes": "narratives resolved from team_rows.csv by row_number; posted=200 status_counts={200: 200}; service log lines captured=200"
+}

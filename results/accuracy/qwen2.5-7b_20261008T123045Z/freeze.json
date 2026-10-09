@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "freeze_commit": "41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba",
+  "freeze_tag": "golden-freeze",
+  "golden_sha": "12100cc67565be773c9aebccc1e072114bf1b708",
+  "prediction_sha": "c1d1da3f0e2db2487d8f38a231affc6ddee0e608",
+  "golden_rows": 200
+}

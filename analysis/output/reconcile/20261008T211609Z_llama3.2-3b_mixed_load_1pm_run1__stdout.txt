@@ -1,0 +1,4 @@
+reconcile: 20261008T211609Z_llama3.2-3b_mixed_load_1pm_run1: PASS
+reconcile: 20 .jtl sample(s), 20 log line(s), 20 joined on request_id
+reconcile: WARN source_row_unset = 10 (matched rows where one side carried no source_row; the join still holds but those samples cannot be traced to a course row)
+reconcile: wrote analysis/output/reconcile/20261008T211609Z_llama3.2-3b_mixed_load_1pm_run1__report.md

@@ -1,0 +1,8 @@
+check,value,limit,verdict,detail
+jtl_samples_without_log_line,0,<= 0,pass,every measured sample has a service log line
+log_lines_without_jtl_sample,0,<= 0,pass,every log line in the run window has a matching sample
+blank_request_ids,jtl=0 log=0,0,pass,every row carries a request_id
+duplicate_request_ids,jtl=0 log=0,0,pass,request_ids are unique on both sides
+status_disagreements,0,0,pass,every matched sample agrees with its log line on HTTP status
+source_row_disagreements,0,0,pass,every matched sample agrees with its log line on source_row
+client_minus_server_latency_p99_ms,94.5,<= 250,pass,"p99 of abs(elapsed minus total_latency_ms); a large value means the load generator or the clocks, not the service, are shaping the numbers"

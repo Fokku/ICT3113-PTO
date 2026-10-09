@@ -1,0 +1,9 @@
+| golden_label | Credit reporting | Debt collection | Mortgage | Credit card | Bank account or service | Consumer loan | Money transfer or service | UNPARSEABLE |
+|---|---|---|---|---|---|---|---|---|
+| Credit reporting | 37 | 0 | 2 | 2 | 0 | 0 | 0 | 0 |
+| Debt collection | 14 | 9 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Mortgage | 2 | 0 | 17 | 5 | 1 | 2 | 0 | 0 |
+| Credit card | 4 | 0 | 0 | 21 | 2 | 0 | 0 | 0 |
+| Bank account or service | 3 | 0 | 0 | 3 | 33 | 0 | 1 | 0 |
+| Consumer loan | 9 | 0 | 1 | 5 | 0 | 8 | 0 | 0 |
+| Money transfer or service | 2 | 0 | 0 | 1 | 9 | 0 | 7 | 0 |

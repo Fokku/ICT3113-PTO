@@ -1,0 +1,8 @@
+component,note,mean_ms,share_of_mean_total_pct,p50_ms,p95_ms,p99_ms,min_ms,max_ms
+service_overhead_ms,"our own handler outside the model call: request parsing, prompt construction, category normalisation, the SQLite insert, the log write",333.105,21.33138230853835,211.70000000000002,707.3799999999991,1287.4429999999998,173.79999999999973,1465.4
+queue_residual_ms,"RESIDUAL: our HTTP call minus Ollama's own total_duration. Where Ollama-side queueing shows up, but also HTTP and container-network overhead and per-request connection setup",10.47842794999998,0.6710177049096332,9.353481999999929,19.208472099999998,22.022626810000023,7.928217000000018,22.449568
+load_ms,Ollama loading the model (load_duration),1.58825205,0.10170850536878691,1.4367095,2.70855655,2.7760105,1.204822,2.800678
+prompt_eval_ms,"evaluating the prompt tokens, the prefill (prompt_eval_duration)",912.419225,58.42951415960515,740.3955000000001,2257.3779999999992,2706.49813,93.951,2795.587
+eval_ms,generating the reply tokens (eval_duration),243.942,15.621560958585018,195.40550000000002,389.89759999999995,412.90682,174.658,416.714
+ollama_other_ms,RESIDUAL: Ollama's total_duration minus load + prompt eval + generation,60.039595000000034,3.8448163629930745,9.023239000000046,631.8140215499997,721.7119237700002,2.5087949999999637,724.3304840000001
+total_latency_ms,"the whole request handler, as measured by the service",1561.5725,100.0,1462.2,3008.0099999999998,3165.9849999999997,499.8,3212.2

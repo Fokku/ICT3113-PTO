@@ -1,0 +1,8 @@
+golden_label,Credit reporting,Debt collection,Mortgage,Credit card,Bank account or service,Consumer loan,Money transfer or service,UNPARSEABLE
+Credit reporting,36,0,2,1,1,1,0,0
+Debt collection,5,17,0,0,0,1,0,0
+Mortgage,0,1,19,0,4,3,0,0
+Credit card,3,1,0,17,5,1,0,0
+Bank account or service,2,1,0,0,33,0,4,0
+Consumer loan,4,5,1,0,0,13,0,0
+Money transfer or service,0,0,0,0,6,0,13,0

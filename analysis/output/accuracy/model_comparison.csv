@@ -1,0 +1,5 @@
+model_tag,stamp,mode,golden_rows,responses,evaluated,coverage,correct,accuracy,unparseable,unparseable_rate,accuracy_excl_unparseable,macro_recall,macro_precision,missing_golden_rows,errored_responses,duplicate_rows,unmatched_responses
+granite4:3b,20261008T122430Z,real,200,200,200,1.0,132,0.66,0,0.0,0.66,0.6060568456016913,0.7638610944948974,0,0,0,0
+llama3.2:1b-instruct-q4_K_M,20261008T121612Z,real,200,200,200,1.0,52,0.26,0,0.0,0.26,0.20933977455716588,0.3628095238095238,0,0,0,0
+llama3.2:3b,20261008T121848Z,real,200,200,200,1.0,97,0.485,0,0.0,0.485,0.42554663434833107,0.6417173252279635,0,0,0,0
+qwen2.5:7b,20261008T123045Z,real,200,200,200,1.0,148,0.74,0,0.0,0.74,0.7178486380319835,0.7614952292149487,0,0,0,0

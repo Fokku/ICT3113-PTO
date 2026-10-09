@@ -1,0 +1,41 @@
+{
+  "run_id": "20261008T175715Z_granite4-3b_load_post_tickets_12pm_run1",
+  "mode": "real",
+  "plan": "load_post_tickets",
+  "plan_file": "jmeter/load_post_tickets.jmx",
+  "model_tag": "granite4:3b",
+  "model_digest": "sha256:89962fcc75239ac434cdebceb6b7e0669397f92eaef9c487774b718bc36a3e5f",
+  "rate_per_min": 12,
+  "duration_s": 600,
+  "run_index": 1,
+  "runs_total": 3,
+  "started_at_utc": "2026-10-08T17:57:43.926Z",
+  "ended_at_utc": "2026-10-08T18:10:14.943Z",
+  "git_commit": "41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba",
+  "git_dirty": true,
+  "freeze_commit": "41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba",
+  "freeze_tag": "golden-freeze",
+  "prompt_hash": "sha256:681131c48bdc15a1",
+  "num_ctx": 4096,
+  "seed": 42,
+  "input_csv": "data/team_rows.csv",
+  "service_url": "http://192.168.50.130:8000",
+  "service_host_info": {
+    "target_url": "http://192.168.50.130:8000",
+    "ollama_base_url": "http://ollama:11434",
+    "db_path": "/data/triage.db",
+    "uvicorn_workers": 1,
+    "threadpool_size": 40,
+    "note": "hardware is recorded by scripts/capture_env.sh on the service host"
+  },
+  "load_generator_host_info": {
+    "hostname": "Kais-MacBook-Pro-2.local",
+    "platform": "Darwin 24.1.0 arm64",
+    "note": "hardware is recorded by scripts/capture_env.sh --role loadgen"
+  },
+  "jmeter_version": "5.6.3",
+  "ollama_num_parallel": "default",
+  "ollama_max_loaded_models": "default",
+  "warmup_request_id": "warmup-ca0a4dc2-c7f4-42b1-a507-4e68ff593549",
+  "notes": "drain_s=150; rate label=12pm; warm-up excluded from service.jsonl; slice margin 5s"
+}

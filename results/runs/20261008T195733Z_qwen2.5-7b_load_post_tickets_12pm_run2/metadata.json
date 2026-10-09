@@ -1,0 +1,41 @@
+{
+  "run_id": "20261008T195733Z_qwen2.5-7b_load_post_tickets_12pm_run2",
+  "mode": "real",
+  "plan": "load_post_tickets",
+  "plan_file": "jmeter/load_post_tickets.jmx",
+  "model_tag": "qwen2.5:7b",
+  "model_digest": "sha256:845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+  "rate_per_min": 12,
+  "duration_s": 600,
+  "run_index": 2,
+  "runs_total": 3,
+  "started_at_utc": "2026-10-08T20:11:08.506Z",
+  "ended_at_utc": "2026-10-08T20:23:39.571Z",
+  "git_commit": "41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba",
+  "git_dirty": true,
+  "freeze_commit": "41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba",
+  "freeze_tag": "golden-freeze",
+  "prompt_hash": "sha256:681131c48bdc15a1",
+  "num_ctx": 4096,
+  "seed": 42,
+  "input_csv": "data/team_rows.csv",
+  "service_url": "http://192.168.50.130:8000",
+  "service_host_info": {
+    "target_url": "http://192.168.50.130:8000",
+    "ollama_base_url": "http://ollama:11434",
+    "db_path": "/data/triage.db",
+    "uvicorn_workers": 1,
+    "threadpool_size": 40,
+    "note": "hardware is recorded by scripts/capture_env.sh on the service host"
+  },
+  "load_generator_host_info": {
+    "hostname": "Kais-MacBook-Pro-2.local",
+    "platform": "Darwin 24.1.0 arm64",
+    "note": "hardware is recorded by scripts/capture_env.sh --role loadgen"
+  },
+  "jmeter_version": "5.6.3",
+  "ollama_num_parallel": "default",
+  "ollama_max_loaded_models": "default",
+  "warmup_request_id": "warmup-be8f2527-845f-44da-8284-2d880a9909cd",
+  "notes": "drain_s=150; rate label=12pm; warm-up excluded from service.jsonl; slice margin 5s"
+}

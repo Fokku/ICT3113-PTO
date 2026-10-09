@@ -1,0 +1,54 @@
+WARNING: package sun.awt.X11 not in java.desktop
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+Creating summariser <summary>
+Created the tree successfully using /Users/kaiyuan/claude/ICT3113-PTO/jmeter/stress_ramp.jmx
+Starting standalone test @ 2026 Oct 9 08:17:42 SGT (1791505062079)
+Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+summary +      2 in 00:00:20 =    0.1/s Avg:   555 Min:   521 Max:   589 Err:     0 (0.00%) Active: 1 Started: 2 Finished: 1
+summary +      2 in 00:00:31 =    0.1/s Avg:   709 Min:   660 Max:   758 Err:     0 (0.00%) Active: 2 Started: 5 Finished: 3
+summary =      4 in 00:00:51 =    0.1/s Avg:   632 Min:   521 Max:   758 Err:     0 (0.00%)
+summary +     14 in 00:00:57 =    0.2/s Avg:   713 Min:   410 Max:  1211 Err:     0 (0.00%) Active: 1 Started: 18 Finished: 17
+summary =     18 in 00:01:48 =    0.2/s Avg:   695 Min:   410 Max:  1211 Err:     0 (0.00%)
+summary +      5 in 00:00:32 =    0.2/s Avg:   649 Min:   389 Max:   973 Err:     0 (0.00%) Active: 1 Started: 23 Finished: 22
+summary =     23 in 00:02:20 =    0.2/s Avg:   685 Min:   389 Max:  1211 Err:     0 (0.00%)
+summary +     20 in 00:01:01 =    0.3/s Avg:   734 Min:   390 Max:  1624 Err:     0 (0.00%) Active: 2 Started: 44 Finished: 42
+summary =     43 in 00:03:21 =    0.2/s Avg:   708 Min:   389 Max:  1624 Err:     0 (0.00%)
+summary +     13 in 00:00:27 =    0.5/s Avg:   696 Min:   507 Max:   921 Err:     0 (0.00%) Active: 1 Started: 56 Finished: 55
+summary =     56 in 00:03:48 =    0.2/s Avg:   705 Min:   389 Max:  1624 Err:     0 (0.00%)
+summary +     10 in 00:00:33 =    0.3/s Avg:   809 Min:   507 Max:  1371 Err:     0 (0.00%) Active: 1 Started: 66 Finished: 65
+summary =     66 in 00:04:21 =    0.3/s Avg:   721 Min:   389 Max:  1624 Err:     0 (0.00%)
+summary +     11 in 00:00:27 =    0.4/s Avg:   791 Min:   370 Max:  1127 Err:     0 (0.00%) Active: 1 Started: 77 Finished: 76
+summary =     77 in 00:04:48 =    0.3/s Avg:   731 Min:   370 Max:  1624 Err:     0 (0.00%)
+summary +     34 in 00:01:01 =    0.6/s Avg:   756 Min:   368 Max:  1636 Err:     0 (0.00%) Active: 2 Started: 112 Finished: 110
+summary =    111 in 00:05:49 =    0.3/s Avg:   739 Min:   368 Max:  1636 Err:     0 (0.00%)
+summary +     16 in 00:00:31 =    0.5/s Avg:   752 Min:   382 Max:  1334 Err:     0 (0.00%) Active: 2 Started: 128 Finished: 126
+summary =    127 in 00:06:20 =    0.3/s Avg:   740 Min:   368 Max:  1636 Err:     0 (0.00%)
+summary +     21 in 00:00:28 =    0.8/s Avg:   999 Min:   412 Max:  1568 Err:     0 (0.00%) Active: 2 Started: 149 Finished: 147
+summary =    148 in 00:06:48 =    0.4/s Avg:   777 Min:   368 Max:  1636 Err:     0 (0.00%)
+summary +     22 in 00:00:34 =    0.6/s Avg:   914 Min:   434 Max:  1454 Err:     0 (0.00%) Active: 1 Started: 170 Finished: 169
+summary =    170 in 00:07:22 =    0.4/s Avg:   795 Min:   368 Max:  1636 Err:     0 (0.00%)
+summary +     18 in 00:00:26 =    0.7/s Avg:   804 Min:   402 Max:  1259 Err:     0 (0.00%) Active: 1 Started: 188 Finished: 187
+summary =    188 in 00:07:48 =    0.4/s Avg:   796 Min:   368 Max:  1636 Err:     0 (0.00%)
+summary +     30 in 00:00:31 =    1.0/s Avg:   811 Min:   355 Max:  1471 Err:     0 (0.00%) Active: 2 Started: 219 Finished: 217
+summary =    218 in 00:08:19 =    0.4/s Avg:   798 Min:   355 Max:  1636 Err:     0 (0.00%)
+summary +     21 in 00:00:30 =    0.7/s Avg:   746 Min:   396 Max:  1429 Err:     0 (0.00%) Active: 1 Started: 239 Finished: 238
+summary =    239 in 00:08:49 =    0.5/s Avg:   793 Min:   355 Max:  1636 Err:     0 (0.00%)
+summary +     26 in 00:00:29 =    0.9/s Avg:   876 Min:   405 Max:  2117 Err:     0 (0.00%) Active: 1 Started: 265 Finished: 264
+summary =    265 in 00:09:18 =    0.5/s Avg:   801 Min:   355 Max:  2117 Err:     0 (0.00%)
+summary +     22 in 00:00:31 =    0.7/s Avg:   708 Min:   416 Max:  1166 Err:     0 (0.00%) Active: 1 Started: 287 Finished: 286
+summary =    287 in 00:09:49 =    0.5/s Avg:   794 Min:   355 Max:  2117 Err:     0 (0.00%)
+summary +     29 in 00:00:29 =    1.0/s Avg:   806 Min:   425 Max:  1450 Err:     0 (0.00%) Active: 1 Started: 316 Finished: 315
+summary =    316 in 00:10:18 =    0.5/s Avg:   795 Min:   355 Max:  2117 Err:     0 (0.00%)
+summary +     37 in 00:00:30 =    1.2/s Avg:  1223 Min:   367 Max:  2143 Err:     0 (0.00%) Active: 1 Started: 353 Finished: 352
+summary =    353 in 00:10:48 =    0.5/s Avg:   840 Min:   355 Max:  2143 Err:     0 (0.00%)
+summary +     28 in 00:00:30 =    0.9/s Avg:   864 Min:   457 Max:  2017 Err:     0 (0.00%) Active: 1 Started: 381 Finished: 380
+summary =    381 in 00:11:18 =    0.6/s Avg:   842 Min:   355 Max:  2143 Err:     0 (0.00%)
+summary +     27 in 00:00:30 =    0.9/s Avg:   778 Min:   489 Max:  1273 Err:     0 (0.00%) Active: 2 Started: 409 Finished: 407
+summary =    408 in 00:11:48 =    0.6/s Avg:   838 Min:   355 Max:  2143 Err:     0 (0.00%)
+summary +     12 in 00:02:42 =    0.1/s Avg:   752 Min:   418 Max:  1401 Err:     0 (0.00%) Active: 0 Started: 420 Finished: 420
+summary =    420 in 00:14:30 =    0.5/s Avg:   835 Min:   355 Max:  2143 Err:     0 (0.00%)
+Tidying up ...    @ 2026 Oct 9 08:32:12 SGT (1791505932107)
+... end of run

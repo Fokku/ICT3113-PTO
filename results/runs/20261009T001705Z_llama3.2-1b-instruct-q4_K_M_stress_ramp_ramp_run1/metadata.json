@@ -1,0 +1,41 @@
+{
+  "run_id": "20261009T001705Z_llama3.2-1b-instruct-q4_K_M_stress_ramp_ramp_run1",
+  "mode": "real",
+  "plan": "stress_ramp",
+  "plan_file": "jmeter/stress_ramp.jmx",
+  "model_tag": "llama3.2:1b-instruct-q4_K_M",
+  "model_digest": "sha256:22bc6b92eb0160c4629782fca05a9032c59d306ab2058b7dacc8a4644fbafa02",
+  "rate_per_min": 10,
+  "duration_s": 870,
+  "run_index": 1,
+  "runs_total": 1,
+  "started_at_utc": "2026-10-09T00:17:41.449Z",
+  "ended_at_utc": "2026-10-09T00:32:12.618Z",
+  "git_commit": "41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba",
+  "git_dirty": true,
+  "freeze_commit": "41d6ce2c2aa8c9e03c9d1e2abe2e23096aba9fba",
+  "freeze_tag": "golden-freeze",
+  "prompt_hash": "sha256:681131c48bdc15a1",
+  "num_ctx": 4096,
+  "seed": 42,
+  "input_csv": "data/team_rows.csv",
+  "service_url": "http://192.168.50.130:8000",
+  "service_host_info": {
+    "target_url": "http://192.168.50.130:8000",
+    "ollama_base_url": "http://ollama:11434",
+    "db_path": "/data/triage.db",
+    "uvicorn_workers": 1,
+    "threadpool_size": 40,
+    "note": "hardware is recorded by scripts/capture_env.sh on the service host"
+  },
+  "load_generator_host_info": {
+    "hostname": "Kais-MacBook-Pro-2.local",
+    "platform": "Darwin 24.1.0 arm64",
+    "note": "hardware is recorded by scripts/capture_env.sh --role loadgen"
+  },
+  "jmeter_version": "5.6.3",
+  "ollama_num_parallel": "default",
+  "ollama_max_loaded_models": "default",
+  "warmup_request_id": "warmup-d50e2cf3-4edb-4c1d-8d60-94c7d7ad2f4c",
+  "notes": "steeper ramp 10/20/30/40/50/60 per min, decided in advance in docs/playbooks/stress-test.md section 2; ramp_start_per_min=10; ramp_step_per_min=10; ramp_steps=6; ramp_step_duration_s=120; drain_s=150; rate label=ramp; warm-up excluded from service.jsonl; slice margin 5s"
+}

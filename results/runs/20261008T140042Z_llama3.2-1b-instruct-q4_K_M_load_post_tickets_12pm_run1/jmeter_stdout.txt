@@ -1,0 +1,40 @@
+WARNING: package sun.awt.X11 not in java.desktop
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+Creating summariser <summary>
+Created the tree successfully using /Users/kaiyuan/claude/ICT3113-PTO/jmeter/load_post_tickets.jmx
+Starting standalone test @ 2026 Oct 8 22:01:09 SGT (1791468069215)
+Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+summary +      4 in 00:00:23 =    0.2/s Avg:   338 Min:   258 Max:   530 Err:     0 (0.00%) Active: 2 Started: 5 Finished: 3
+summary +      8 in 00:00:58 =    0.1/s Avg:   462 Min:   282 Max:   822 Err:     0 (0.00%) Active: 1 Started: 12 Finished: 11
+summary =     12 in 00:01:21 =    0.1/s Avg:   420 Min:   258 Max:   822 Err:     0 (0.00%)
+summary +      8 in 00:00:33 =    0.2/s Avg:   564 Min:   295 Max:  1067 Err:     0 (0.00%) Active: 1 Started: 20 Finished: 19
+summary =     20 in 00:01:54 =    0.2/s Avg:   478 Min:   258 Max:  1067 Err:     0 (0.00%)
+summary +      4 in 00:00:31 =    0.1/s Avg:   779 Min:   500 Max:  1120 Err:     0 (0.00%) Active: 1 Started: 24 Finished: 23
+summary =     24 in 00:02:25 =    0.2/s Avg:   528 Min:   258 Max:  1120 Err:     0 (0.00%)
+summary +      6 in 00:00:28 =    0.2/s Avg:   493 Min:   294 Max:   757 Err:     0 (0.00%) Active: 1 Started: 30 Finished: 29
+summary =     30 in 00:02:53 =    0.2/s Avg:   521 Min:   258 Max:  1120 Err:     0 (0.00%)
+summary +      8 in 00:00:28 =    0.3/s Avg:   435 Min:   319 Max:   941 Err:     0 (0.00%) Active: 1 Started: 38 Finished: 37
+summary =     38 in 00:03:21 =    0.2/s Avg:   503 Min:   258 Max:  1120 Err:     0 (0.00%)
+summary +     15 in 00:01:01 =    0.2/s Avg:   667 Min:   399 Max:   982 Err:     0 (0.00%) Active: 1 Started: 53 Finished: 52
+summary =     53 in 00:04:23 =    0.2/s Avg:   549 Min:   258 Max:  1120 Err:     0 (0.00%)
+summary +      8 in 00:01:02 =    0.1/s Avg:   691 Min:   533 Max:  1045 Err:     0 (0.00%) Active: 1 Started: 61 Finished: 60
+summary =     61 in 00:05:25 =    0.2/s Avg:   568 Min:   258 Max:  1120 Err:     0 (0.00%)
+summary +      8 in 00:00:26 =    0.3/s Avg:   797 Min:   611 Max:  1148 Err:     0 (0.00%) Active: 1 Started: 69 Finished: 68
+summary =     69 in 00:05:51 =    0.2/s Avg:   595 Min:   258 Max:  1148 Err:     0 (0.00%)
+summary +      6 in 00:00:30 =    0.2/s Avg:  1301 Min:   492 Max:  1881 Err:     0 (0.00%) Active: 1 Started: 75 Finished: 74
+summary =     75 in 00:06:21 =    0.2/s Avg:   651 Min:   258 Max:  1881 Err:     0 (0.00%)
+summary +      8 in 00:00:33 =    0.2/s Avg:   916 Min:   557 Max:  1544 Err:     0 (0.00%) Active: 1 Started: 83 Finished: 82
+summary =     83 in 00:06:54 =    0.2/s Avg:   677 Min:   258 Max:  1881 Err:     0 (0.00%)
+summary +      9 in 00:00:57 =    0.2/s Avg:   710 Min:   336 Max:  1435 Err:     0 (0.00%) Active: 1 Started: 92 Finished: 91
+summary =     92 in 00:07:51 =    0.2/s Avg:   680 Min:   258 Max:  1881 Err:     0 (0.00%)
+summary +     22 in 00:01:30 =    0.2/s Avg:   800 Min:   403 Max:  1358 Err:     0 (0.00%) Active: 1 Started: 114 Finished: 113
+summary =    114 in 00:09:21 =    0.2/s Avg:   703 Min:   258 Max:  1881 Err:     0 (0.00%)
+summary +      4 in 00:00:30 =    0.1/s Avg:   711 Min:   469 Max:   872 Err:     0 (0.00%) Active: 1 Started: 118 Finished: 117
+summary =    118 in 00:09:51 =    0.2/s Avg:   703 Min:   258 Max:  1881 Err:     0 (0.00%)
+summary +      2 in 00:02:38 =    0.0/s Avg:   636 Min:   527 Max:   745 Err:     0 (0.00%) Active: 0 Started: 120 Finished: 120
+summary =    120 in 00:12:30 =    0.2/s Avg:   702 Min:   258 Max:  1881 Err:     0 (0.00%)
+Tidying up ...    @ 2026 Oct 8 22:13:39 SGT (1791468819214)
+... end of run

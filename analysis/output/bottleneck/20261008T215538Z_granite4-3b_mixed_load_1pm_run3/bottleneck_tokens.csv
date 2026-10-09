@@ -1,0 +1,3 @@
+stage,requests,total_tokens,total_seconds,aggregate_tokens_per_s,mean_tokens_per_s,p50_tokens_per_s,p95_tokens_per_s,mean_tokens_per_request
+prompt evaluation,10,2883,3.558351,810.2067502615678,2449.6115998307037,2087.5465249208582,5312.740896455218,288.3
+generation,10,42,2.453965,17.115158529155874,17.50605409538621,16.720207144014225,19.686098369096563,4.2

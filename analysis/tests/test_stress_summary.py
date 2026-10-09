@@ -471,3 +471,74 @@ def test_defaults_match_the_cli_contract():
     assert args.p95_limit_ms is None
     assert args.monotonic_steps == 3
     assert args.out_dir == stress_summary.REPO_ROOT / "analysis" / "output" / "stress"
+
+
+# ---------------------------------------------------------------------------
+# Where step 1 begins (--origin)
+# ---------------------------------------------------------------------------
+
+def _late_first_arrival_run(root: Path, lag_s: float = 40.0) -> Path:
+    """Steps of 10, 30 and 50 samples, where step 1's arrivals start ``lag_s`` late.
+
+    This is what random arrivals do at a low first rate: the schedule starts at
+    BASE_TIME but the first sample is stamped later, while later steps are full.
+    Counting steps from the first sample then shifts every boundary by ``lag_s``.
+    """
+    steps = [{"n": n, "latency_ms": 1000} for n in (10, 30, 50)]
+    run_dir = build_stress_run(root, steps)
+    jtl = pd.read_csv(run_dir / "results.jtl")
+    first = jtl["request_id"].astype(str).str.startswith("req-0-")
+    index = jtl.loc[first, "request_id"].astype(str).str.split("-").str[2].astype(int)
+    base_ms = int(BASE_TIME.timestamp() * 1000)
+    jtl.loc[first, "timeStamp"] = base_ms + int(lag_s * 1000) + index * int((STEP_SECONDS - lag_s) * 1000 / 10)
+    jtl.to_csv(run_dir / "results.jtl", index=False)
+    return run_dir
+
+
+def test_steps_from_the_first_sample_are_shifted_by_its_arrival_delay(tmp_path):
+    run_dir = _late_first_arrival_run(tmp_path / "runs")
+    out_dir = tmp_path / "out"
+    stress_summary.main(["--run-dir", str(run_dir), "--step-seconds", "120",
+                         "--out-dir", str(out_dir), "--no-charts"])
+    assert list(read_steps(out_dir)["samples"]) != [10, 30, 50]
+
+
+def test_an_explicit_origin_puts_every_sample_back_in_its_own_step(tmp_path, capsys):
+    run_dir = _late_first_arrival_run(tmp_path / "runs")
+    out_dir = tmp_path / "out"
+    stress_summary.main(
+        ["--run-dir", str(run_dir), "--step-seconds", "120", "--origin", BASE_TIME.isoformat(),
+         "--out-dir", str(out_dir), "--no-charts"]
+    )
+    assert list(read_steps(out_dir)["samples"]) == [10, 30, 50]
+    assert "first sample arrived 40.0 s later" in (out_dir / "stress_report.md").read_text(encoding="utf-8")
+
+
+def test_origin_jmeter_log_converts_the_local_log_time_to_utc(tmp_path):
+    run_dir = _late_first_arrival_run(tmp_path / "runs")
+    meta = json.loads((run_dir / "metadata.json").read_text(encoding="utf-8"))
+    launched = BASE_TIME - timedelta(seconds=0.8)
+    meta["started_at_utc"] = launched.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+    (run_dir / "metadata.json").write_text(json.dumps(meta), encoding="utf-8")
+    local = BASE_TIME + timedelta(hours=8)  # a UTC+8 load generator
+    (run_dir / "jmeter.log").write_text(
+        f"{local:%Y-%m-%d %H:%M:%S},000 INFO o.a.j.t.o.OpenModelThreadGroup: Starting OpenModelThreadGroup#1\n",
+        encoding="utf-8",
+    )
+    start = stress_summary.schedule_start_from_jmeter_log(run_dir)
+    assert start == pd.Timestamp(BASE_TIME).tz_convert("UTC")
+    out_dir = tmp_path / "out"
+    stress_summary.main(
+        ["--run-dir", str(run_dir), "--step-seconds", "120", "--origin", "jmeter-log",
+         "--out-dir", str(out_dir), "--no-charts"]
+    )
+    assert list(read_steps(out_dir)["samples"]) == [10, 30, 50]
+
+
+def test_an_origin_after_the_first_sample_is_refused(tmp_path):
+    run_dir = _late_first_arrival_run(tmp_path / "runs")
+    late = (BASE_TIME + timedelta(seconds=100)).isoformat()
+    assert stress_summary.main(
+        ["--run-dir", str(run_dir), "--step-seconds", "120", "--origin", late,
+         "--out-dir", str(tmp_path / "out"), "--no-charts"]
+    ) != 0

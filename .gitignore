@@ -49,3 +49,6 @@ scratch/
 node_modules/
 .playwright-mcp/
 slides/build/
+
+# Built by scripts/build_submission.sh: the files uploaded to xSiTe (the deck itself is committed in slides/)
+submission/

@@ -94,7 +94,9 @@ value.
 from __future__ import annotations
 
 import argparse
+import json
 import math
+import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -743,6 +745,27 @@ def analyse(args: argparse.Namespace) -> StressReport:
 
     samples = samples.sort_values("ts", kind="stable").copy()
     start = samples["ts"].min()
+    origin = getattr(args, "origin", None)
+    if origin:
+        schedule_start = (
+            schedule_start_from_jmeter_log(run_dir)
+            if origin == "jmeter-log"
+            else pd.Timestamp(origin).tz_convert("UTC")
+            if pd.Timestamp(origin).tzinfo
+            else pd.Timestamp(origin).tz_localize("UTC")
+        )
+        lag_s = (start - schedule_start).total_seconds()
+        if lag_s < 0:
+            raise AnalysisError(
+                f"The first sample ({start}) precedes the stated schedule start "
+                f"({schedule_start}); the origin is wrong."
+            )
+        warnings.append(
+            f"Note: step boundaries are measured from the arrival schedule's start, "
+            f"{schedule_start.isoformat()} ({origin}); the first sample arrived "
+            f"{lag_s:.1f} s later."
+        )
+        start = schedule_start
     samples["offset_s"] = (samples["ts"] - start).dt.total_seconds()
     span_s = float(samples["offset_s"].max())
 
@@ -892,6 +915,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--step-seconds",
     )
     parser.add_argument(
+        "--origin",
+        default=None,
+        help="where step 1 begins: an ISO-8601 UTC instant, or 'jmeter-log' to read "
+        "the instant JMeter started the arrival schedule from the run's jmeter.log. "
+        "Default: the first sample's timestamp, which lags the schedule start by "
+        "the first random arrival's delay and so shifts every step boundary",
+    )
+    parser.add_argument(
         "--offered-rates",
         default=None,
         help="comma-separated offered arrival rate per step, in requests per "
@@ -950,6 +981,38 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="write tables only; skip the PNG",
     )
     return parser.parse_args(argv)
+
+
+_JMETER_START = re.compile(
+    r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}),(\d{3}) INFO .*OpenModelThreadGroup: Starting"
+)
+
+
+def schedule_start_from_jmeter_log(run_dir: Path) -> pd.Timestamp:
+    """The UTC instant JMeter started the Open Model Thread Group's schedule.
+
+    ``jmeter.log`` stamps its lines in the load generator's local time with no
+    zone. ``run_load_test.sh`` records the launch instant in UTC
+    (``metadata.json`` ``started_at_utc``) a moment before it starts JMeter, so
+    the zone offset is the difference between the two, rounded to the nearest
+    quarter hour (every real zone offset is a multiple of 15 minutes).
+    """
+    log_path = run_dir / "jmeter.log"
+    meta_path = run_dir / "metadata.json"
+    if not log_path.is_file() or not meta_path.is_file():
+        raise AnalysisError(f"--origin jmeter-log needs {log_path} and {meta_path}.")
+    local = None
+    for line in log_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        match = _JMETER_START.match(line)
+        if match:
+            local = pd.Timestamp(f"{match.group(1)}.{match.group(2)}")
+            break
+    if local is None:
+        raise AnalysisError(f"No 'OpenModelThreadGroup: Starting' line in {log_path}.")
+    launched = pd.Timestamp(json.loads(meta_path.read_text(encoding="utf-8"))["started_at_utc"])
+    launched_naive = launched.tz_convert("UTC").tz_localize(None)
+    offset_min = round((local - launched_naive).total_seconds() / 900) * 15
+    return (local - pd.Timedelta(minutes=offset_min)).tz_localize("UTC")
 
 
 def main(argv: list[str] | None = None) -> int:

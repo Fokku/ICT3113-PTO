@@ -1,12 +1,12 @@
 # The team's words for the judgement slides (9, 10, 11). No number lives here
-# unless it is copied from a file under analysis/output/ and that file is named
-# next to it; the slides take every figure from deck_data.json. A value still
-# containing TODO keeps `collect_deck_data.py --final` from building the deck.
-slide9_message: "TODO: one-sentence headline of the load and stress results"
-slide9_bottleneck: "TODO: the diagnosed bottleneck, with the component figures that show it"
-slide10_message: "TODO: one-sentence headline of the accuracy results"
-slide10_reading: "TODO: what the confusion matrices say about where each model goes wrong"
-slide11_message: "TODO: one-sentence headline of the recommendation"
-slide11_wrong: "TODO: where the predictions were wrong, and why"
-recommendation: "TODO: the recommended model, defended against R1–R5"
-unmet: "TODO: every requirement no candidate meets, stated plainly"
+# unless it is copied from a file under analysis/output/ (see predictions/outcomes.md for each figure's
+# source); the tables on the slides take every figure from deck_data.json. A value still containing
+# TODO keeps `collect_deck_data.py --final` from building the deck.
+slide9_message: Every model meets R1, R2 and R5 with room to spare; only qwen2.5:7b reaches a limit, and at a rate hundreds of times the modelled peak.
+slide9_bottleneck: 'Ollama''s single request slot, as predicted, but only far above the client''s load. Prefill dominates each request (qwen2.5:7b: 1.47 s of 2.38 s at 1/min) and stays flat as the rate rises, while the wait inside Ollama grows: qwen2.5:7b ollama_other_ms 10 → 488 → 858 ms at 1, 4 and 12/min (queue_residual flat at 10–13 ms). Our own handler adds a constant ~0.2 s outside the model call (TODO: confirm the SQLite commit), about 40% of the 1B model''s latency — an Assignment 2 target. The network adds a median 14 ms.'
+slide10_message: 'No candidate meets R3 or R4: accuracy rises with model size from 26.0% to 74.0%, and even the best model misroutes one ticket in four.'
+slide10_reading: 'Errors pile up on the boundaries our labelling protocol drew and the prompt does not describe. The 1B model answers Credit reporting, the first category listed, for 168 of 200 tickets; llama3.2:3b over-uses Bank account (94 answers for 40 tickets). For qwen2.5:7b and granite4:3b the hardest class is Consumer loan: student-loan tickets that mention collection or the credit file go to Debt collection or Credit reporting, the boundary revision R5 settled. Mortgage-servicer disputes go to Bank account (R1). No reply was UNPARSEABLE, so every miss is a confident wrong answer.'
+slide11_message: 'Recommend qwen2.5:7b, the most accurate candidate and inside every performance requirement, but only to suggest a route for a person to confirm: no candidate meets R3 or R4.'
+slide11_wrong: 'Accuracy ranking right, but both Llama models fell below their bands: the 1B answers the first-listed category for 168 of 200 tickets. Latency wrong by about half: prefill ran 3–6× faster than we assumed (decode was right), so every model meets R1 and R2 and qwen2.5:7b''s limit is 17/min, not 9/min. The bottleneck''s location was right — waiting grows inside Ollama while per-request work stays flat — but we missed that the 121-token instruction prefix is re-evaluated every time and that our handler adds ~0.2 s. We missed Consumer loan and Mortgage as hard categories: their boundaries are protocol revisions R5 and R1, invisible to a model told only the names.'
+recommendation: 'qwen2.5:7b (Apache-2.0). It meets R1 (worst-run p95 5.5 s at 1/min), R2 (0% errors; every 12/min run done by 603 s) and R5 (search p95 ≤ 0.14 s), and its stress limit (17/min) is far above the modelled peak of 0.024/min. It fails R3 (74.0%) and R4 (Consumer loan 57%, Credit card 63%). Our requirements rank a misrouted ticket above a slow one, so we trade speed for accuracy: granite4:3b is twice as fast but misroutes 34% of tickets to qwen2.5:7b''s 26%. At ~1,500 tickets a year that is still ~390 misroutes, so the model should pre-fill the route for an agent to confirm, not route on its own, until a better prompt (Assignment 2) clears R3.'
+unmet: R3 and R4. No candidate reaches 90% overall (best 74.0%) or 80% in every category; every model has a category below 60%. The models are told the category names but not the boundaries our protocol drew, and that is where the errors sit.

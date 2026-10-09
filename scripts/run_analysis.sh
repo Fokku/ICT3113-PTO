@@ -102,7 +102,9 @@ PYEOF
 )
     rates="$("$PY" -c "print(','.join(str($start + k * $step) for k in range($steps)))")"
     mkdir -p "$OUT/stress/$name"
-    "$PY" analysis/stress_summary.py --run-dir "$run" --step-seconds "$step_s" \
+    # Steps are cut from the instant JMeter started the arrival schedule (jmeter.log),
+    # not from the first sample, which arrives a random delay later.
+    "$PY" analysis/stress_summary.py --run-dir "$run" --step-seconds "$step_s" --origin jmeter-log \
         --offered-rates "$rates" --p95-limit-ms "$P95_LIMIT_MS" \
         --error-rate-limit "$ERROR_RATE_LIMIT" --label "POST /tickets" --out-dir "$OUT/stress/$name" \
         || { echo "stress_summary FAILED for $name" >&2; STATUS=1; }

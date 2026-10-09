@@ -383,7 +383,7 @@ const shortDigest = (d) => d ? d.replace(/^sha256:/, "").slice(0, 12) : null;
   text(s, [{ text: "How the results carry over to the client, and what could make them unrepresentative", options: { bold: true, color: C.teal, breakLine: true } },
            { text: "Scaling assumption: CPU inference time is set by cores and memory bandwidth. A commodity server with more cores and memory channels than our desktop should be faster per request; we report our hardware so the client can scale, and do not claim their numbers.", options: { bullet: true, breakLine: true } },
            { text: "One model and one request at a time per model (Ollama default): a server with more RAM could hold more models but not run one model faster.", options: { bullet: true, breakLine: true } },
-           { text: "Limitations: a personal desktop with a desktop session (variance biased up, mostly in p95/p99); a desktop CPU at up to 4.95 GHz but only two memory channels; a single service host, so no claim about horizontal scaling; Poisson arrivals, so each run's ticket count varies (spread shown).", options: { bullet: true } }],
+           { text: "Limitations: a personal desktop with a desktop session (variance biased up, mostly in p95/p99); a desktop CPU at up to 4.95 GHz but only two memory channels; a single service host, so no claim about horizontal scaling; random arrival times but a fixed count per window (JMeter's random_arrivals sends exactly rate × duration), so runs differ in timing, not volume.", options: { bullet: true } }],
        MX + 0.1, 4.9, W - 2 * MX - 0.2, 1.75, { size: 10.5, para: 3 });
 })();
 
@@ -435,7 +435,11 @@ const shortDigest = (d) => d ? d.replace(/^sha256:/, "").slice(0, 12) : null;
 const N = D.narrative ?? {};
 const shortTag = (t) => t.replace("-instruct-q4_K_M", " q4_K_M");
 const secs = (v) => (v === null || v === undefined || Number.isNaN(v)) ? "–" : (v >= 1000 ? `${fmt(v / 1000, v >= 100000 ? 0 : 1)} s` : `${fmt(v)} ms`);
-const spread = (m) => `${secs(m.mean)} (${secs(m.min)}–${secs(m.max)})`;
+const spread = (m) => {
+  if ([m.mean, m.min, m.max].some((v) => v === null || v === undefined)) return "–";
+  if (m.max >= 1000) { const d = m.max >= 100000 ? 0 : 1; return `${fmt(m.mean / 1000, d)} (${fmt(m.min / 1000, d)}–${fmt(m.max / 1000, d)}) s`; }
+  return `${fmt(m.mean)} (${fmt(m.min)}–${fmt(m.max)}) ms`;
+};
 (() => {
   const s = frame("Load and stress test results", N.slide9_message ?? null,
     "analysis/output/load/load_per_run.csv — mean (min–max) of three runs; analysis/output/stress/, analysis/output/bottleneck/; every run reconciled (analysis/output/reconcile/SUMMARY.md)");
@@ -458,8 +462,15 @@ const spread = (m) => `${secs(m.mean)} (${secs(m.min)}–${secs(m.max)})`;
     });
   }
   table(s, rows, MX, 1.5, 8.05, [1.3, 0.6, 1.4, 1.45, 1.4, 1.1, 0.8], { size: 8.5, headSize: 9, margin: [1.5, 3, 1.5, 3] });
+  const search = D.load.search ?? [];
+  if (search.length) {
+    const parts = MODEL_ORDER.map((tag) => search.find((x) => x.model === tag)).filter(Boolean)
+      .map((x) => `${shortTag(x.model)} ${secs(x.client_p95_ms.max)}`);
+    text(s, [{ text: "Mixed load (R5, GET /search p95 ≤ 2 s, worst of 3 runs): ", options: { bold: true, color: C.teal } },
+             { text: parts.join(" · "), options: { color: C.ink } }], MX, 4.82, 8.05, 0.3, { size: 9, margin: 0 });
+  }
   text(s, "Red: fails R1 (worst-run p95 > 10 s at 1/min) or R2 (> 5% errors, or a run not finished within 660 s, at 12/min).",
-       MX, 5.2, 8.05, 0.25, { size: 8.5, italic: true, color: C.muted, margin: 0 });
+       MX, 5.17, 8.05, 0.25, { size: 8.5, italic: true, color: C.muted, margin: 0 });
 
   // stress: p95 per offered step, one series per model (log axis)
   const stress = D.stress.filter((r) => r.steps && r.steps.length);
@@ -474,9 +485,8 @@ const spread = (m) => `${secs(m.mean)} (${secs(m.min)}–${secs(m.max)})`;
       valGridLine: { color: "E3E9EA", size: 0.5 }, catGridLine: { style: "none" } });
     const lim = [["Model", "Limit found (first step with p95 > 10 s or > 5% errors)"]];
     for (const tag of MODEL_ORDER) {
-      for (const r of stress.filter((x) => x.model === tag)) {
-        lim.push([{ text: shortTag(tag), bold: true }, { text: r.limit_short ?? r.limit, size: 8 }]);
-      }
+      const mine = stress.filter((x) => x.model === tag).sort((p, q) => Number(p.steps[0].offered_per_min) - Number(q.steps[0].offered_per_min));
+      if (mine.length) lim.push([{ text: shortTag(tag), bold: true }, { text: mine.map((r) => r.limit_short ?? r.limit).join("; then "), size: 8 }]);
     }
     table(s, lim, 8.75, 3.95, 4.05, [1.15, 2.9], { size: 8, headSize: 8.5, margin: [1.5, 3, 1.5, 3] });
   } else {

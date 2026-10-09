@@ -212,10 +212,13 @@ Ticket intake :  rate(${__P(rate_per_min,60)}/min)        random_arrivals(${__P(
 Agent searches:  rate(${__P(search_rate_per_min,60)}/min) random_arrivals(${__P(duration_s,300)} sec)
 ```
 
-`random_arrivals` is a **Poisson** process, not evenly spaced arrivals. Real complaint intake clumps, and
-evenly spaced arrivals would understate the concurrency the service sees at a given mean rate. The practical
-consequence: the sample count varies around `rate_per_min / 60 × duration_s` rather than hitting it exactly,
-and that is the arrival process, not a fault.
+`random_arrivals` gives random, not evenly spaced, arrival times. Real complaint intake clumps, and evenly
+spaced arrivals would understate the concurrency the service sees at a given mean rate. **Correction from the
+campaign (8 October 2026):** the sample *count* does not vary. Every reported run sent exactly
+`rate_per_min / 60 × duration_s` tickets (10, 40 and 120 at 1, 4 and 12 per minute): JMeter's Open Model
+Thread Group places that many arrivals at random times within the window — a Poisson process conditioned on
+its count — so runs differ in timing, not in volume. (`../../workload/requirements.md`, R2, expected the count
+to vary by about ±10%; it does not. R2 is judged the same way: errors and run span, per run.)
 
 `OpenModelThreadGroup.random_seed` is `${__P(random_seed,0)}`. Zero means a fresh arrival pattern per run, so
 the spread across the three repeat runs includes arrival variability — which is the honest thing to report.

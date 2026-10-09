@@ -293,10 +293,17 @@ high step, read the report before assuming a clock problem.
 
 **6. Summarise the steps (load generator).** This is the command that produces the limit:
 
+`--origin jmeter-log` starts step 1 at the instant JMeter started the arrival schedule (the
+`OpenModelThreadGroup: Starting` line of the run's `jmeter.log`, converted to UTC). Without it the steps are
+counted from the first sample, which at 1/min arrives a random delay — tens of seconds — after the schedule
+starts, so every boundary shifts and late arrivals of the last step fall outside the window. Found on
+9 October 2026 in the campaign's first analysis; recorded in `../run-log.md`.
+
 ```bash
 python analysis/stress_summary.py \
     --run-dir results/runs/<run-dir> \
     --step-seconds 120 \
+    --origin jmeter-log \
     --offered-rates 1,5,9,13,17,21 \
     --p95-limit-ms 10000 \
     --error-rate-limit 0.05 \

@@ -616,6 +616,10 @@ const spread = (m) => {
     text(s, col.map((r, i) => ({ text: `[${r.n}] ${r.text}`, options: { breakLine: i < col.length - 1 } })),
          MX + ci * 6.2, 1.1, 6.0, 4.75, { size: 8, para: 2 });
   });
+  box(s, MX, 5.95, W - 2 * MX, 1.05, C.light);
+  text(s, [{ text: "Acknowledgements. ", options: { bold: true, color: C.teal } },
+           { text: "Built with Llama. Llama 3.2 is licensed under the Llama 3.2 Community License, Copyright © Meta Platforms, Inc. All Rights Reserved [16]. granite4:3b and qwen2.5:7b are Apache-2.0 [23]; Ollama is MIT [6]. Ticket narratives: the US CFPB Consumer Complaint Database [1], via the ICT3113 teaching team's extract [2], team rows 10000–10999. AI coding tools (Anthropic's Claude, via Claude Code) wrote most of the code and drafted documents; the golden-set labels are the two labellers' own, and every number comes from our logs — statement in docs/references.md §9.1.", options: { color: C.ink } }],
+       MX + 0.1, 5.98, W - 2 * MX - 0.2, 1.0, { size: 9.5, valign: "middle" });
 })();
 
 pres.writeFile({ fileName: OUT }).then((f) => console.log(`wrote ${path.relative(REPO, f)}`));

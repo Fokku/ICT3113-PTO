@@ -1,22 +1,23 @@
-# ICT3113 Assignment 1 — Ticket Triage Service (Team 10)
+# ICT3113 Ticket Triage Service (Team 10) — Assignment 1 baseline, Assignment 2 cascade
 
-**Module:** ICT3113 Performance Optimisation and Design.
-**Assignment:** Assignment 1 — Performance Requirements and Testing (15% of the final mark).
-**Team:** Team 10. Our dataset slice is rows 10000–10999 of the course CSV.
-**Deliverable:** `Group10.pptx`, maximum 12 slides, plus the supporting files listed in
-[`slides/outline.md`](slides/outline.md). Due **2359, Friday 9 October 2026**.
-**Team members:** Yeo Kai Yuan (Part 1), Loh Wen Xuan (Part 2), Jolie Ngai Ning Li (Part 3), Toh Si Pei
-(Part 4), Koh Tong Wei (Part 5).
-**Repository:** <https://github.com/Fokku/ICT3113-PTO>
-**Owner of this file and of the technical core:** Yeo Kai Yuan (Part 1).
+**Module:** ICT3113 Performance Testing and Optimisation
 
-| Part | Name | Student ID | What they own |
-|---|---|---|---|
-| 1 | Yeo Kai Yuan | 2403201 | the service, the scripts, the plans, the freeze gate, the candidate shortlist, the campaign |
-| 2 | Loh Wen Xuan | ⟪ID⟫ | golden-set lead and labeller A: `labelling/protocol.md`, the agreement run, the golden set |
-| 3 | Jolie Ngai Ning Li | ⟪ID⟫ | labeller B, co-resolution of disagreements, accuracy results |
-| 4 | Toh Si Pei | ⟪ID⟫ | workload model and requirements |
-| 5 | Koh Tong Wei | 2402162 | test environment, playbooks and the deck |
+| | Assignment 1 — Performance Requirements and Testing | Assignment 2 — Fast Triage Within an Accuracy Floor |
+|---|---|---|
+| **Status** | **Done and submitted** (due 9 October 2026) | **In progress** — scaffold in place, implementation not started (as of 18 November 2026) |
+| **Weight** | 15% of the final mark | 20% of the final mark |
+| **Deliverable** | `Group10.pptx`, max 12 slides, plus the supporting files in [`slides/outline.md`](slides/outline.md) | `Group10_A2.pptx`, max 8 slides, plus three supporting files: the prediction record, the escalation rule, and the speed-test row list |
+| **Due** | 2359, Friday 9 October 2026 | **2359, Friday 27 November 2026** |
+| **Brief** | [`docs/assignment-brief.md`](docs/assignment-brief.md) | [`docs/assignment-2-brief.md`](docs/assignment-2-brief.md) |
+| **Task list** | [`TODO.md`](TODO.md) | [`TODO_A2.md`](TODO_A2.md) |
+
+| Part | Name | Student ID | Assignment 1 | Assignment 2 |
+|---|---|---|---|---|
+| 1 | Yeo Kai Yuan | 2403201 | the service, the scripts, the plans, the freeze gate, the candidate shortlist, the campaign | the cascade in the service, the memory check, the speed tests |
+| 2 | Loh Wen Xuan | 2401561 | golden-set lead and labeller A: `labelling/protocol.md`, the agreement run, the golden set | the accuracy limits, and the escalation rule's design and tuning |
+| 3 | Jolie Ngai Ning Li | ⟪ID⟫ | labeller B, co-resolution of disagreements, accuracy results | accuracy testing and interpretation |
+| 4 | Toh Si Pei | ⟪ID⟫ | workload model and requirements | predictions, the recommendation, the defence |
+| 5 | Koh Tong Wei | 2402162 | test environment, playbooks and the deck | the speed-test playbook, the run log, the deck, limitations |
 
 The three ⟪ID⟫ cells are filled from `slides/team.yaml`, which Slide 1 is built from.
 
@@ -26,12 +27,85 @@ and `llama3.2:3b`, are Meta Llama 3.2 models under the Llama 3.2 Community Licen
 Apache License 2.0. Every licence and its obligations are set out in
 [`docs/references.md`](docs/references.md) section 8.
 
-**Assignment 2 is underway in this same repository.** Everything below this notice documents the finished
-Assignment 1 submission and is unchanged by Assignment 2. For Assignment 2's brief, task breakdown and
-scaffolding, start at [`TODO_A2.md`](TODO_A2.md) (the task list and the per-part file map) and
-[`docs/assignment-2-brief.md`](docs/assignment-2-brief.md) (the brief itself).
+## Assignment 2 — current work
 
-## Results at a glance (campaign of 8–9 October 2026)
+**Working on Assignment 2? Start here, then read [`TODO_A2.md`](TODO_A2.md).** Everything after this section
+documents the finished Assignment 1 baseline. It is still accurate for the service as it runs today, with the
+Assignment 2 caveats called out where they matter (marked **A2 note**).
+
+### What Assignment 2 asks
+
+The client now cares most about speed and will accept lower accuracy within a limit: the deployed system must
+stay within **10 percentage points** of the top Assignment 1 model's accuracy overall, and no category may
+fall more than **15 points** below the top model's, both measured on the **test half** of our golden set. We
+find the fastest configuration that qualifies, on the **same machine, with no extra RAM or CPU**.
+
+The top Assignment 1 model is `qwen2.5:7b` (74.0% on the full golden set, below). We test:
+
+* each of the four Assignment 1 models alone, unchanged;
+* **one cascade at two settings** (Setting A and B): a small model classifies first, and a rule decides
+  whether to accept its answer or pass the ticket to `qwen2.5:7b`. Both models must be loaded in memory at the
+  same time.
+
+Then we recommend one configuration. It may be a single model, and it may be that the cascade did not help.
+
+### What is unchanged, and what changes
+
+| Unchanged from Assignment 1 | New in Assignment 2 |
+|---|---|
+| The four pinned models (no new models), the one classification prompt, the seven categories | A cascade inside `POST /tickets`, and the log fields that record which model answered |
+| The golden set (200 tickets) and its labels | A tuning/test split of it: odd row numbers tune the rule, even row numbers score it |
+| The endpoints, the open-loop JMeter method, three runs per configuration, the two machines | The arrival rate comes from the top model's own speed (S), not the client's rate |
+| CPU-only Ollama, same hardware and Ollama settings | A fixed 100-ticket speed-test list, three warm-up tickets, a re-run policy |
+
+### Where Assignment 2 work lives
+
+| Path | What it is |
+|---|---|
+| [`TODO_A2.md`](TODO_A2.md) | The task list: who does what, the guardrails for AI tools, the shared file formats, the gate. **Start with its "Start here" table.** |
+| [`docs/assignment-2-brief.md`](docs/assignment-2-brief.md) | The brief, as markdown |
+| [`golden/split_a2.csv`](golden/split_a2.csv) | The tuning/test split (99 and 101 tickets), committed before any design work |
+| [`cascade/`](cascade/) | The written escalation rule (a template to fill in) and how to design it |
+| [`service/cascade.py`](service/cascade.py) | The cascade code. **Currently an interface stub**: it is not wired into the service |
+| [`scripts/a2_gate.py`](scripts/a2_gate.py) | The Assignment 2 gate. Exit 0 means benchmarks may start |
+| [`predictions/prediction_record_a2.md`](predictions/prediction_record_a2.md) | The Assignment 2 predictions and decision rules (a template to fill in) |
+| [`docs/a2/`](docs/a2/) | Accuracy limits, arrival rate, run log and AI-use log |
+| [`docs/playbooks/cascade-test.md`](docs/playbooks/cascade-test.md) | The Assignment 2 speed-test procedure |
+| [`workload/speed_test_rows_a2.txt`](workload/speed_test_rows_a2.txt), [`data/speed_test_tickets_a2.csv`](data/speed_test_tickets_a2.csv) | The fixed 100-ticket speed-test workload (the list is a required submission file) |
+| [`slides/outline_a2.md`](slides/outline_a2.md) | The 8-slide build plan |
+
+### The Assignment 2 gate
+
+Like the freeze in Assignment 1, nothing may be benchmarked until the predictions are on record. Run:
+
+```
+python scripts/a2_gate.py        # exit 0 = go; exit 3 = blocked, with the reasons listed
+```
+
+It passes only when `predictions/prediction_record_a2.md`, `cascade/escalation_rule.md` and
+`golden/split_a2.csv` are committed, unchanged, tagged `a2-predictions-freeze`, and the two documents have no
+`TODO(` placeholders left. **The Assignment 1 run scripts check only `golden-freeze`, not this gate**, so run
+`a2_gate.py` yourself before any Assignment 2 benchmark until the Assignment 2 scripts exist.
+
+### Before you start (once, for everyone)
+
+After pulling, refresh the moved Assignment 1 tag. A normal pull does not update a tag that was moved, and
+without this `scripts/freeze_gate.py` shows blocked:
+
+```
+git fetch --force origin refs/tags/golden-freeze:refs/tags/golden-freeze
+python scripts/freeze_gate.py    # should now say PASS
+```
+
+A fresh clone does not need this.
+
+**A2 note on what you may change.** Assignment 1's "hard rules" (section 1.3) say the baseline stays naive and
+that optimisation is Assignment 2. **The Assignment 2 brief did not go that way.** It forbids changing the
+prompt, caching, and changing Ollama's settings, and it does not list service tuning as something that may
+change. Do not act on the `A2 candidate:` comments in the code. [`TODO_A2.md`](TODO_A2.md) guardrail 14 says
+which are now forbidden.
+
+## Assignment 1 results at a glance (campaign of 8–9 October 2026)
 
 Every figure below is read from `analysis/output/`, produced by `scripts/run_analysis.sh` from the raw `.jtl` files
 and service logs in `results/` and `logs/service/`; all 55 JMeter runs reconcile with the service log.
@@ -49,21 +123,29 @@ route suggestion for an agent to confirm, not as an autonomous router. The bottl
 slot; our own handler adds ~0.2 s per ticket in the SQLite commit. Predictions against outcomes:
 [`predictions/outcomes.md`](predictions/outcomes.md). The run, in order: [`docs/run-log.md`](docs/run-log.md).
 
-This README is written for a teammate opening a fresh clone who has never seen the repository. Follow it in
-order and you will not have to ask anyone a question. Every script and file it names exists, and every
+The rest of this README documents the Assignment 1 system, which is also the service the Assignment 2 cascade
+will be built into. It is written for a teammate opening a fresh clone who has never seen the repository.
+Follow it in order and you will not have to ask anyone a question. Every script and file it names exists, and every
 `--help` quoted here came from running that script. The JMeter commands were first transcribed from the plans;
 on 8 October 2026 every plan was run end to end through `scripts/run_campaign.sh --dev` with JMeter 5.6.3 on
 JDK 21, which is how the `-q jmeter/user.properties` gap described in [section 6.7](#67-running-a-plan-by-hand)
 was found and closed.
 
-Two documents sit alongside this one and are not repeated here:
+Four documents sit alongside this one and are not repeated here:
 
-* [`TODO.md`](TODO.md) — who is doing what, by when, with the internal deadlines.
-* [`slides/outline.md`](slides/outline.md) — what goes on each of the twelve slides and which file supplies it.
+* [`TODO.md`](TODO.md) — Assignment 1: who is doing what, by when, with the internal deadlines.
+* [`slides/outline.md`](slides/outline.md) — Assignment 1: what goes on each of the twelve slides and which
+  file supplies it.
+* [`TODO_A2.md`](TODO_A2.md) — Assignment 2: who is doing what, the guardrails, the shared file formats.
+* [`slides/outline_a2.md`](slides/outline_a2.md) — Assignment 2: what goes on each of the eight slides.
 
 ---
 
 ## Table of contents
+
+**Assignment 2:** [current work](#assignment-2--current-work) — read this first if you are working on it.
+
+**Assignment 1 reference** (the baseline system; Assignment 2 caveats are marked **A2 note**):
 
 1. [What this is](#1-what-this-is) — the scenario, the system under test, the repository map, the hard rules,
    the worker and thread configuration
@@ -123,23 +205,30 @@ normaliser.
 
 ### 1.2 Repository map
 
+Assignment 2 additions are marked **[A2]**. Everything else is the Assignment 1 baseline.
+
 ```
 .
 ├── analysis/                derived tables and charts; every number that reaches Slides 9-11
 │   ├── common.py            shared helpers: run-directory parsing, .jtl and log readers, percentiles
 │   ├── output/              committed derived output, one subdirectory per topic (the slides cite it)
 │   └── tests/               pytest suite for the analysis scripts, on synthetic fixtures only
+├── cascade/                 [A2] the escalation rule (escalation_rule.md) and how to design it (README.md)
 ├── data/                    the only ticket data in the repository
+│   ├── speed_test_tickets_a2.csv  [A2] the 100 speed-test tickets, with text, for JMeter
 │   ├── team_rows.csv        our 1,000 rows (10000-10999): row_number,narrative,raw_label
 │   ├── dev/                 28 hand-written synthetic tickets — the ONLY pre-freeze model input
 │   └── search_terms.txt     query strings for the mixed-load GET /search stream
 ├── docs/                    the brief, the procedures, the environment write-up, the references
+│   ├── a2/                  [A2] accuracy limits, arrival rate, run log, AI-use log
 │   ├── assignment-brief.md  the brief itself, converted from the .docx
-│   ├── playbooks/           step-by-step test procedures (Slide 8)
+│   ├── assignment-2-brief.md  [A2] the Assignment 2 brief
+│   ├── playbooks/           step-by-step test procedures (Slide 8); cascade-test.md is the [A2] one
 │   ├── environment/         one generated capture file per machine (Slide 7 evidence)
 │   ├── test-environment.md  the Slide 7 template: machines, network, biases, scaling argument
 │   └── references.md        pre-seeded reference list and licence obligations (Slide 12)
 ├── golden/                  golden_set.csv: the 200-row golden set built by Part 2 from the resolved sheets
+│   └── split_a2.csv         [A2] which golden tickets are tuning (odd rows) and which are test (even rows)
 ├── jmeter/                  the three open-loop plans, plus the pinned .jtl column set
 │   ├── load_post_tickets.jmx   steady state: POST /tickets at a fixed rate
 │   ├── mixed_load.jmx          interference: POST /tickets and GET /search concurrently
@@ -157,11 +246,13 @@ normaliser.
 │   ├── candidates.md        the argued shortlist, licences, and what was rejected and why
 │   └── models.yaml          the machine-readable pin file; digests written by the pull script only
 ├── predictions/             prediction_record.md — frozen together with the golden set
+│                            prediction_record_a2.md — [A2] the Assignment 2 predictions and decision rules
 ├── results/                 raw evidence, committed
 │   ├── runs/                one directory per load, mixed or stress run
 │   ├── accuracy/            one directory per accuracy run, per model
 │   └── dev/                 pre-freeze rehearsals. GITIGNORED. Never evidence
 ├── scripts/                 the operational surface
+│   ├── a2_gate.py           [A2] the Assignment 2 gate: predictions and rule committed before any benchmark
 │   ├── freeze_gate.py       the single implementation of the freeze check
 │   ├── run_load_test.sh     the sanctioned load/mixed/stress harness
 │   ├── run_accuracy.py      posts every golden ticket once, for one model
@@ -175,13 +266,17 @@ normaliser.
 │   ├── config.py            every environment variable, resolved once, reported by /health
 │   ├── categories.py        the seven categories and the reply normaliser (single source of truth)
 │   ├── prompt.py            the one fixed prompt template and its PROMPT_HASH
+│   ├── cascade.py           [A2] the cascade: an interface stub, not yet wired into main.py
 │   ├── ollama_client.py     the per-request model call
 │   ├── db.py                SQLite: a new connection per request, no WAL, no pooling
 │   ├── log_schema.py        LOG_FIELDS: the 24 keys of every log line, in order
 │   └── request_log.py       the JSONL writer: open, write, flush, close, per request
 ├── slides/outline.md        the slide-by-slide build plan for Group10.pptx
+├── slides/outline_a2.md     [A2] the 8-slide build plan for Group10_A2.pptx
 ├── tests/                   pytest suite for the service and the scripts (no model is contacted)
+│                            test_cascade.py is the [A2] one: it stops a true label reaching the rule
 ├── workload/                Step 3 and the requirements half of Step 4 (Slides 3 and 4)
+│   ├── speed_test_rows_a2.txt  [A2] the 100 row numbers of the speed-test workload (a submission file)
 │   ├── workload_model.md    volumes, search rate, peak factor, ticket length distribution
 │   ├── requirements.md      R1-R5: the testable requirements
 │   └── scripts/             ticket length and truncation-risk statistics
@@ -190,12 +285,24 @@ normaliser.
 ├── .env.example             every configuration variable with its default and its rationale
 ├── requirements.txt         service runtime only (installed in the image)
 ├── requirements-dev.txt     host tooling: pytest, pandas, matplotlib, PyYAML
-├── TODO.md                  the team's working agreement and the internal deadlines
+├── TODO.md                  Assignment 1: the team's working agreement and the internal deadlines
+├── TODO_A2.md               [A2] Assignment 2: the task list, guardrails and shared file formats
 ├── NOTICE                   the Llama 3.2 Community License notice
 └── ict3113_tickets.csv      the full course CSV. GITIGNORED — place it here yourself
 ```
 
 ### 1.3 The hard rules
+
+> **A2 note — read before relying on these rules.** They were written for Assignment 1 and are kept as the
+> record of how the baseline was built. For Assignment 2:
+>
+> * **Rule 1 no longer applies as written.** "Optimisation is Assignment 2" turned out not to be what the
+>   Assignment 2 brief asks. The brief forbids changing the prompt, caching, and changing Ollama's settings,
+>   and the only service change it expects is the cascade. Do not "optimise" anything, and do not act on the
+>   `A2 candidate:` comments. See [`TODO_A2.md`](TODO_A2.md) guardrails 14 and 16.
+> * **Rule 2 and rule 6 still hold**, with a second gate: [`scripts/a2_gate.py`](scripts/a2_gate.py)
+>   (`a2-predictions-freeze`) must pass before any Assignment 2 benchmark.
+> * **Rules 3, 4 and 5 still hold.**
 
 Six rules govern every file in this repository. They override style, elegance and convenience, and
 `jmeter/user.properties` and several other files point here for them.
@@ -222,6 +329,11 @@ Six rules govern every file in this repository. They override style, elegance an
 
 ### 1.4 Worker and thread configuration
 
+> **A2 note:** leave `OLLAMA_NUM_PARALLEL` and `OLLAMA_MAX_LOADED_MODELS` at `0` for every Assignment 2
+> configuration. The brief says Ollama's settings are "recorded once and held constant", and `0` already
+> lets Ollama keep more than one model loaded, which the cascade needs. The "turning it now would leave
+> nothing to show in Assignment 2" reasoning in the table below is Assignment 1's, and is out of date.
+
 This subsection exists because these four settings decide *where the bottleneck can land*, and a reader of
 our results has to know them. All four are reported live by `GET /health` and written into every run's
 `metadata.json`.
@@ -245,6 +357,11 @@ checked.
 ---
 
 ## 2. THE FREEZE RULE
+
+> **A2 note:** this is the Assignment 1 freeze, and it is already done (tag `golden-freeze`). Assignment 2 has
+> its own, separate gate: `python scripts/a2_gate.py` (tag `a2-predictions-freeze`). Do not edit
+> `golden/golden_set.csv` or `predictions/prediction_record.md`: they are frozen Assignment 1 evidence, and
+> changing either breaks `freeze_gate.py` for the whole team.
 
 > ### Read this before you run anything at all
 >
@@ -1118,6 +1235,9 @@ The run directories under `results/`, and the regenerated `analysis/output/`. Bo
 
 ## 8. Where to start, per part
 
+> **A2 note:** this section is the **Assignment 1** starting guide and is kept as history. For Assignment 2,
+> use the "Start here" table at the top of [`TODO_A2.md`](TODO_A2.md), which says what each part reads.
+
 Each block is the first three things to do. The full task list with deadlines is in [`TODO.md`](TODO.md); the
 slide requirements are in [`slides/outline.md`](slides/outline.md).
 
@@ -1581,6 +1701,9 @@ recorded here when they change.
 |---|---|---|---|---|
 | 2026-09-23 | Initial baseline. `LOG_SCHEMA_VERSION = 1`; the prompt template pinned in `tests/test_prompt.py`. | — | — | Nothing measured yet. |
 | 2026-10-08 | Reported campaign run. Neither identifier changed: every reported run has `prompt_hash` `sha256:681131c48bdc15a1` and schema version 1. | — | — | All 55 runs and 4 accuracy passes are poolable by model. |
+| 2026-11-18 | Assignment 2 scaffold added (documents, gate, stub). **Neither identifier has changed yet.** | — | — | None. |
+| *pending* | Assignment 2 will append four fields to `LOG_FIELDS` for the cascade (`escalated`, `cascade_setting`, `small_model_tag`, `small_model_category`). Record the real date here when it lands. | schema version 1 (24 fields) | schema version 2 | Assignment 1 logs have 24 fields. `analysis/common.py` must keep reading them, or the Assignment 1 evidence stops being re-checkable. |
+| *rule* | `PROMPT_HASH` must stay `sha256:681131c48bdc15a1` for **every** Assignment 2 run, cascade included: the brief fixes the classification prompt. A different hash in an Assignment 2 run log means something changed that must not have. | — | — | — |
 
 **`LOG_SCHEMA_VERSION`** — [`service/log_schema.py`](service/log_schema.py). Bump it whenever `LOG_FIELDS`
 changes, add the new field at the end, and say here which runs predate the change. Runs recorded under

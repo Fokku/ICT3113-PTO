@@ -1,0 +1,17 @@
+# Fixed speed-test workload -- Group 10, Assignment 2
+# 10 ticket row numbers, from data/team_rows.csv, outside golden/golden_set.csv.
+# Selected deterministically by narrative character length among the 800 non-golden
+# team rows: 5 "typical" (closest to the median length, 749 chars) and 5 "long"
+# (closest to the 90th percentile, 1596 chars), ties broken by lowest row_number.
+# Fixed order below (ascending row_number) is used for every configuration, per the brief.
+# row_number,narrative_chars,band
+10051,757,typical
+10093,1604,long
+10382,1587,long
+10416,1592,long
+10627,744,typical
+10685,749,typical
+10892,743,typical
+10910,749,typical
+10918,1596,long
+10961,1606,long

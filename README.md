@@ -26,6 +26,11 @@ and `llama3.2:3b`, are Meta Llama 3.2 models under the Llama 3.2 Community Licen
 Apache License 2.0. Every licence and its obligations are set out in
 [`docs/references.md`](docs/references.md) section 8.
 
+**Assignment 2 is underway in this same repository.** Everything below this notice documents the finished
+Assignment 1 submission and is unchanged by Assignment 2. For Assignment 2's brief, task breakdown and
+scaffolding, start at [`TODO_A2.md`](TODO_A2.md) (the task list and the per-part file map) and
+[`docs/assignment-2-brief.md`](docs/assignment-2-brief.md) (the brief itself).
+
 ## Results at a glance (campaign of 8–9 October 2026)
 
 Every figure below is read from `analysis/output/`, produced by `scripts/run_analysis.sh` from the raw `.jtl` files

@@ -59,6 +59,11 @@ looked at before it is scored.
 | Escalation fraction on the tuning set | TODO(cascade) | TODO(cascade) |
 | Accuracy on the tuning set (for reference only — not a reported result) | TODO(cascade) | TODO(cascade) |
 
+The tuning-set escalation fractions above are also a check on the implementation: replaying the same
+tuning-set small-model answers through `../service/cascade.py`'s `should_escalate()` must give exactly these
+figures (`../TODO_A2.md` §1.2, rule-fidelity check). Write them as counts (e.g. `31/99`), not just
+percentages, so the comparison is exact.
+
 ## 4. Tuning evidence
 
 TODO(cascade): how the settings above were chosen — which existing `../results/accuracy/<model>_*/responses.csv`

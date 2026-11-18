@@ -57,6 +57,24 @@ measured in `../analysis/output/accuracy_a2/`.
 
 ---
 
+## Section 4 — Analysis thresholds, fixed before measurement
+
+These lines decide whether a run is valid and whether a gap needs explaining. They are agreed here, before
+any result exists, so nobody can move them after seeing the numbers. Defaults are proposed; the team confirms
+or changes each one, then deletes the `TODO(a2)` marker. `../scripts/a2_gate.py` blocks until every marker
+is gone.
+
+| Threshold | Proposed default | Why | Team decision |
+|---|---|---|---|
+| **No-queue check** (is a speed run valid?) | Second-half p50 within ±20% of first-half p50, **and** median `ollama_other_ms` (queue wait, from `../analysis/bottleneck_hints.py`) under 100 ms | The brief's 2×S rate exists so "no queue builds". A slow cascade setting can still exceed 2S per ticket; then p50 tracks run length, not the configuration. 100 ms is Assignment 1's own queueing threshold (`prediction_record.md` §1.1) | TODO(a2): confirm or change |
+| **"Large gap"** between accuracy-test and speed-test escalation fractions | More than 15 percentage points | The two fractions come from different tickets (101 test-set vs the 100-ticket workload), so some gap is expected. The brief says "explain any large gap" but doesn't define "large" | TODO(a2): confirm or change |
+| **What "fastest" means** (decides the Step 5 recommendation) | Rank by the **mean of the three per-run p50s**. A is faster than B only if A's per-run p50 range (min–max) lies entirely below B's; overlapping ranges are "not distinguishable". Among indistinguishable qualifying configurations, pick the **higher test-set accuracy**, then the **simpler** one (single model over cascade). A configuration must be distinguishably faster than `qwen2.5:7b` alone, or the recommendation is `qwen2.5:7b`. | Matches what the brief has you report (Slide 5: "p50 per run with spread") and predict (Step 3: "median latency"), so predictions score directly. Pooled p95 has no spread, so it can't show a real difference. The client accepts lower accuracy only "provided it is faster": without a demonstrable speed gain the accuracy loss isn't justified | TODO(a2): confirm or change |
+| **Errored ticket in an accuracy test** (e.g. HTTP 502) | Counts as **wrong**, and the count is reported. Never retry a single ticket. Any error is investigated; if an infrastructure fault caused it, the **whole** run is invalid and re-run under the re-run policy (`../docs/playbooks/cascade-test.md` §6) | Excluding it changes the number of tickets scored and breaks the brief's "same tickets" comparison. Retrying contradicts "once per configuration". A serial, unloaded run shouldn't time out, so an error signals a fault. Counting it wrong matches A1's treatment of `UNPARSEABLE`: a deployed system would misroute it | TODO(a2): confirm or change |
+
+A speed run that fails the no-queue check is still reported, flagged as queued, not compared on p50.
+
+---
+
 ## Sign-off
 
 Each member's own figures, recorded before the team entry above was agreed, per `../README.md`'s rule that

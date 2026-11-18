@@ -44,6 +44,18 @@ repository"); the deck is exactly 8 slides or fewer; the three supporting files 
 
 ---
 
+### Traceability map — fill in as each figure goes onto a slide
+
+The brief: "Every figure on slides 4 to 7 must be traceable to a log or .jtl file in the repository." Add a
+row for every number placed on Slides 4–7, when it's placed. Before submission, every row must point to a
+file that exists in the repository, and the number must match it. Part 5 checks the table, not the deck.
+
+| Slide | Figure (as shown) | Source file | Produced by (script / command) |
+|---|---|---|---|
+| | | | |
+
+---
+
 ## Slide 1 — Cover
 
 **The brief requires (verbatim):** "Group, names, IDs, repository link. Top model and its Assignment 1
@@ -105,7 +117,7 @@ Which pass the limits. Escalation fraction; accuracy of escalated vs non-escalat
 speed-tested configuration. Escalation fraction under load."
 
 - [ ] p50 per run (3 runs) with mean and spread, for every speed-tested configuration.
-- [ ] Pooled p95 (~90 requests, state the count), per configuration.
+- [ ] Pooled p95 across the three runs, per configuration, with the actual request count it's based on.
 - [ ] Achieved throughput and error rate, per run.
 - [ ] Escalation fraction under load (from service logs), both cascade settings — and the comparison against
       the accuracy-test escalation fraction, explaining any large gap.

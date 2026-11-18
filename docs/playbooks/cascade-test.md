@@ -21,7 +21,7 @@ with `gate.json` (not `freeze.json`) recording the A2 gate this run was measured
 |---|---|---|
 | Gate checked before any run | `scripts/freeze_gate.py` (`golden-freeze`) | `scripts/a2_gate.py` (`a2-predictions-freeze`) — see `../../TODO_A2.md` "Definition of done" |
 | Arrival rate | from `../../workload/workload_model.md` | derived from `qwen2.5:7b`'s own speed (S) — see `../a2/arrival-rate.md` |
-| Ticket source | `data/team_rows.csv`, recycled via CSV Data Set Config | the **fixed** list in `../../workload/speed_test_rows_a2.txt`, sourced from `../../data/speed_test_tickets_a2.csv` (same `row_number,narrative,raw_label` shape, filtered to that list), **same order for every configuration** |
+| Ticket source | `data/team_rows.csv`, recycled via CSV Data Set Config | the **fixed** 100-ticket list in `../../workload/speed_test_rows_a2.txt`, sourced from `../../data/speed_test_tickets_a2.csv` (same `row_number,narrative,raw_label` shape), **same order for every configuration, recycle off** so no ticket repeats within a run |
 | Models loaded before the run | one | **one** for a single-model configuration, **two** for the cascade — both must be confirmed resident (`ollama ps`) before the run starts |
 | HTTP timeout / trailing pause | fixed per `load-test.md` | derived from S — see `../a2/arrival-rate.md` §3 |
 | Software/digest/Ollama-settings check | recorded once for the campaign | recorded once, **then diffed before every configuration** (brief, Set-up) — see §2.4 |
@@ -47,12 +47,16 @@ separate machine, same SSH/`rsync` plumbing, same `jmeter/user.properties`.
 ### 2.3 The fixed workload ticket list
 
 ```bash
-cat workload/speed_test_rows_a2.txt      # the 10 row numbers, with their band (typical/long)
+cat workload/speed_test_rows_a2.txt      # the 100 row numbers, with their band (typical/long)
 ```
 
 JMeter's CSV Data Set Config for the Assignment 2 plan points at `data/speed_test_tickets_a2.csv` (not
-`data/team_rows.csv`), with `recycle` enabled so a ~30-request run cycles through the 10 fixed tickets three
-times, in the same file order, for every configuration.
+`data/team_rows.csv`), in file order, the same for every configuration, with **recycle off**. A run must
+never send the same ticket twice: the brief warns that Ollama caches prompts it has seen and a repeat comes
+back much faster. 100 tickets covers this team's runs — with S ≈ 2.3 s the 5-minute minimum gives ~65
+requests (rate × run length, random arrivals can run higher). Once S is measured, do the check in
+`../a2/arrival-rate.md` §2: the safe upper bound (expected + 3 × √expected) must be ≤ 100. If not, regenerate
+the list larger before the first run, not after.
 
 ### 2.4 Software versions, model digests, Ollama settings
 
@@ -143,19 +147,70 @@ scripts/run_load_test_a2.sh --config <model-tag|cascade-a|cascade-b> \
 - Requests sent, completed, errored and **unfinished. A run with unfinished requests is reported as such,
   not thrown away** (brief, Step 4) — do not re-run and discard a messy result; report what happened and let
   the analysis note it.
+- If requests sent exceeded the 100 tickets in the list, tickets repeated within the run and its latency is
+  suspect (prompt cache). Report it as such, and regenerate a larger list before further runs.
 - p50 for the run; mean and spread once all three runs of a configuration exist.
-- Pooled p95 across the three runs (~90 requests), with the count stated. **No p99.**
+- Pooled p95 across the three runs, with the actual count stated (the brief's "about 90" assumes ~30 per
+  run; ours will be higher if the 5-minute minimum applies). **No p99.**
 - Achieved throughput and error rate.
 - For the cascade: the escalation fraction from the service log, compared against the accuracy-test
-  escalation fraction — explain any large gap.
+  escalation fraction. Explain any gap above the "large gap" threshold fixed in
+  `../../predictions/prediction_record_a2.md` §4.
+- **No-queue check:** first-half vs second-half p50, and median `ollama_other_ms` (queue wait). If the run
+  fails the threshold in `../../predictions/prediction_record_a2.md` §4, a queue built up and its p50
+  reflects run length, not the configuration. Report it flagged as queued, and don't compare it on p50.
+- For the cascade: confirm no measured request paid a model reload. Check that every request's
+  `load_duration` in the service log is near zero. A large value means Ollama unloaded a model mid-run
+  (`OLLAMA_KEEP_ALIVE`, default 5 min), which the brief calls "a loading result", not a cascade result. Flag
+  that run rather than reporting it as-is (`TODO_A2.md` §1.1).
 
-## 6. Record this in the run log
+## 6. Re-run policy
+
+A run may be re-run **only** for a documented validity failure:
+
+- the A2 gate didn't pass, or `gate.json` is missing;
+- for the cascade, both models weren't resident (`ollama ps`), or a measured request shows a reload
+  (`load_duration`);
+- the no-queue check failed;
+- more requests were sent than the 100-ticket list holds;
+- software versions, digests or Ollama settings changed (§2.4);
+- an environment fault: a machine crashed, the network dropped, Ollama died.
+
+**Never re-run because the result looks bad, slow, or surprising.** That turns "three runs" into "the best
+three of six", and the brief treats the spread across runs as part of the result. Write the reason in
+`../a2/run-log.md` before re-running. The invalid run is **kept** — its folder stays under `results/`, its
+log entry stays, marked invalid with the reason — and the replacement is added beside it. Same "never delete
+an entry" rule as Assignment 1's run log.
+
+Unfinished requests are not a validity failure: they are reported, not re-run away (§5).
+
+## 7. Definition of done — a run, and a configuration
+
+**A run counts as evidence only when every box is true.** If one isn't, the run is invalid: apply §6.
+
+- [ ] `gate.json` is in the run folder and shows `"ok": true`.
+- [ ] Versions, digests and Ollama settings matched the record (§2.4).
+- [ ] Three fixed warm-up tickets were sent and their timings discarded (§4.2).
+- [ ] For the cascade: `ollama ps` listed both models before the run, and no measured request shows a
+      reload (`load_duration` near zero).
+- [ ] Requests sent ≤ 100, so no ticket repeated.
+- [ ] The no-queue check passed (thresholds in `../../predictions/prediction_record_a2.md` §4).
+- [ ] `python analysis/reconcile.py --run-dir <run>` exits 0 — the `.jtl` and the service log agree.
+- [ ] Sent, completed, errored and unfinished counts are recorded, and the `GET /stats` delta (§4.5) is
+      consistent with them.
+- [ ] The run has an entry in `../a2/run-log.md`.
+
+**A configuration is done when:** it has an accuracy result on the 101 test-set rows (reused for single
+models only if the reuse check in `../a2/accuracy_limits.md` passes), and — if it is speed-tested — **three
+valid runs**, each meeting the list above, all at the same rate, run length and ticket list.
+
+## 8. Record this in the run log
 
 In `../a2/run-log.md` — **not** `../run-log.md` (that one is Assignment 1's and is not touched again). Same
 fields as `load-test.md` section 7, plus: which cascade setting (if any), and the escalation fraction read
 from the run's service log.
 
-## 7. Rehearsal
+## 9. Rehearsal
 
 Per `TODO_A2.md` §5.2: run one complete A2 speed test from this playbook, with Yeo Kai Yuan watching but not
 helping. Every point you had to ask about is a defect in this document — fix it here, not just in

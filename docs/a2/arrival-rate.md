@@ -32,7 +32,9 @@ either the S measurement or the speed runs.
 |---|---|
 | Rate = 60 / (2×S) per minute | TODO(a2) |
 | Run length = S minutes, minimum 5 | TODO(a2) |
-| Approx. tickets per run | TODO(a2) (should land near 30) |
+| Approx. tickets per run = rate × run length | TODO(a2) — ~30 if S ≥ 5 s; if the 5-minute minimum applies it is ≈ 150 / S (≈ 65 for S = 2.3 s, A1's `qwen2.5:7b` p50). |
+| Safe upper bound = expected + 3 × √expected | TODO(a2) — `random_arrivals` varies the count run to run, so check this, not the average. ≈ 89 for S = 2.3 s; ≈ 101 for S = 2 s. |
+| Upper bound ≤ 100 (tickets in `../../workload/speed_test_rows_a2.txt`)? | TODO(a2) — yes / no. **If no, regenerate the list larger before the first speed run** (same seeded method, more tickets), or tickets will repeat within a run and hit Ollama's prompt cache. |
 
 This rate and run length are used for **every** speed-tested configuration, including the single models and
 both cascade settings — not just `qwen2.5:7b` (brief: "Use the same rate and run length for every

@@ -19,6 +19,9 @@ a **separate file**, not an extension of that one, so an Assignment 1 entry is n
 5. Times are UTC, with Singapore time (UTC+8) in brackets.
 6. For a cascade entry, record the setting (A or B) and the escalation fraction from the service log
    alongside the usual latency figures.
+7. Re-run only for a reason listed in `../playbooks/cascade-test.md` §6, and write the reason here **before**
+   re-running. Never re-run because a result looks bad. The invalid run's entry stays, marked invalid.
+8. Mark each run valid or invalid against the checklist in `../playbooks/cascade-test.md` §7.
 
 ## Environment
 

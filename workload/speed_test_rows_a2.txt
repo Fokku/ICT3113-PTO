@@ -1,17 +1,109 @@
 # Fixed speed-test workload -- Group 10, Assignment 2
-# 10 ticket row numbers, from data/team_rows.csv, outside golden/golden_set.csv.
-# Selected deterministically by narrative character length among the 800 non-golden
-# team rows: 5 "typical" (closest to the median length, 749 chars) and 5 "long"
-# (closest to the 90th percentile, 1596 chars), ties broken by lowest row_number.
-# Fixed order below (ascending row_number) is used for every configuration, per the brief.
+# 100 distinct ticket row numbers from data/team_rows.csv, none in golden/golden_set.csv.
+# Sized so a run never repeats a ticket: with S ~2.3 s (qwen2.5:7b, A1) the 5-minute
+# minimum gives ~65 requests per run, and a repeated prompt would hit Ollama's cache.
+# Selection (seeded, random.Random(3113)): 70 "typical" from the interquartile length band
+# (492-1186 chars) and 30 "long" from >= the 85th percentile (1405+ chars), among the
+# 800 non-golden team rows. Fixed order below (ascending row_number), every configuration.
+# Use with JMeter recycle OFF. Do not reuse these rows as S-measurement or warm-up tickets.
 # row_number,narrative_chars,band
-10051,757,typical
-10093,1604,long
-10382,1587,long
+10010,1034,typical
+10014,1072,typical
+10021,1438,long
+10030,808,typical
+10037,912,typical
+10052,1026,typical
+10079,657,typical
+10086,1100,typical
+10092,1172,typical
+10101,525,typical
+10102,914,typical
+10109,820,typical
+10111,657,typical
+10143,1017,typical
+10153,649,typical
+10155,1873,long
+10162,571,typical
+10166,580,typical
+10171,1429,long
+10185,1629,long
+10188,505,typical
+10197,1451,long
+10209,1634,long
+10213,1877,long
+10249,1558,long
+10256,618,typical
+10260,1977,long
+10272,725,typical
+10275,1123,typical
+10288,830,typical
+10289,932,typical
+10302,542,typical
+10304,646,typical
+10317,1981,long
+10321,1812,long
+10332,677,typical
+10333,1042,typical
+10343,1109,typical
+10351,725,typical
+10384,702,typical
+10385,793,typical
+10386,690,typical
+10392,640,typical
+10395,661,typical
+10404,1106,typical
 10416,1592,long
-10627,744,typical
-10685,749,typical
-10892,743,typical
-10910,749,typical
+10438,1478,long
+10443,953,typical
+10445,551,typical
+10450,1057,typical
+10455,675,typical
+10482,673,typical
+10491,1764,long
+10502,530,typical
+10506,1666,long
+10530,738,typical
+10531,567,typical
+10542,822,typical
+10572,1951,long
+10587,593,typical
+10592,539,typical
+10596,970,typical
+10608,961,typical
+10612,1074,typical
+10633,546,typical
+10636,868,typical
+10674,1693,long
+10696,525,typical
+10698,573,typical
+10708,797,typical
+10709,1487,long
+10752,1163,typical
+10753,719,typical
+10757,588,typical
+10772,1459,long
+10797,1904,long
+10801,925,typical
+10804,1469,long
+10809,873,typical
+10810,1818,long
+10820,1712,long
+10833,1971,long
+10834,711,typical
+10838,634,typical
+10851,657,typical
+10875,957,typical
+10878,673,typical
+10886,1862,long
+10891,839,typical
+10899,1738,long
+10917,790,typical
 10918,1596,long
-10961,1606,long
+10934,1814,long
+10936,634,typical
+10946,1665,long
+10956,923,typical
+10977,560,typical
+10980,1983,long
+10985,973,typical
+10995,641,typical

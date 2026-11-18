@@ -16,7 +16,7 @@
 | 1 | Yeo Kai Yuan | 2403201 | the service, the scripts, the plans, the freeze gate, the candidate shortlist, the campaign | the cascade in the service, the memory check, the speed tests |
 | 2 | Loh Wen Xuan | 2401561 | golden-set lead and labeller A: `labelling/protocol.md`, the agreement run, the golden set | the accuracy limits, and the escalation rule's design and tuning |
 | 3 | Jolie Ngai Ning Li | ⟪ID⟫ | labeller B, co-resolution of disagreements, accuracy results | accuracy testing and interpretation |
-| 4 | Toh Si Pei | ⟪ID⟫ | workload model and requirements | predictions, the recommendation, the defence |
+| 4 | Toh Si Pei |2401835 | workload model and requirements | predictions, the recommendation, the defence |
 | 5 | Koh Tong Wei | 2402162 | test environment, playbooks and the deck | the speed-test playbook, the run log, the deck, limitations |
 
 The three ⟪ID⟫ cells are filled from `slides/team.yaml`, which Slide 1 is built from.

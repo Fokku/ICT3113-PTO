@@ -1,0 +1,58 @@
+{
+  "measured_at_utc": "2026-11-19T07:49:11Z",
+  "measured_from_host": "omarchy",
+  "service_url": "http://127.0.0.1:8000",
+  "top_model_tag": "qwen2.5:7b",
+  "top_model_digest": "sha256:845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+  "prompt_hash": "sha256:681131c48bdc15a1",
+  "ollama_restart": "docker compose -f /home/fokku/claude/ICT3113-PTO/docker-compose.yml restart ollama",
+  "warmup_rows": [
+    "900000",
+    "900001",
+    "900002"
+  ],
+  "s_selection": "the 3 team rows not in golden/split_a2.csv and not in workload/speed_test_rows_a2.txt whose narrative length is closest to the non-golden median (749 chars); ties to the lower row number",
+  "s_rows": [
+    10685,
+    10910,
+    10627
+  ],
+  "s_timings_s": [
+    3.851,
+    3.339,
+    3.029
+  ],
+  "s_requests": [
+    {
+      "row_number": 10685,
+      "request_id": "s-measure-1852a720-7eb8-4541-9a3b-0322b47f11d5",
+      "http_status": 200,
+      "elapsed_ms": 3851.4,
+      "narrative_chars": 749
+    },
+    {
+      "row_number": 10910,
+      "request_id": "s-measure-b0773aad-6d64-43d4-8200-0f73c884cf72",
+      "http_status": 200,
+      "elapsed_ms": 3338.6,
+      "narrative_chars": 749
+    },
+    {
+      "row_number": 10627,
+      "request_id": "s-measure-a2058173-db44-4022-b144-313e7b04c026",
+      "http_status": 200,
+      "elapsed_ms": 3028.9,
+      "narrative_chars": 744
+    }
+  ],
+  "s_seconds": 3.339,
+  "rate_per_min": 8.98,
+  "interval_s": 6.678,
+  "duration_s": 300,
+  "response_timeout_ms": 300000,
+  "pause_s": 360,
+  "expected_tickets_per_run": 44.9,
+  "safe_upper_bound_tickets": 65.0,
+  "workload_list_size": 100,
+  "upper_bound_within_list": true
+}

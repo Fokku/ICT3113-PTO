@@ -1,0 +1,7 @@
+call,model,dev_row,load_duration_ms,total_duration_ms,first_call_for_model,reply
+1,granite4:3b,900000,36605.4,38216.9,True,Bank account or service
+2,qwen2.5:7b,900000,25849.5,29016.6,True,Bank account or service
+3,granite4:3b,900001,91.7,935.7,False,Bank account or service
+4,qwen2.5:7b,900001,1.1,1628.7,False,Bank account or service
+5,granite4:3b,900002,1.4,784.9,False,Bank account or service
+6,qwen2.5:7b,900002,1.1,1529.8,False,Bank account or service

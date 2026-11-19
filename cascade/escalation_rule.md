@@ -24,8 +24,8 @@ set.
 |---|---|
 | Small model (classifies first) | TODO(cascade): exact Ollama tag, from `../models/models.yaml` |
 | Large model (classifies on escalation) | TODO(cascade): exact Ollama tag, from `../models/models.yaml` |
-| Memory check evidence | TODO(cascade): reference the `ollama ps` output / log confirming both tags stay resident together, and where it is kept (e.g. `../docs/environment/`) |
-| RAM given to the Ollama container at the time of the check | TODO(cascade): from `../docker-compose.yml`, unchanged from Assignment 1 |
+| Memory check evidence | *(Part 1, 2026-11-19.)* **Every candidate pair fits.** `llama3.2:1b-instruct-q4_K_M`, `llama3.2:3b` and `granite4:3b` each stay resident together with `qwen2.5:7b`: `ollama ps` lists both after alternating small/large calls, with no reload after the first load. Resident: 5.65 / 7.10 / 7.05 GiB. Evidence: `../docs/environment/a2-memory-check/20261119T073203Z/summary.md`, with each pair's raw `ollama ps` in its own sub-folder (`scripts/memory_check_a2.py`). The same check is repeated before every cascade speed run (`ollama_ps_before.txt` in each run folder). |
+| RAM given to the Ollama container at the time of the check | *(Part 1.)* No limit, so the whole host: 31.3 GiB on `omarchy` (Ryzen 9 5900X). `docker-compose.yml` sets no `mem_limit`/`cpus`, unchanged from Assignment 1 (`docker inspect`: Memory 0, NanoCpus 0). `OLLAMA_NUM_PARALLEL=0` and `OLLAMA_MAX_LOADED_MODELS=0` (Ollama's defaults), recorded in `../docs/a2/env_baseline.json`. |
 
 ## 2. The rule
 

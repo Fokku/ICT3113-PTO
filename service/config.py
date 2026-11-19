@@ -50,6 +50,19 @@ DEFAULT_UVICORN_WORKERS = 1
 DEFAULT_THREADPOOL_SIZE = 40
 DEFAULT_LOG_LEVEL = "INFO"
 
+# ---------------------------------------------------------------------------
+# Assignment 2: the cascade. Selected by configuration, never by the caller —
+# the brief: "the caller should not be able to tell which model produced the
+# answer". In cascade mode MODEL_TAG/MODEL_DIGEST name the LARGE model (the one
+# whose answer is final on escalation); the small model is named separately.
+# ---------------------------------------------------------------------------
+SERVICE_MODE_SINGLE = "single"
+SERVICE_MODE_CASCADE = "cascade"
+SERVICE_MODES = (SERVICE_MODE_SINGLE, SERVICE_MODE_CASCADE)
+DEFAULT_SERVICE_MODE = SERVICE_MODE_SINGLE
+#: The only two setting names, everywhere (TODO_A2.md, shared interfaces).
+CASCADE_SETTINGS = ("A", "B")
+
 #: Timeout for the two short "is Ollama there?" calls (`GET /api/tags`). Not a
 #: configuration variable: it is a liveness probe, not part of the measured
 #: path, and it must stay short so ``/health`` cannot itself become slow.
@@ -118,9 +131,45 @@ class Settings:
     uvicorn_workers: int
     threadpool_size: int
     log_level: str
+    # Assignment 2. Defaults keep every Assignment 1 construction of Settings
+    # meaning exactly what it meant: a single-model service.
+    service_mode: str = DEFAULT_SERVICE_MODE
+    cascade_setting: str | None = None
+    cascade_small_model_tag: str | None = None
+    cascade_small_model_digest: str | None = None
 
     # -- validation --------------------------------------------------------
     def __post_init__(self) -> None:
+        self.service_mode = (self.service_mode or DEFAULT_SERVICE_MODE).strip().lower()
+        if self.service_mode not in SERVICE_MODES:
+            raise ConfigError(
+                f"SERVICE_MODE must be one of {list(SERVICE_MODES)}, got "
+                f"{self.service_mode!r}"
+            )
+        if self.service_mode == SERVICE_MODE_CASCADE:
+            setting = (self.cascade_setting or "").strip().upper()
+            if setting not in CASCADE_SETTINGS:
+                raise ConfigError(
+                    f"SERVICE_MODE=cascade needs CASCADE_SETTING set to one of "
+                    f"{list(CASCADE_SETTINGS)}, got {self.cascade_setting!r}"
+                )
+            self.cascade_setting = setting
+            if not self.cascade_small_model_tag:
+                raise ConfigError(
+                    "SERVICE_MODE=cascade needs CASCADE_SMALL_MODEL_TAG (the small "
+                    "model; MODEL_TAG is the large model in cascade mode)"
+                )
+            if self.cascade_small_model_tag == self.model_tag:
+                raise ConfigError(
+                    f"CASCADE_SMALL_MODEL_TAG and MODEL_TAG are both "
+                    f"{self.model_tag!r}; a cascade needs two different models"
+                )
+        else:
+            # A single-model service carries no cascade configuration at all, so
+            # /health and the log cannot suggest a cascade that is not running.
+            self.cascade_setting = None
+            self.cascade_small_model_tag = None
+            self.cascade_small_model_digest = None
         if self.num_ctx <= 0:
             raise ConfigError(f"NUM_CTX must be positive, got {self.num_ctx}")
         if self.ollama_timeout_s <= 0:
@@ -159,6 +208,23 @@ class Settings:
         if self.model_digest is None and digest:
             self.model_digest = digest
 
+    def set_resolved_small_digest(self, digest: str | None) -> None:
+        """The same as :meth:`set_resolved_digest`, for the cascade's small model.
+
+        The second permitted mutation, with the same rule: an explicit
+        ``CASCADE_SMALL_MODEL_DIGEST`` pin is never overwritten.
+        """
+        if (
+            self.service_mode == SERVICE_MODE_CASCADE
+            and self.cascade_small_model_digest is None
+            and digest
+        ):
+            self.cascade_small_model_digest = digest
+
+    @property
+    def is_cascade(self) -> bool:
+        return self.service_mode == SERVICE_MODE_CASCADE
+
     # -- reporting ---------------------------------------------------------
     def describe(self) -> dict[str, Any]:
         """Return the JSON-serialisable record of this configuration.
@@ -185,7 +251,30 @@ class Settings:
             "threadpool_size": self.threadpool_size,
             "log_level": self.log_level,
             "categories": list(CATEGORIES),
+            # Assignment 2. All null for a single-model service.
+            "service_mode": self.service_mode,
+            "cascade_setting": self.cascade_setting,
+            "cascade_small_model_tag": self.cascade_small_model_tag,
+            "cascade_small_model_digest": self.cascade_small_model_digest,
+            "cascade_large_model_tag": self.model_tag if self.is_cascade else None,
+            "cascade_rule": self._cascade_rule_description(),
         }
+
+    def _cascade_rule_description(self) -> str | None:
+        """The active setting's escalation rule, as the literal condition.
+
+        Imported lazily: ``service.cascade`` imports the Ollama client, and this
+        module promises no import beyond the standard library and dotenv at
+        import time. Returns ``None`` for a single-model service.
+        """
+        if not self.is_cascade or self.cascade_setting is None:
+            return None
+        from service import cascade  # local import, see docstring
+
+        try:
+            return cascade.rule_for(self.cascade_setting).describe()
+        except cascade.CascadeNotConfiguredError as exc:
+            return f"NOT CONFIGURED: {exc}"
 
 
 def load_settings(
@@ -224,4 +313,8 @@ def load_settings(
             env, "SERVICE_THREADPOOL_SIZE", DEFAULT_THREADPOOL_SIZE
         ),
         log_level=_as_str(env, "LOG_LEVEL", DEFAULT_LOG_LEVEL),
+        service_mode=_as_str(env, "SERVICE_MODE", DEFAULT_SERVICE_MODE),
+        cascade_setting=_raw(env, "CASCADE_SETTING"),
+        cascade_small_model_tag=_raw(env, "CASCADE_SMALL_MODEL_TAG"),
+        cascade_small_model_digest=_raw(env, "CASCADE_SMALL_MODEL_DIGEST"),
     )

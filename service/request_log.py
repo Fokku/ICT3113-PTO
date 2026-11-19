@@ -34,7 +34,7 @@ from typing import Any
 from service.log_schema import LOG_FIELDS, RAW_OUTPUT_MAX_CHARS
 
 #: Fields rounded to one decimal place by :func:`build_log_line`.
-_LATENCY_FIELDS = ("total_latency_ms", "model_latency_ms")
+_LATENCY_FIELDS = ("total_latency_ms", "model_latency_ms", "small_model_latency_ms")
 
 
 class LogSchemaError(ValueError):
@@ -81,8 +81,9 @@ def build_log_line(**fields: Any) -> dict[str, Any]:
       :data:`service.log_schema.RAW_OUTPUT_MAX_CHARS` characters. Nothing is
       appended — no ellipsis — because the analysis code compares this string
       against the model's category and a marker suffix would break that.
-    * ``total_latency_ms`` and ``model_latency_ms`` are rounded to one decimal
-      place, the precision the contract states.
+    * ``total_latency_ms``, ``model_latency_ms`` and (schema version 2)
+      ``small_model_latency_ms`` are rounded to one decimal place, the
+      precision the contract states.
 
     Raises :class:`LogSchemaError` for an unknown or a missing field.
     """

@@ -14,14 +14,41 @@ All durations reported by Ollama (``total_duration``, ``load_duration``,
 ``prompt_eval_duration``, ``eval_duration``) are **nanoseconds**, copied
 verbatim from the ``/api/generate`` response. Our own ``total_latency_ms`` and
 ``model_latency_ms`` are **milliseconds**, measured with a monotonic clock.
+
+Schema history
+--------------
+* **Version 1** (Assignment 1): the first 24 fields, :data:`LOG_FIELDS_V1`.
+  Every Assignment 1 run under ``results/`` and ``logs/service/`` was written
+  with it, and those files are evidence, so they are never rewritten.
+  ``analysis/common.read_service_log`` still reads them, filling the version 2
+  fields with null.
+* **Version 2** (Assignment 2): :data:`CASCADE_LOG_FIELDS` appended at the end,
+  nothing reordered. They are null on every line a single-model service writes,
+  and set on every ``POST /tickets`` line a cascade service writes.
+
+What the model fields mean on a cascade line
+--------------------------------------------
+``model_tag`` / ``model_digest`` / ``predicted_category`` / ``raw_model_output``
+describe **whichever model's answer the service returned**: the small model's
+when the ticket was accepted, the large model's when it was escalated. That is
+"which model produced the final classification" for the brief's purposes.
+
+``model_latency_ms`` and the six Ollama fields are **summed over every model
+call the request made** (one call when accepted, two when escalated), so that
+``total_latency_ms - model_latency_ms`` is still the service's own overhead and
+``model_latency_ms - total_duration/1e6`` is still time spent outside Ollama's
+own work (queueing, HTTP), exactly as for a single-model line. The small call on
+its own is broken out in ``small_model_latency_ms`` and ``small_load_duration``,
+so the large call's share is the difference.
 """
 
 from __future__ import annotations
 
-LOG_SCHEMA_VERSION = 1
+LOG_SCHEMA_VERSION = 2
 
-#: Exact key order of every line in logs/service/<date>.jsonl.
-LOG_FIELDS: tuple[str, ...] = (
+#: The Assignment 1 field list (schema version 1), kept so that the 24-field
+#: Assignment 1 logs stay readable and checkable.
+LOG_FIELDS_V1: tuple[str, ...] = (
     # --- identifiers ---------------------------------------------------
     "ts",                     # str   ISO-8601 UTC, millisecond precision, 'Z'
     "request_id",             # str   from X-Request-ID, or a generated UUID4
@@ -52,6 +79,21 @@ LOG_FIELDS: tuple[str, ...] = (
     # --- outcome -------------------------------------------------------
     "error",                  # str|None  short machine-readable error slug
 )
+
+#: The fields schema version 2 appends for the Assignment 2 cascade. Null on
+#: every line that is not a cascade ``POST /tickets``.
+CASCADE_LOG_FIELDS: tuple[str, ...] = (
+    "escalated",              # bool|None  true when the large model was called
+    "cascade_setting",        # str|None   "A" | "B" (the escalation rule's setting)
+    "small_model_tag",        # str|None   the cascade's small model
+    "small_model_category",   # str|None   what the small model said, normalised,
+                              #            independent of what the service returned
+    "small_model_latency_ms", # float|None the small-model call alone, 1 dp
+    "small_load_duration",    # int|None   ns, Ollama load_duration of the small call
+)
+
+#: Exact key order of every line in logs/service/<date>.jsonl (version 2).
+LOG_FIELDS: tuple[str, ...] = LOG_FIELDS_V1 + CASCADE_LOG_FIELDS
 
 #: ``raw_model_output`` is sliced to this many characters before logging, so a
 #: runaway model reply cannot bloat a load-test log to gigabytes.

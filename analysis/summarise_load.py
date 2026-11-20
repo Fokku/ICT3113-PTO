@@ -675,7 +675,11 @@ def select_runs(
 ) -> list[common.RunDirInfo]:
     """Run directories under ``runs_root`` that pass the ``--model``/``--plan`` filters."""
     found = common.iter_run_dirs(runs_root)
-    selected = found
+    # Assignment 2 speed runs share results/runs/ but are summarised only by
+    # analysis/summarise_load_a2.py, into their own output directory, so an A2
+    # figure can never be pooled into an Assignment 1 table (TODO_A2.md,
+    # guardrail 10). Asking for them explicitly with --plan speed_a2 still works.
+    selected = [info for info in found if info.plan != common.A2_SPEED_PLAN or plan == common.A2_SPEED_PLAN]
     if model is not None:
         wanted = {model, common.sanitise_model_tag(model)}
         selected = [info for info in selected if info.model in wanted]

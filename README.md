@@ -66,13 +66,15 @@ Then we recommend one configuration. It may be a single model, and it may be tha
 | [`docs/assignment-2-brief.md`](docs/assignment-2-brief.md) | The brief, as markdown |
 | [`golden/split_a2.csv`](golden/split_a2.csv) | The tuning/test split (99 and 101 tickets), committed before any design work |
 | [`cascade/`](cascade/) | The written escalation rule (a template to fill in) and how to design it |
-| [`service/cascade.py`](service/cascade.py) | The cascade code. **Currently an interface stub**: it is not wired into the service |
+| [`service/cascade.py`](service/cascade.py) | The cascade code, wired into `POST /tickets` (`SERVICE_MODE=cascade`; see `.env.example`). Setting A and Setting B are empty in `RULE_SETTINGS` until Part 2's rule is copied in, and a cascade service refuses to start until then |
 | [`scripts/a2_gate.py`](scripts/a2_gate.py) | The Assignment 2 gate. Exit 0 means benchmarks may start |
 | [`predictions/prediction_record_a2.md`](predictions/prediction_record_a2.md) | The Assignment 2 predictions and decision rules (a template to fill in) |
 | [`docs/a2/`](docs/a2/) | Accuracy limits, arrival rate, run log and AI-use log |
 | [`docs/playbooks/cascade-test.md`](docs/playbooks/cascade-test.md) | The Assignment 2 speed-test procedure |
 | [`workload/speed_test_rows_a2.txt`](workload/speed_test_rows_a2.txt), [`data/speed_test_tickets_a2.csv`](data/speed_test_tickets_a2.csv) | The fixed 100-ticket speed-test workload (the list is a required submission file) |
 | [`slides/outline_a2.md`](slides/outline_a2.md) | The 8-slide build plan |
+| [`docs/environment/a2-memory-check/`](docs/environment/a2-memory-check/) | The memory check: `ollama ps` evidence that each small model and `qwen2.5:7b` stay resident together |
+| Part 1's A2 scripts | `scripts/memory_check_a2.py`, `scripts/measure_s_a2.py` (S → `docs/a2/arrival_rate.json`), `scripts/a2_env_snapshot.py` (`docs/a2/env_baseline.json`), `scripts/cascade_replay.py` (rule-fidelity check), `scripts/run_accuracy_a2.py`, `scripts/run_load_test_a2.sh` + `jmeter/speed_test_a2.jmx`, `analysis/summarise_load_a2.py`. All the benchmark scripts enforce the A2 gate and have a `--dev` mode |
 
 ### The Assignment 2 gate
 
@@ -84,8 +86,9 @@ python scripts/a2_gate.py        # exit 0 = go; exit 3 = blocked, with the reaso
 
 It passes only when `predictions/prediction_record_a2.md`, `cascade/escalation_rule.md` and
 `golden/split_a2.csv` are committed, unchanged, tagged `a2-predictions-freeze`, and the two documents have no
-`TODO(` placeholders left. **The Assignment 1 run scripts check only `golden-freeze`, not this gate**, so run
-`a2_gate.py` yourself before any Assignment 2 benchmark until the Assignment 2 scripts exist.
+`TODO(` placeholders left. **The Assignment 1 run scripts check only `golden-freeze`, not this gate**, so never
+use them for an Assignment 2 benchmark. The Assignment 2 scripts (`scripts/run_accuracy_a2.py`,
+`scripts/run_load_test_a2.sh`) run the gate themselves and stop with exit 3 if it is blocked.
 
 ### Before you start (once, for everyone)
 

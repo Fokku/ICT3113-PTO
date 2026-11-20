@@ -31,7 +31,10 @@ from service import main as service_main
 from service import ollama_client
 from service.config import Settings, load_settings
 from service.log_schema import (
+    CASCADE_LOG_FIELDS,
     LOG_FIELDS,
+    LOG_FIELDS_V1,
+    LOG_SCHEMA_VERSION,
     OLLAMA_TIMING_FIELDS,
     RAW_OUTPUT_MAX_CHARS,
 )
@@ -82,6 +85,13 @@ VALID_FIELDS: dict[str, Any] = {
     "eval_count": 1,
     "eval_duration": 1,
     "error": None,
+    # Schema version 2 (Assignment 2): null on every non-cascade line.
+    "escalated": None,
+    "cascade_setting": None,
+    "small_model_tag": None,
+    "small_model_category": None,
+    "small_model_latency_ms": None,
+    "small_load_duration": None,
 }
 
 
@@ -89,11 +99,34 @@ VALID_FIELDS: dict[str, Any] = {
 # build_log_line: the guard against schema drift
 # ---------------------------------------------------------------------------
 
-def test_the_contract_has_twenty_four_fields() -> None:
-    """A field added or removed is a breaking change for every recorded run."""
-    assert len(LOG_FIELDS) == 24
-    assert len(set(LOG_FIELDS)) == 24
+def test_the_contract_has_thirty_fields() -> None:
+    """A field added or removed is a breaking change for every recorded run.
+
+    Changed on purpose from 24 to 30 for Assignment 2 (schema version 2): the six
+    cascade fields were appended. If this fails again, the schema moved again --
+    bump LOG_SCHEMA_VERSION and teach analysis/common.read_service_log the new
+    shape before changing this number.
+    """
+    assert LOG_SCHEMA_VERSION == 2
+    assert len(LOG_FIELDS) == 30
+    assert len(set(LOG_FIELDS)) == 30
     assert set(VALID_FIELDS) == set(LOG_FIELDS)
+
+
+def test_version_1_is_still_the_first_twenty_four_fields_in_order() -> None:
+    """The Assignment 1 logs are evidence: version 2 may only append, never reorder."""
+    assert len(LOG_FIELDS_V1) == 24
+    assert LOG_FIELDS[:24] == LOG_FIELDS_V1
+    assert LOG_FIELDS[24:] == CASCADE_LOG_FIELDS
+    assert LOG_FIELDS_V1[-1] == "error"
+    assert CASCADE_LOG_FIELDS == (
+        "escalated",
+        "cascade_setting",
+        "small_model_tag",
+        "small_model_category",
+        "small_model_latency_ms",
+        "small_load_duration",
+    )
 
 
 def test_build_log_line_returns_fields_in_schema_order() -> None:

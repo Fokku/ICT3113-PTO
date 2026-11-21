@@ -78,8 +78,8 @@ These exist on disk already, ahead of the gate, so nobody's AI session re-invent
 | [`golden/split_a2.csv`](golden/split_a2.csv) | **Done.** Generated mechanically from `golden/golden_set.csv` by row-number parity: 99 tuning rows, 101 test rows. Nothing left to do here. | — |
 | [`scripts/a2_gate.py`](scripts/a2_gate.py) | **Done**, working — ported from `scripts/freeze_gate.py`, gates on `predictions/prediction_record_a2.md`, `cascade/escalation_rule.md` and `golden/split_a2.csv`, tag `a2-predictions-freeze`. Run `python scripts/a2_gate.py` any time to check status. | — |
 | [`cascade/README.md`](cascade/README.md) | Done — read-first for Part 2. | — |
-| [`cascade/escalation_rule.md`](cascade/escalation_rule.md) | Skeleton with `TODO(cascade)` placeholders in the fixed section order from the interface table below | Part 2 — Loh Wen Xuan, §2.5 |
-| [`docs/a2/accuracy_limits.md`](docs/a2/accuracy_limits.md) | Skeleton with `TODO(a2)` placeholders: a reuse-validity check up front, §3 the pass/fail rules, §4 the exact reproduction steps | Part 2 — Loh Wen Xuan, §2.2 |
+| [`cascade/escalation_rule.md`](cascade/escalation_rule.md) | **Filled** 2026-11-21 (Part 2): `granite4:3b` → `qwen2.5:7b`, category-based, Setting A 78/99 and Setting B 59/99 escalated on tuning. Reproduced exactly by `scripts/cascade_replay.py`'s `replay()`. One `TODO(cascade)` left on purpose: the team's sign-off on the settings at W.1 | Part 2 — Loh Wen Xuan, §2.5 |
+| [`docs/a2/accuracy_limits.md`](docs/a2/accuracy_limits.md) | **Filled** 2026-11-21 (Part 2): overall limit 64.26% (≥ 65/101), per-category limits with minimum counts, reuse check passed against `docs/a2/env_baseline.json` | Part 2 — Loh Wen Xuan, §2.2 |
 | [`docs/a2/arrival-rate.md`](docs/a2/arrival-rate.md) | **Filled** 2026-11-19: S = 3.339 s → 8.98/min, 300 s runs, 300 000 ms timeout, 360 s pause (machine-readable copy: `docs/a2/arrival_rate.json`) | Part 1 — Yeo Kai Yuan, §1.3 |
 | [`predictions/prediction_record_a2.md`](predictions/prediction_record_a2.md) | Skeleton with `TODO(a2)` placeholders and the sign-off table | Part 4 — Toh Si Pei, §4.2, whole team in §W.1 |
 | [`slides/outline_a2.md`](slides/outline_a2.md) | Done — the Assignment 2 build plan, mirroring `slides/outline.md`'s format, one section per slide with the brief's requirements as checkboxes | Part 5 — Koh Tong Wei assembles from it, §5.5 |
@@ -479,48 +479,49 @@ gate opens. Everything below is computable from data already in the repository �
 
 ### 2.2 Compute the accuracy limits (reuse, no new calls)
 
-- [ ] `docs/a2/accuracy_limits.md` (template already exists — fill it in): using `qwen2.5:7b`'s existing `responses.csv`
+- [x] `docs/a2/accuracy_limits.md` (template already exists — fill it in): using `qwen2.5:7b`'s existing `responses.csv`
       (`results/accuracy/qwen2.5-7b_20261008T123045Z/responses.csv`) filtered to `golden/split_a2.csv`'s
       `test` rows and scored against `golden/golden_set.csv`, compute:
       - **Overall limit** = `qwen2.5:7b`'s test-set accuracy − 10 percentage points.
       - **Per-category limit**, for each of the seven categories = `qwen2.5:7b`'s test-set accuracy on that
         category − 15 percentage points.
-- [ ] Show counts (right/wrong), not just percentages, for the overall figure and every category — the test
+- [x] Show counts (right/wrong), not just percentages, for the overall figure and every category — the test
       set is 101 tickets and some categories will have under 10, so a bare percentage is misleading without
       the count behind it (brief, "Small numbers").
-- [ ] Flag any category too small (brief's own example: 8 tickets ⇒ one ticket is 12.5 points) for the
-      per-category limit to be a fair test, and say so in the document and on Slide 1.
+- [x] Flag any category too small (brief's own example: 8 tickets ⇒ one ticket is 12.5 points) for the
+      per-category limit to be a fair test, and say so in the document and on Slide 1. *(None under 10;
+      Mortgage, Credit card and Money transfer flagged borderline at N = 11. Slide 1 still needs it from Part 5.)*
 - [ ] Hand the two limit numbers (overall %, per-category table) to Part 4 for the predictions meeting and to
       Part 3 for scoring every other configuration against them.
 
 ### 2.3 Design the escalation rule
 
-- [ ] Pick one approach from the brief's four examples (category-based, agreement, self-reported confidence,
+- [x] Pick one approach from the brief's four examples (category-based, agreement, self-reported confidence,
       ticket length) or a documented alternative, using the pair(s) Part 1 confirms both fit in memory
       ([1.1](#11-memory-check--do-this-before-designing-anything)). Category-based is the natural first choice: it needs
       no extra model call beyond the two the cascade already makes, and it can be tuned entirely from
       existing A1 per-ticket predictions.
-- [ ] Justify the choice against the alternatives in one paragraph — in particular, rule out or cost the
+- [x] Justify the choice against the alternatives in one paragraph — in particular, rule out or cost the
       "agreement" method's extra model call (brief: "two small calls may cost as much as one large call;
       measure it") before dropping it.
 
 ### 2.4 Tune the two settings, on the tuning set only
 
-- [ ] Using the small model's existing `responses.csv`, **filtered to `golden/split_a2.csv`'s `tuning` rows
+- [x] Using the small model's existing `responses.csv`, **filtered to `golden/split_a2.csv`'s `tuning` rows
       only**, work out which predicted categories the small model gets right reliably (category-based rule)
       or the equivalent signal for whichever method was chosen in [2.3](#23-design-the-escalation-rule).
       **Never look at the small model's Assignment 1 results on the tuning set's labels through the test-set
       tickets** — the test set is scored blind, at the end, by Part 3.
-- [ ] Choose two settings (e.g. two different "reliable category" lists, or two length cut-offs) that give
+- [x] Choose two settings (e.g. two different "reliable category" lists, or two length cut-offs) that give
       visibly different escalation fractions on the tuning set, so the two reported settings actually show a
       trade-off rather than two near-identical points.
-- [ ] For the chosen rule, estimate on the tuning set: how often a *wrong* small-model answer slips through
+- [x] For the chosen rule, estimate on the tuning set: how often a *wrong* small-model answer slips through
       because it predicted a "safe"/accepted category (brief, Example method 1) — this number belongs in the
       escalation rule document and feeds Part 4's predictions.
 
 ### 2.5 Write the escalation rule document (required supporting file)
 
-- [ ] `cascade/escalation_rule.md` (template already exists — fill it in): the rule stated precisely enough that another team could implement
+- [x] `cascade/escalation_rule.md` (template already exists — fill it in): the rule stated precisely enough that another team could implement
       it from the description alone — exact signal, exact accept/escalate condition, the two settings as
       concrete parameter values, and the memory-check evidence from Part 1. This is one of the three
       supporting files the brief requires at submission, and it must be committed **before** the A2 gate,
@@ -530,7 +531,7 @@ gate opens. Everything below is computable from data already in the repository �
 
 ### 2.6 Slide 2 (with Yeo Kai Yuan) and Slide 4 (with Jolie Ngai Ning Li)
 
-- [ ] **Slide 2 — Cascade design** (with Part 1): own the "escalation rule in full", "settings tested" and
+- [x] **Slide 2 — Cascade design** (with Part 1): own the "escalation rule in full", "settings tested" and
       "why this rule" portions; Part 1 owns the diagram and the memory-check evidence.
 - [ ] **Slide 4 — Accuracy results** (with Jolie Ngai Ning Li): own the overall/per-category limit lines drawn on
       the chart and the "which pass the limits" verdicts; Jolie Ngai Ning Li owns the measured accuracy numbers

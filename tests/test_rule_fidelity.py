@@ -55,7 +55,9 @@ def test_the_replay_never_opens_the_golden_labels() -> None:
     assert "golden/golden_set" not in source
 
 
-def test_replay_counts_match_an_independent_count(monkeypatch: pytest.MonkeyPatch, capsys) -> None:
+def test_replay_counts_match_an_independent_count(
+    monkeypatch: pytest.MonkeyPatch, capsys, tmp_path: Path
+) -> None:
     accept = frozenset({"Mortgage", "Credit reporting"})
     monkeypatch.setattr(
         cascade,
@@ -73,7 +75,14 @@ def test_replay_counts_match_an_independent_count(monkeypatch: pytest.MonkeyPatc
         1 for row in rows if lengths[row] > 800 or predictions[row] == "UNPARSEABLE"
     )
 
-    assert cascade_replay.main(["--small-model", SMALL, "--json"]) in (0, 2)
+    # Compare against a blank document, not the real one: this test checks the replay's counting with
+    # made-up rules, and once the real escalation_rule.md has its §3 counts those made-up rules would
+    # (correctly) disagree with it. The real comparison is test_code_reproduces_escalation_rule_document.
+    blank_doc = tmp_path / "escalation_rule.md"
+    blank_doc.write_text(
+        "| Escalation fraction on the tuning set | TODO(cascade) | TODO(cascade) |\n", encoding="utf-8"
+    )
+    assert cascade_replay.main(["--small-model", SMALL, "--json", "--rule-doc", str(blank_doc)]) == 2
     out = capsys.readouterr().out
     import json
 

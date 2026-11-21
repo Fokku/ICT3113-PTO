@@ -71,3 +71,38 @@ or `docs/a2/accuracy_limits.md`.
 
 **What the team did with it:** _(Yeo Kai Yuan to complete after review, e.g. "reviewed and kept",
 "changed X because Y")._
+
+---
+
+## 2026-11-18 to 2026-11-21 — Part 2 (Loh Wen Xuan): accuracy limits and escalation rule
+
+**Tool.** Claude Code (Anthropic, Claude Opus 5.5), run by Loh Wen Xuan in this repository. No model was
+called for any measurement, and no Assignment 1 file was edited.
+
+**What the tool produced** (`TODO_A2.md` §2.2–§2.5), file by file:
+
+| File | Numbers | Text |
+|---|---|---|
+| `docs/a2/accuracy_limits.md` | Computed by a short Python script over the saved Assignment 1 answers (overall and per-category limits). | Drafted by the tool: reuse-check table, borderline-category notes, how pass/fail is decided. |
+| `cascade/escalation_rule.md` | Computed by script from the small model's tuning-row answers (escalation counts 78/99 and 59/99, wrong answers let through). | Drafted by the tool: model pair, the category-based rule, the two settings, the comparison with the other rule ideas, the speed caveat. |
+| `tests/test_rule_fidelity.py` | None. | One test edited (Part 1's file): it now compares against a blank temporary document, because it failed once `escalation_rule.md` was filled in. |
+| `slides/drafts_a2/slide2_cascade_design.md`, `slide4_accuracy_limits.md` | None. | Drafts only, for whoever builds the slides. The Slide 4 verdict table is left blank. |
+
+The numbers can be reproduced without the tool: the command in `accuracy_limits.md` §4 for the limits, and
+`scripts/cascade_replay.py` for the escalation counts.
+
+**What was checked.**
+
+- The one-line command in `accuracy_limits.md` §4 reproduces the limits.
+- Part 1's `scripts/cascade_replay.py`, run with the two settings, reproduces 78/99 and 59/99. The
+  rule-fidelity tests pass.
+- The tuning analysis used only the 99 tuning rows from `golden/split_a2.csv`.
+- `escalation_rule.md` was changed to match `service/cascade.py` where they disagreed (a failed small-model
+  call fails the request instead of escalating).
+
+**Left to the team, deliberately not done by the tool:**
+
+- Approving Setting A and Setting B (W.1). One `TODO(cascade)` stays in `escalation_rule.md` §1 until then.
+- The prediction record, every real measurement, and the recommendation.
+- Pass/fail verdicts on Slide 4 (they need Part 3's scores).
+- `golden/split_a2.csv`, which the tool did not generate or change.

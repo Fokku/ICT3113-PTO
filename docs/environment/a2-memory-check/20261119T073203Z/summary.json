@@ -1,0 +1,74 @@
+{
+  "checked_at_utc": "2026-11-19T07:39:06Z",
+  "host": "omarchy",
+  "ollama_version": "0.34.3",
+  "host_ram_gib": 31.250911712646484,
+  "container_memory_limit": "0 0",
+  "tickets_per_model": 3,
+  "reload_threshold_ms": 1000.0,
+  "pairs": [
+    {
+      "small": "llama3.2:1b-instruct-q4_K_M",
+      "large": "qwen2.5:7b",
+      "ollama_version": "0.34.3",
+      "resident_after_last_call": [
+        "llama3.2:1b-instruct-q4_K_M",
+        "qwen2.5:7b"
+      ],
+      "both_listed": true,
+      "reloads_after_first_load": 0,
+      "reload_threshold_ms": 1000.0,
+      "resident_sizes_bytes": {
+        "qwen2.5:7b": 5062566870,
+        "llama3.2:1b-instruct-q4_K_M": 1005909441
+      },
+      "resident_total_bytes": 6068476311,
+      "calls": 6,
+      "fits": true,
+      "evidence_dir": "docs/environment/a2-memory-check/20261119T073203Z/llama3.2-1b-instruct-q4_K_M__qwen2.5-7b",
+      "docker_stats": "ict3113-ollama\t5.722GiB / 31.25GiB\t18.31%\t0.00%"
+    },
+    {
+      "small": "llama3.2:3b",
+      "large": "qwen2.5:7b",
+      "ollama_version": "0.34.3",
+      "resident_after_last_call": [
+        "llama3.2:3b",
+        "qwen2.5:7b"
+      ],
+      "both_listed": true,
+      "reloads_after_first_load": 0,
+      "reload_threshold_ms": 1000.0,
+      "resident_sizes_bytes": {
+        "qwen2.5:7b": 5062566870,
+        "llama3.2:3b": 2561524365
+      },
+      "resident_total_bytes": 7624091235,
+      "calls": 6,
+      "fits": true,
+      "evidence_dir": "docs/environment/a2-memory-check/20261119T073203Z/llama3.2-3b__qwen2.5-7b",
+      "docker_stats": "ict3113-ollama\t7.166GiB / 31.25GiB\t22.93%\t0.00%"
+    },
+    {
+      "small": "granite4:3b",
+      "large": "qwen2.5:7b",
+      "ollama_version": "0.34.3",
+      "resident_after_last_call": [
+        "granite4:3b",
+        "qwen2.5:7b"
+      ],
+      "both_listed": true,
+      "reloads_after_first_load": 0,
+      "reload_threshold_ms": 1000.0,
+      "resident_sizes_bytes": {
+        "qwen2.5:7b": 5062566870,
+        "granite4:3b": 2507386386
+      },
+      "resident_total_bytes": 7569953256,
+      "calls": 6,
+      "fits": true,
+      "evidence_dir": "docs/environment/a2-memory-check/20261119T073203Z/granite4-3b__qwen2.5-7b",
+      "docker_stats": "ict3113-ollama\t7.094GiB / 31.25GiB\t22.70%\t0.00%"
+    }
+  ]
+}

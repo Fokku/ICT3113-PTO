@@ -24,7 +24,12 @@ from typing import Iterable, Sequence
 import pandas as pd
 
 from service.categories import CATEGORIES, UNPARSEABLE  # noqa: F401  (re-export)
-from service.log_schema import LOG_FIELDS, OLLAMA_TIMING_FIELDS  # noqa: F401
+from service.log_schema import (  # noqa: F401
+    CASCADE_LOG_FIELDS,
+    LOG_FIELDS,
+    LOG_FIELDS_V1,
+    OLLAMA_TIMING_FIELDS,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -39,11 +44,14 @@ JTL_REQUIRED_COLUMNS: tuple[str, ...] = (
 )
 JTL_SAMPLE_VARIABLES: tuple[str, ...] = ("request_id", "source_row")
 
-#: ``results/runs/<stamp>_<model>_<plan>_<rate>_run<k>``
+#: ``results/runs/<stamp>_<model>_<plan>_<rate>_run<k>``. Assignment 2 speed
+#: runs use plan ``speed_a2`` and put the configuration where the model goes:
+#: the sanitised tag for a single model, or ``cascade-A`` / ``cascade-B``.
+A2_SPEED_PLAN = "speed_a2"
 RUN_DIR_RE = re.compile(
     r"^(?P<stamp>\d{8}T\d{6}Z)"
     r"_(?P<model>.+?)"
-    r"_(?P<plan>load_post_tickets|mixed_load|stress_ramp)"
+    r"_(?P<plan>load_post_tickets|mixed_load|stress_ramp|speed_a2)"
     r"_(?P<rate>[^_]+)"
     r"_run(?P<run_index>\d+)$"
 )
@@ -191,6 +199,13 @@ def read_service_log(paths: Path | Iterable[Path]) -> pd.DataFrame:
 
     Lines that are not valid JSON are reported rather than skipped silently:
     a truncated log means the run's evidence is incomplete and we must know.
+
+    Two schema versions are accepted, **line by line**: version 2 (the current
+    :data:`LOG_FIELDS`, 30 fields) and version 1 (the 24-field Assignment 1
+    schema, :data:`LOG_FIELDS_V1`). A version 1 line gets the six cascade fields
+    as null, which is exactly what a version 2 single-model line carries, so the
+    Assignment 1 evidence stays readable and re-checkable without being
+    rewritten. Any other key set is still refused.
     """
     if isinstance(paths, Path):
         paths = [paths]
@@ -215,16 +230,26 @@ def read_service_log(paths: Path | Iterable[Path]) -> pd.DataFrame:
     if not records:
         raise AnalysisError(f"No log lines found in {[str(p) for p in paths]}.")
 
-    frame = pd.DataFrame.from_records(records)
-    unexpected = [c for c in frame.columns if c not in LOG_FIELDS]
-    missing = [c for c in LOG_FIELDS if c not in frame.columns]
-    if unexpected or missing:
+    v1_keys, v2_keys = set(LOG_FIELDS_V1), set(LOG_FIELDS)
+    for record in records:
+        keys = set(record)
+        if keys == v2_keys:
+            continue
+        if keys == v1_keys:
+            for name in CASCADE_LOG_FIELDS:
+                record[name] = None
+            continue
+        unexpected = sorted(keys - v2_keys)
+        missing = [c for c in LOG_FIELDS if c not in keys]
         raise AnalysisError(
-            "Service log does not match service/log_schema.py.\n"
+            "Service log does not match service/log_schema.py (neither schema "
+            "version 2 nor the 24-field version 1).\n"
             f"  unexpected fields: {unexpected}\n"
             f"  missing fields   : {missing}\n"
             "Were these lines written by a different version of the service?"
         )
+
+    frame = pd.DataFrame.from_records(records)
     frame = frame[list(LOG_FIELDS)]
     frame["ts"] = pd.to_datetime(frame["ts"], format="ISO8601", utc=True)
     frame["warmup"] = frame["warmup"].fillna(False).astype(bool)

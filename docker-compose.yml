@@ -42,6 +42,14 @@ services:
       MODEL_TAG: "${MODEL_TAG:-llama3.2:1b-instruct-q4_K_M}"
       # Empty means "resolve the digest from /api/tags at start-up and log it".
       MODEL_DIGEST: "${MODEL_DIGEST:-}"
+      # Assignment 2 cascade (service/cascade.py). "single" is the Assignment 1
+      # behaviour. With "cascade", MODEL_TAG above is the LARGE model, the small
+      # model is CASCADE_SMALL_MODEL_TAG, and CASCADE_SETTING picks Setting A or
+      # Setting B of the escalation rule. Selected here, never by the caller.
+      SERVICE_MODE: "${SERVICE_MODE:-single}"
+      CASCADE_SETTING: "${CASCADE_SETTING:-}"
+      CASCADE_SMALL_MODEL_TAG: "${CASCADE_SMALL_MODEL_TAG:-}"
+      CASCADE_SMALL_MODEL_DIGEST: "${CASCADE_SMALL_MODEL_DIGEST:-}"
       # Set explicitly: see the rationale in .env.example. Logged per request.
       NUM_CTX: "${NUM_CTX:-4096}"
       OLLAMA_TIMEOUT_S: "${OLLAMA_TIMEOUT_S:-120}"

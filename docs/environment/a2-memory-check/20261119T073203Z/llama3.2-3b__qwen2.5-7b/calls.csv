@@ -1,0 +1,7 @@
+call,model,dev_row,load_duration_ms,total_duration_ms,first_call_for_model,reply
+1,llama3.2:3b,900000,39377.3,40782.6,True,Bank account or service
+2,qwen2.5:7b,900000,34108.4,37296.7,True,Bank account or service
+3,llama3.2:3b,900001,64.9,816.4,False,Bank account or service
+4,qwen2.5:7b,900001,109.5,1711.6,False,Bank account or service
+5,llama3.2:3b,900002,1.0,703.5,False,Bank account or service
+6,qwen2.5:7b,900002,1.7,1508.7,False,Bank account or service

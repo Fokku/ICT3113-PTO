@@ -1,0 +1,9 @@
+$ free -b
+               total        used        free      shared  buff/cache   available
+Mem:     33555410944 14121218048  5247946752   498315264 16632631296 19434192896
+Swap:    33554427904           0 33554427904
+
+$ head -3 /proc/meminfo
+MemTotal:       32768956 kB
+MemFree:         5124948 kB
+MemAvailable:   18978704 kB

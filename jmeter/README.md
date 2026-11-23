@@ -444,3 +444,26 @@ Things not to change without recording a decision somewhere a marker can find it
   or the two streams stop overlapping;
 * anything that would make the load generator do less work than the configured
   rate, which is the one thing that invalidates every number in the run.
+
+---
+
+## 9. Assignment 2: `speed_test_a2.jmx`
+
+**Owner:** Part 1 — Yeo Kai Yuan. Driven only by `scripts/run_load_test_a2.sh`, which runs the A2 gate, the
+per-configuration environment check, the Ollama restart, the three warm-ups and the `ollama ps` residency
+check before every run (`docs/playbooks/cascade-test.md`).
+
+It is `load_post_tickets.jmx` with four changes, each required by the brief's Step 4:
+
+| Change | Property (default) | Why |
+|---|---|---|
+| Schedule `rate(${rate_per_min}/min) random_arrivals(${duration_s} sec) pause(${pause_s} sec)` | `rate_per_min` (5), `duration_s` (300), `pause_s` (360) | The rate comes from the top model's speed (S), not from the A1 workload model: rate = 60/(2S) per minute, run length S minutes with a minimum of 5. The trailing pause outlasts the response timeout by at least a minute, so JMeter never kills a slow request at the end of the schedule. The values live in `docs/a2/arrival_rate.json`. **Decimal rates work**: `rate(8.98/min)` was accepted by JMeter 5.6.3 in the 2026-11-19 dev rehearsal. |
+| HTTP response timeout | `response_timeout_ms` (300000) | max(10 × S, 5 minutes) (brief, "Let slow requests finish") |
+| CSV Data Set Config `recycle=false`, `stopThread=true` | `input_csv` (`data/speed_test_tickets_a2.csv` in real runs) | Each of the 100 fixed workload tickets is sent at most once per run. Ollama caches prompts it has seen, so a repeat would come back artificially fast. The same file, in the same order, is used for every configuration. |
+| Plan name and comments | n/a | Name the A2 scripts. |
+
+Unchanged on purpose: the `POST /tickets` label, `request_id` (a `__UUID()` per iteration) and the
+`X-Request-ID` / `X-Source-Row` headers, the JSON escaping pre-processor, and the HTTP-200-only assertion. So
+`analysis/reconcile.py` joins an A2 `.jtl` to its service log exactly as it does an A1 one.
+
+The two A1 plans' sections above still describe Assignment 1 and are not used for any A2 figure.

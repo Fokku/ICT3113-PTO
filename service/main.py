@@ -34,6 +34,13 @@ coding mistake rather than a property of the design. The naivety that Assignment
 2 gets to fix is the per-call connect/close in ``service/db.py``, not the loop
 blocking.
 
+Assignment 2 adds one thing, selected by configuration and never by the caller:
+``SERVICE_MODE=cascade`` makes ``POST /tickets`` classify with a small model
+first and call the large model (``MODEL_TAG``) only when the escalation rule in
+``service/cascade.py`` says so. The response shape is identical in both modes;
+which model answered, and whether the ticket was escalated, is written to the
+request log only (``service/log_schema.py`` schema version 2).
+
 Every request to ``/tickets``, ``/search`` and ``/stats`` writes exactly one
 JSONL line (``service/request_log.py``). ``/health`` does not: a load test polls
 it, and those lines would swamp the evidence.
@@ -57,10 +64,10 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
 
-from service import db, ollama_client
+from service import cascade, db, ollama_client
 from service.categories import normalise_category
-from service.config import PROBE_TIMEOUT_S, Settings, load_settings
-from service.log_schema import OLLAMA_TIMING_FIELDS
+from service.config import PROBE_TIMEOUT_S, ConfigError, Settings, load_settings
+from service.log_schema import CASCADE_LOG_FIELDS, OLLAMA_TIMING_FIELDS
 from service.prompt import PROMPT_HASH, build_prompt
 from service.request_log import build_log_line, iso_ms, utc_now, write_log_line
 
@@ -168,7 +175,19 @@ def _null_model_fields() -> dict[str, None]:
         "seed": None,
         "model_latency_ms": None,
         **{name: None for name in OLLAMA_TIMING_FIELDS},
+        **_null_cascade_fields(),
     }
+
+
+def _null_cascade_fields() -> dict[str, None]:
+    """The six schema-version-2 cascade fields, all ``None``.
+
+    Every line that is not a cascade ``POST /tickets`` carries them as null:
+    single-model requests, ``/search``, ``/stats`` and the error handlers. A null
+    ``escalated`` therefore means "no cascade was involved", never "not
+    escalated" -- that is ``false``, and only a cascade line can say it.
+    """
+    return {name: None for name in CASCADE_LOG_FIELDS}
 
 
 def _configure_logging(level: str) -> None:
@@ -194,6 +213,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     environment or the volumes.
     """
     settings = settings or load_settings()
+    if settings.is_cascade:
+        # Fail at start-up, not on the first ticket: a cascade whose setting has
+        # no rule written down must never serve a request (service/cascade.py).
+        try:
+            cascade.rule_for(settings.cascade_setting or "")
+        except cascade.CascadeNotConfiguredError as exc:
+            raise ConfigError(str(exc)) from exc
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
@@ -227,6 +253,24 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     settings.ollama_base_url,
                 )
 
+        if settings.is_cascade and settings.cascade_small_model_digest is None:
+            # The cascade's small model gets the same treatment as MODEL_TAG
+            # (which is the large model in cascade mode).
+            small_digest = await ollama_client.resolve_model_digest(
+                settings.ollama_base_url,
+                settings.cascade_small_model_tag or "",
+                PROBE_TIMEOUT_S,
+            )
+            settings.set_resolved_small_digest(small_digest)
+            if small_digest is None:
+                LOGGER.warning(
+                    "could not resolve a digest for the cascade's small model "
+                    "%s from %s; pin CASCADE_SMALL_MODEL_DIGEST or check the "
+                    "backend before running a benchmark.",
+                    settings.cascade_small_model_tag,
+                    settings.ollama_base_url,
+                )
+
         # The one start-up record. Everything that could change a measurement is
         # in it, so a log file can be read back to the configuration that
         # produced it: model tag and digest, num_ctx, seed, prompt hash, worker
@@ -238,12 +282,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         yield
 
     app = FastAPI(
-        title="ICT3113 Ticket Triage Service (Assignment 1 baseline)",
+        title="ICT3113 Ticket Triage Service (Assignment 2: single model or cascade)",
         description=(
-            "Synchronous ticket classification against a local Ollama backend. "
-            "Baseline: no caching, no queuing, no batching."
+            "Synchronous ticket classification against a local Ollama backend, "
+            "with one model (SERVICE_MODE=single, the Assignment 1 baseline) or a "
+            "small-then-large cascade (SERVICE_MODE=cascade). No caching, no "
+            "queuing, no batching in either mode."
         ),
-        version="1.0.0",
+        version="2.0.0",
         lifespan=lifespan,
     )
     app.state.settings = settings
@@ -280,29 +326,74 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         """
         ctx = _context(request)
         narrative = payload.narrative
+        # The one unchanged classification prompt, for every model in every
+        # configuration (brief, Scope). Built once and passed to both cascade
+        # calls as-is.
+        prompt = build_prompt(narrative)
 
-        result = await ollama_client.generate(
-            base_url=settings.ollama_base_url,
-            model_tag=settings.model_tag,
-            prompt=build_prompt(narrative),
-            seed=settings.ollama_seed,
-            num_ctx=settings.num_ctx,
-            timeout_s=settings.ollama_timeout_s,
-        )
+        if settings.is_cascade:
+            # Assignment 2: small model, escalation rule, maybe the large model.
+            # Which model answered goes to the log only -- the response below has
+            # the same shape either way, so the caller cannot tell.
+            outcome = await cascade.classify_with_cascade(
+                base_url=settings.ollama_base_url,
+                small_model_tag=settings.cascade_small_model_tag or "",
+                small_model_digest=settings.cascade_small_model_digest,
+                large_model_tag=settings.model_tag,
+                large_model_digest=settings.model_digest,
+                prompt=prompt,
+                narrative_chars=len(narrative),
+                seed=settings.ollama_seed,
+                num_ctx=settings.num_ctx,
+                timeout_s=settings.ollama_timeout_s,
+                setting=settings.cascade_setting,  # type: ignore[arg-type]
+            )
+            ok, error, raw_text = outcome.ok, outcome.error, outcome.final_raw_text
+            answered_tag = outcome.final_model_tag
+            answered_digest = outcome.final_model_digest
+            model_latency_ms = outcome.model_latency_ms
+            timings = outcome.timings
+            route: dict[str, Any] = {
+                "escalated": outcome.escalated,
+                "cascade_setting": outcome.cascade_setting,
+                "small_model_tag": outcome.small_model_tag,
+                "small_model_category": outcome.small_model_category,
+                "small_model_latency_ms": outcome.small_model_latency_ms,
+                "small_load_duration": outcome.small_load_duration,
+            }
+        else:
+            result = await ollama_client.generate(
+                base_url=settings.ollama_base_url,
+                model_tag=settings.model_tag,
+                prompt=prompt,
+                seed=settings.ollama_seed,
+                num_ctx=settings.num_ctx,
+                timeout_s=settings.ollama_timeout_s,
+            )
+            ok, error, raw_text = result.ok, result.error, result.raw_text
+            answered_tag = settings.model_tag
+            answered_digest = settings.model_digest
+            model_latency_ms = result.model_latency_ms
+            timings = result.timings
+            route = _null_cascade_fields()
 
         # Fields describing the attempt: present whether it succeeded or not, so
         # a 502 line still records which model, prompt and context length failed.
+        # In cascade mode the model fields name whichever model answered (or
+        # failed), and the latency/timing fields are summed over both calls --
+        # see service/log_schema.py.
         attempt: dict[str, Any] = {
-            "model_tag": settings.model_tag,
-            "model_digest": settings.model_digest,
+            "model_tag": answered_tag,
+            "model_digest": answered_digest,
             "prompt_hash": PROMPT_HASH,
             "num_ctx": settings.num_ctx,
             "seed": settings.ollama_seed,
-            "model_latency_ms": result.model_latency_ms,
-            **result.timings,
+            "model_latency_ms": model_latency_ms,
+            **timings,
+            **route,
         }
 
-        if not result.ok:
+        if not ok:
             status = 502
             log_line(
                 ts=iso_ms(utc_now()),
@@ -316,20 +407,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 predicted_category=None,
                 raw_model_output=None,
                 total_latency_ms=ctx.elapsed_ms,
-                error=result.error,
+                error=error,
                 **attempt,
             )
             return JSONResponse(
                 status_code=status,
                 content={
                     "detail": "model backend did not classify the ticket",
-                    "error": result.error,
+                    "error": error,
                     "request_id": ctx.request_id,
                 },
                 headers={HEADER_REQUEST_ID: ctx.request_id},
             )
 
-        raw_output = result.raw_text or ""
+        raw_output = raw_text or ""
         category = normalise_category(raw_output)
 
         # Blocking sqlite3 work off the event loop; see the module docstring.
@@ -345,8 +436,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             # UNPARSEABLE this is the only record of what the model said, and
             # Assignment 2 needs it to judge whether a parser change is honest.
             raw_model_output=raw_output,
-            model_tag=settings.model_tag,
-            model_digest=settings.model_digest,
+            model_tag=answered_tag,
+            model_digest=answered_digest,
         )
 
         log_line(

@@ -1,0 +1,9 @@
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=7d22c63c2788
+OLLAMA_NUM_PARALLEL=0
+OLLAMA_MAX_LOADED_MODELS=0
+OLLAMA_HOST=0.0.0.0:11434
+LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64
+NVIDIA_DRIVER_CAPABILITIES=compute,utility
+NVIDIA_VISIBLE_DEVICES=all
+HOME=/root

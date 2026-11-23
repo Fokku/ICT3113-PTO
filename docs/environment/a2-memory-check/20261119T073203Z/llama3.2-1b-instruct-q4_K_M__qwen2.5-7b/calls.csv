@@ -1,0 +1,7 @@
+call,model,dev_row,load_duration_ms,total_duration_ms,first_call_for_model,reply
+1,llama3.2:1b-instruct-q4_K_M,900000,11428.3,11889.3,True,Credit reporting
+2,qwen2.5:7b,900000,52088.4,55506.3,True,Bank account or service
+3,llama3.2:1b-instruct-q4_K_M,900001,1.1,233.5,False,Credit reporting
+4,qwen2.5:7b,900001,0.9,1671.2,False,Bank account or service
+5,llama3.2:1b-instruct-q4_K_M,900002,1.1,234.4,False,Credit reporting
+6,qwen2.5:7b,900002,0.9,1582.1,False,Bank account or service

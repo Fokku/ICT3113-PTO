@@ -78,16 +78,16 @@ These exist on disk already, ahead of the gate, so nobody's AI session re-invent
 | [`golden/split_a2.csv`](golden/split_a2.csv) | **Done.** Generated mechanically from `golden/golden_set.csv` by row-number parity: 99 tuning rows, 101 test rows. Nothing left to do here. | — |
 | [`scripts/a2_gate.py`](scripts/a2_gate.py) | **Done**, working — ported from `scripts/freeze_gate.py`, gates on `predictions/prediction_record_a2.md`, `cascade/escalation_rule.md` and `golden/split_a2.csv`, tag `a2-predictions-freeze`. Run `python scripts/a2_gate.py` any time to check status. | — |
 | [`cascade/README.md`](cascade/README.md) | Done — read-first for Part 2. | — |
-| [`cascade/escalation_rule.md`](cascade/escalation_rule.md) | Skeleton with `TODO(cascade)` placeholders in the fixed section order from the interface table below | Part 2 — Loh Wen Xuan, §2.5 |
-| [`docs/a2/accuracy_limits.md`](docs/a2/accuracy_limits.md) | Skeleton with `TODO(a2)` placeholders: a reuse-validity check up front, §3 the pass/fail rules, §4 the exact reproduction steps | Part 2 — Loh Wen Xuan, §2.2 |
-| [`docs/a2/arrival-rate.md`](docs/a2/arrival-rate.md) | Skeleton with `TODO(a2)` placeholders | Part 1 — Yeo Kai Yuan, §1.3 |
+| [`cascade/escalation_rule.md`](cascade/escalation_rule.md) | **Filled** 2026-11-21 (Part 2): `granite4:3b` → `qwen2.5:7b`, category-based, Setting A 78/99 and Setting B 59/99 escalated on tuning. Reproduced exactly by `scripts/cascade_replay.py`'s `replay()`. One `TODO(cascade)` left on purpose: the team's sign-off on the settings at W.1 | Part 2 — Loh Wen Xuan, §2.5 |
+| [`docs/a2/accuracy_limits.md`](docs/a2/accuracy_limits.md) | **Filled** 2026-11-21 (Part 2): overall limit 64.26% (≥ 65/101), per-category limits with minimum counts, reuse check passed against `docs/a2/env_baseline.json` | Part 2 — Loh Wen Xuan, §2.2 |
+| [`docs/a2/arrival-rate.md`](docs/a2/arrival-rate.md) | **Filled** 2026-11-19: S = 3.339 s → 8.98/min, 300 s runs, 300 000 ms timeout, 360 s pause (machine-readable copy: `docs/a2/arrival_rate.json`) | Part 1 — Yeo Kai Yuan, §1.3 |
 | [`predictions/prediction_record_a2.md`](predictions/prediction_record_a2.md) | Skeleton with `TODO(a2)` placeholders and the sign-off table | Part 4 — Toh Si Pei, §4.2, whole team in §W.1 |
 | [`slides/outline_a2.md`](slides/outline_a2.md) | Done — the Assignment 2 build plan, mirroring `slides/outline.md`'s format, one section per slide with the brief's requirements as checkboxes | Part 5 — Koh Tong Wei assembles from it, §5.5 |
-| [`service/cascade.py`](service/cascade.py) | **Interface stub** — dataclasses and function signatures fixed (`should_escalate`, `classify_with_cascade`), both bodies raise `NotImplementedError`. Not wired into `service/main.py`. The leakage guardrail (never pass a label into `should_escalate`) is written into its docstring. | Part 1 — Yeo Kai Yuan, §1.2 |
+| [`service/cascade.py`](service/cascade.py) | **Implemented and wired into `POST /tickets`** (2026-11-19, §1.2). Same signatures and the same leakage guardrail. `RULE_SETTINGS` for Setting A and B are still `None`: Part 2's settings get copied in there, and a cascade service refuses to start until they are. | Part 1 — Yeo Kai Yuan, §1.2 |
 | [`workload/speed_test_rows_a2.txt`](workload/speed_test_rows_a2.txt) + [`data/speed_test_tickets_a2.csv`](data/speed_test_tickets_a2.csv) | **Done.** The fixed 100-ticket speed-test workload (70 typical, 30 long by narrative length), seeded selection from the 800 non-golden team rows, sized so no ticket repeats within a run. The `.txt` is a required submission supporting file; the `.csv` is the matching JMeter input. | — (review only) |
 | [`docs/playbooks/cascade-test.md`](docs/playbooks/cascade-test.md) | Drafted — states what's new versus `load-test.md` only (gate, rate, ticket list, two-model warm-up); one `TODO(a2)` left for the actual run command once §1.3's script exists | Part 5 — Koh Tong Wei, §5.2 |
 | [`docs/a2/run-log.md`](docs/a2/run-log.md) | Skeleton, same rules as `docs/run-log.md` (Assignment 1's) — a **separate file**, so an A1 entry is never mistaken for A2 evidence | Part 5 — Koh Tong Wei, §5.2 |
-| [`docs/a2/ai-use-log.md`](docs/a2/ai-use-log.md) | Running log of what AI tools produced and what the team did with it, the source for Slide 8's AI declaration. First entry (the scaffold) already in. | **Every member**, as they work; Part 5 collates, §5.3 |
+| [`docs/a2/ai-use-log.md`](docs/a2/ai-use-log.md) | Running log of what AI tools produced and what the team did with it, the source for Slide 8's AI declaration. (The file was missing until 2026-11-19, when Part 1 created it with the first entry. The scaffold's own entry still needs adding.) | **Every member**, as they work; Part 5 collates, §5.3 |
 | [`tests/test_cascade.py`](tests/test_cascade.py) | **Done** — 4 structural guardrail tests: `should_escalate()`, `SmallModelAnswer` and `classify_with_cascade()` can't carry a label-shaped field, and `CascadeResult` names the final answer generically. Passing now against the stub; keep passing once implemented. | — (extend if you add more fields) |
 
 `scripts/a2_gate.py` currently reports **blocked**, correctly — none of the three required files has real
@@ -264,13 +264,18 @@ Each part is done when its row is true. This tells each member's AI agent when t
 The brief is explicit that this comes first: a cascade is only a valid result if both models stay resident
 throughout. This gates which pairs Part 2 may even propose.
 
-- [ ] For each of the three plausible pairs (small = `llama3.2:1b-instruct-q4_K_M`, `llama3.2:3b` or
+- [x] For each of the three plausible pairs (small = `llama3.2:1b-instruct-q4_K_M`, `llama3.2:3b` or
       `granite4:3b`; large = `qwen2.5:7b`), load both tags on the service host, send a few tickets through
       each, and run `ollama ps` to confirm **both** are listed as resident at once.
-- [ ] Record the RAM given to the Ollama container (`docker-compose.yml`) next to each pair's result, and
-      keep the raw `ollama ps` output as evidence — Part 2 cites it in the escalation rule document, and the
+      **Done 2026-11-19 with `scripts/memory_check_a2.py`: all three pairs fit.** `ollama ps` lists both models
+      after alternating small/large calls, with no reload after the first load. Resident: 5.65 GiB (1b),
+      7.10 GiB (llama3.2:3b), 7.05 GiB (granite4:3b). Evidence:
+      [`docs/environment/a2-memory-check/20261119T073203Z/summary.md`](docs/environment/a2-memory-check/20261119T073203Z/summary.md).
+- [x] Record the RAM given to the Ollama container (`docker-compose.yml`) next to each pair's result, and
+      keep the raw `ollama ps` output as evidence. **Done:** 31.3 GiB host, no container memory or CPU limit,
+      in the same summary. Each pair's raw `ollama ps`, `/api/ps` and `docker stats` sit beside it — Part 2 cites it in the escalation rule document, and the
       design criterion in the brief ("Design (Step 2), 6%") explicitly asks for this check to be reported.
-- [ ] If no pair fits, stop and tell the whole team immediately — the design in §2 has to change to "cascade
+- [x] *(Not needed: every pair fits.)* If no pair fits, stop and tell the whole team immediately — the design in §2 has to change to "cascade
       not feasible, single model recommended" before the A2 gate, not after. The brief's own fallback: "report
       that a cascade is not feasible on this machine, show the `ollama ps` evidence, and recommend a single
       model". What changes:
@@ -281,14 +286,18 @@ throughout. This gates which pairs Part 2 may even propose.
       - **Prediction record:** the cascade rows say "not feasible".
 
       The ~31 GiB host makes this unlikely, but decide it before the gate if it happens.
-- [ ] Hand the surviving pair(s) to Part 2 as soon as it's confirmed, so the escalation rule can target a real
-      pair.
-- [ ] Leave `OLLAMA_MAX_LOADED_MODELS` and `OLLAMA_NUM_PARALLEL` at `0` (`.env.example`) for **every** A2
+- [x] Hand the surviving pair(s) to Part 2 as soon as it's confirmed, so the escalation rule can target a real
+      pair. **Done in the repository:** the memory-evidence and RAM rows of `cascade/escalation_rule.md` §1
+      (Part 1's rows, per the interface table) now say all three pairs fit and cite the summary. Part 2
+      chooses the pair.
+- [x] Leave `OLLAMA_MAX_LOADED_MODELS` and `OLLAMA_NUM_PARALLEL` at `0` (`.env.example`) for **every** A2
       configuration. `0` is Ollama's default, which on CPU already allows up to 3 resident models, so the
       cascade needs no change here. Changing parallelism is forbidden by the brief, and changing either for the
       cascade only would break comparability (guardrail 14). `docker-compose.yml` sets no `mem_limit`, so "the
       RAM given to the Ollama container" is the host's RAM. Record that, as the brief asks.
-- [ ] **Check residency in the logs, not just with `ollama ps` before the run.** Ollama unloads a model that
+- [x] **Check residency in the logs, not just with `ollama ps` before the run.** *(Built in:
+      `analysis/summarise_load_a2.py` flags any measured request with `load_duration` > 1000 ms as a
+      "loading result". `scripts/run_load_test_a2.sh` also records `ollama ps` before and after every run.)* Ollama unloads a model that
       has been idle for `OLLAMA_KEEP_ALIVE` (default 5 minutes; the service doesn't override it). At a low
       escalation fraction the large model can sit idle that long mid-run, and the next escalation then pays a
       reload. The brief calls that "not a cascade result; it is a loading result". `load_duration` is already
@@ -297,16 +306,25 @@ throughout. This gates which pairs Part 2 may even propose.
 
 ### 1.2 Cascade implementation in `POST /tickets`
 
-- [ ] `service/cascade.py`: **stub already in place** (interface only, both functions raise
+- [x] `service/cascade.py`: **implemented** (2026-11-19). It has a category-rule and a length-rule shape
+      (the brief's methods 1 and 4, the two needing no extra model call), `classify_with_cascade()`, and
+      wiring into `service/main.py`. A failed small call is a 502, never a hidden escalation. Was: **stub already in place** (interface only, both functions raise
       `NotImplementedError`) — `SmallModelAnswer`/`CascadeResult` dataclasses, `should_escalate()` and
       `classify_with_cascade()` signatures fixed, with the leakage guardrail written into the docstring.
       Implement `should_escalate()` from Part 2's `cascade/escalation_rule.md` §2–3 once it's written, then
       `classify_with_cascade()`, then wire both into `service/main.py`. Not wired in yet on purpose.
-- [ ] Extend `service/main.py` so `POST /tickets` can run in three modes selected by configuration, not by
+- [ ] **Copy Setting A and Setting B into `service/cascade.py` `RULE_SETTINGS`** once Part 2 hands them over.
+      It is one `CategoryRule(...)` or `LengthRule(...)` per setting, copied verbatim from
+      `cascade/escalation_rule.md` §3. Then run the rule-fidelity check below and regenerate the Slide 2
+      diagram. *Blocked on Part 2.* If Part 2 picks agreement or self-reported confidence instead, that rule
+      needs a new rule class and its extra call (see the module docstring).
+- [x] Extend `service/main.py` so `POST /tickets` can run in three modes selected by configuration, not by
       the caller: single-model (today's behaviour, unchanged), and cascade at setting A or setting B. The
       response shape to the caller does not change — "the caller should not be able to tell which model
       produced the answer" (brief).
-- [ ] Extend `service/log_schema.py` / `service/request_log.py` with the fields the brief requires: which
+- [x] *(Done: schema version 2, 30 fields. All 55 A1 runs still reconcile, and their regenerated reconcile
+      outputs are byte-identical to the committed ones.)*
+      Extend `service/log_schema.py` / `service/request_log.py` with the fields the brief requires: which
       model produced the final classification, and whether escalation occurred, on every request — this is
       what makes the escalation fraction derivable from the logs rather than asserted. Two things break when
       you do, and both must be handled deliberately, not patched over:
@@ -317,17 +335,21 @@ throughout. This gates which pairs Part 2 may even propose.
         load. Make the reader accept both schema versions, filling the new fields as null for A1 lines, so
         the A1 evidence stays re-checkable. Then re-run `python analysis/reconcile.py` on one A1 run to prove
         it.
-- [ ] Confirm `OLLAMA_NUM_PARALLEL`, `OLLAMA_MAX_LOADED_MODELS`, thread count and context length are
-      unchanged from Assignment 1 and record them once — the brief forbids changing inference settings
+- [x] Confirm `OLLAMA_NUM_PARALLEL`, `OLLAMA_MAX_LOADED_MODELS`, thread count and context length are
+      unchanged from Assignment 1 and record them once (**done:** `docs/a2/env_baseline.json`, recorded
+      2026-11-19. Ollama 0.34.3, all four digests and `OLLAMA_*` match Assignment 1, `num_ctx` 4096, seed 42,
+      prompt hash `sha256:681131c48bdc15a1`) — the brief forbids changing inference settings
       between configurations.
-- [ ] Tests: cascade routing logic with both model calls stubbed (no model contacted by the test suite), same
+- [x] Tests (`tests/test_cascade_routing.py`, `tests/test_rule_fidelity.py`, `tests/test_a2_calibration.py`): cascade routing logic with both model calls stubbed (no model contacted by the test suite), same
       pattern as Assignment 1's `pytest` suite.
 - [ ] **Rule-fidelity check: the code must reproduce the documented rule.** Offline, feed the small model's
       A1 answers on the tuning-set rows through the real `should_escalate()` at Setting A and Setting B. The
       escalation fraction it produces must equal the tuning-set figure in `cascade/escalation_rule.md` §3
       **exactly** — same rows, same answers, a deterministic rule. A mismatch means the code and the document
       disagree. Fix that before the gate, since the document is what gets frozen and submitted. Worth making
-      this a `pytest` test once both exist.
+      this a `pytest` test once both exist. **Tooling done:** `python scripts/cascade_replay.py --small-model <tag>`
+      (exit 0 = match), and `tests/test_rule_fidelity.py::test_code_reproduces_escalation_rule_document`.
+      That test skips until both the settings and §3's counts exist, then fails the suite on any mismatch.
 
 ### 1.3 Run scripts for Assignment 2
 
@@ -336,21 +358,33 @@ throughout. This gates which pairs Part 2 may even propose.
       committed, tracked, unmodified, and present in the tree of a commit tagged `a2-predictions-freeze`,
       plus that neither markdown document still carries a `TODO(` placeholder. See
       [Definition of done](#definition-of-done--the-a2-gate).
-- [ ] Extend `scripts/run_accuracy.py` (or add `scripts/run_accuracy_a2.py`) to accept `--config
+- [x] *(Done: `scripts/run_accuracy_a2.py`. It also writes `routing.csv`. Score with
+      `python analysis/accuracy.py --results results/accuracy_a2 --out-dir analysis/output/accuracy_a2`.)*
+      Extend `scripts/run_accuracy.py` (or add `scripts/run_accuracy_a2.py`) to accept `--config
       <model|cascade-a|cascade-b>` and `--rows test` so it sends only the even-row (test-set) tickets, calls
       `scripts/a2_gate.py` before posting anything, and records which model answered each ticket from the new
       log fields.
-- [ ] Extend `scripts/run_load_test.sh` (or add an A2 variant) to: (a) derive the arrival rate from the
+- [x] *(Done: `scripts/run_load_test_a2.sh` + `jmeter/speed_test_a2.jmx`, rehearsed in `--dev` mode on
+      2026-11-19. JMeter 5.6.3 accepts `rate(8.98/min)`, both runs reconciled, and the summariser read
+      them. The run command for the playbook (`docs/playbooks/cascade-test.md` §4.5, Part 5 to paste in),
+      from the load generator:
+      `SERVICE_SSH=<user>@<service-host> SERVICE_REPO=<checkout> scripts/run_load_test_a2.sh --config <qwen2.5:7b|granite4:3b|...|cascade-A|cascade-B> [--small-model <tag>] --host <service-host> --runs 3`.
+      Rate, run length, timeout and pause come from `docs/a2/arrival_rate.json`.)*
+      Extend `scripts/run_load_test.sh` (or add an A2 variant) to: (a) derive the arrival rate from the
       **top model's** speed per the brief's S-based procedure, not from the Assignment 1 workload rate; (b)
       send **three** fixed warm-up tickets per run, not Assignment 1's one (brief, "Each run"), and for a
       cascade configuration make sure one reaches the large model, then confirm `ollama ps` lists both before
       the run starts — the warm-up tickets must not overlap the speed-test workload or the S tickets
       (`docs/playbooks/cascade-test.md` §4.2); (c) set the HTTP timeout to `10×S` (min 5 minutes) and the Open Model Thread Group's trailing
       pause to timeout + 1 minute.
-- [ ] Measure S: restart Ollama, warm up, send three different typical-length tickets to `qwen2.5:7b` one at
+- [x] *(Done 2026-11-19, `scripts/measure_s_a2.py`: **S = 3.339 s** from rows 10685 / 10910 / 10627
+      (3.851 / 3.339 / 3.029 s) → 8.98/min, 300 s runs, about 45 tickets per run, safe bound 65 ≤ 100.)*
+      Measure S: restart Ollama, warm up, send three different typical-length tickets to `qwen2.5:7b` one at
       a time (not the same ticket three times), take the middle time. Record the three timings, the three
       row numbers, and S itself in `docs/a2/arrival-rate.md` (template already exists — fill it in) for Slide 3.
-- [ ] **Before the first run**, record software versions, model digests and Ollama settings once (brief,
+- [x] *(Done: `docs/a2/env_baseline.json` via `scripts/a2_env_snapshot.py record`. `run_load_test_a2.sh`
+      runs `a2_env_snapshot.py check` before every configuration and refuses to measure on any difference.)*
+      **Before the first run**, record software versions, model digests and Ollama settings once (brief,
       Set-up) — reuse `docs/environment/` if genuinely unchanged from Assignment 1, otherwise re-capture with
       `scripts/capture_env.sh`. **Check they are unchanged before each configuration** — a quick diff against
       the recorded values, not a one-off capture, since this is a per-configuration check, not a per-campaign
@@ -358,32 +392,42 @@ throughout. This gates which pairs Part 2 may even propose.
 
 ### 1.4 Analysis script updates
 
-- [ ] Extend `analysis/summarise_load.py` (or add `analysis/summarise_load_a2.py`) to report p50 per run with
+- [x] *(Done: `analysis/summarise_load_a2.py` → `analysis/output/speed_a2/`, no p99 anywhere. The A1
+      summariser now skips `speed_a2` runs.)* Extend `analysis/summarise_load.py` (or add `analysis/summarise_load_a2.py`) to report p50 per run with
       spread, p95 pooled across three runs (state the actual count — the brief's "about 90" assumes ~30 per
       run; ours will be nearer 195 if the 5-minute minimum applies), throughput and error rate — same
       shape as Assignment 1, same script where possible. **Do not add p99** — the brief is explicit the
       sample is too small for it, which is easy to get wrong if the script reuses a generic
       percentile-reporting helper that emits p50/p95/p99 by default.
-- [ ] Report requests sent, completed, errored and **unfinished per run — never drop a run with unfinished
+- [x] Report requests sent, completed, errored and **unfinished per run — never drop a run with unfinished
       requests from the output.** The brief: *"A run with unfinished requests is reported as such, not thrown
       away."* An agent asked to "clean up the results" or "filter bad runs" will reach for exactly this
       filter; it's wrong here.
-- [ ] Add escalation-fraction reporting from the service logs (not from the accuracy-test figure) per cascade
+- [x] Add escalation-fraction reporting from the service logs (not from the accuracy-test figure) per cascade
       speed run, and flag any run where the two escalation fractions differ by more than the "large gap"
       threshold fixed in `predictions/prediction_record_a2.md` §4 (default 15 percentage points), as the
       brief asks ("explain any large gap").
-- [ ] **No-queue check on every speed run.** The 2×S rate exists so "no queue builds" (brief), but a slow
+- [x] **No-queue check on every speed run.** *(Queue wait = median `ollama_other_ms` as
+      `analysis/bottleneck_hints.py` defines it. Note for the §4 decision: the ±20% halves test is
+      symmetric as written, so a run whose second half is *faster* is also flagged "queued". The dev
+      rehearsal hit exactly that, at −21.6%. The team may want "no more than 20% slower" instead.)* The 2×S rate exists so "no queue builds" (brief), but a slow
       configuration (e.g. a cascade setting with heavy escalation) can still take longer than 2S per ticket.
       Its p50 then depends on how long the run lasted, not on the configuration. Report, per run: first-half
       vs second-half p50, and median `ollama_other_ms` (queue wait, from `analysis/bottleneck_hints.py`).
       A run failing the threshold in `predictions/prediction_record_a2.md` §4 (default: halves within ±20%,
       queue wait under 100 ms) is reported but flagged as queued, and not compared on p50.
-- [ ] Extend `analysis/reconcile.py` to join on the new "which model answered" log field as well as
+- [x] *(Done: cascade and single-mode consistency checks. A1 runs give byte-identical output.)* Extend `analysis/reconcile.py` to join on the new "which model answered" log field as well as
       `request_id`, so a cascade run can still be checked end to end against its `.jtl`.
 
 ### 1.5 After the A2 gate passes — run everything
 
-Nothing in this block may start before `python scripts/a2_gate.py` exits 0.
+Nothing in this block may start before `python scripts/a2_gate.py` exits 0. *(Status 2026-11-19: every
+script below exists and enforces the gate. The block is waiting on the gate itself: Part 2's rule and
+settings, then the W.1 prediction record. Once the gate passes, the whole block is two commands from the load
+generator, each with a `--dry-run` that prints its plan:
+`scripts/run_a2_campaign.sh accuracy --small-model <tag> --host <service-host>`, then, after Part 3's pass/fail
+table, `scripts/run_a2_campaign.sh speed --small-model <tag> --host <service-host> --singles "<passing singles>"`.
+The speed phase also reconciles every new run and summarises.)*
 
 - [ ] Confirm the gate: `python scripts/a2_gate.py --json` exits 0, keep its output.
 - [ ] Accuracy test, test-set rows only, for: `qwen2.5:7b` alone (reference), each other single model alone,
@@ -406,10 +450,13 @@ Nothing in this block may start before `python scripts/a2_gate.py` exits 0.
 
 ### 1.6 Slides 2 and 5
 
-- [ ] **Slide 2 — Cascade design** (with Loh Wen Xuan). Diagram of the two-model call path, the escalation
+- [ ] **Slide 2 — Cascade design** (with Loh Wen Xuan). *Structure and diagram drafted in
+      `slides/drafts_a2/` (`slide2_cascade_design.md`, and `cascade_diagram.py`, which draws from
+      `service/cascade.py`). Final once the pair and settings are in.* Diagram of the two-model call path, the escalation
       rule in full, the two settings tested, why this rule, and the `ollama ps` memory-check evidence from
       [1.1](#11-memory-check--do-this-before-designing-anything).
-- [ ] **Slide 5 — Speed results.** p50 per run with spread, pooled p95, throughput and error rate for every
+- [ ] **Slide 5 — Speed results.** *Structure drafted in `slides/drafts_a2/slide5_speed_results.md`,
+      every figure mapped to an `analysis/output/speed_a2/` column. Numbers come after the runs.* p50 per run with spread, pooled p95, throughput and error rate for every
       speed-tested configuration, and the escalation fraction under load for the cascade. Every figure from
       `analysis/output/`.
 
@@ -432,48 +479,49 @@ gate opens. Everything below is computable from data already in the repository �
 
 ### 2.2 Compute the accuracy limits (reuse, no new calls)
 
-- [ ] `docs/a2/accuracy_limits.md` (template already exists — fill it in): using `qwen2.5:7b`'s existing `responses.csv`
+- [x] `docs/a2/accuracy_limits.md` (template already exists — fill it in): using `qwen2.5:7b`'s existing `responses.csv`
       (`results/accuracy/qwen2.5-7b_20261008T123045Z/responses.csv`) filtered to `golden/split_a2.csv`'s
       `test` rows and scored against `golden/golden_set.csv`, compute:
       - **Overall limit** = `qwen2.5:7b`'s test-set accuracy − 10 percentage points.
       - **Per-category limit**, for each of the seven categories = `qwen2.5:7b`'s test-set accuracy on that
         category − 15 percentage points.
-- [ ] Show counts (right/wrong), not just percentages, for the overall figure and every category — the test
+- [x] Show counts (right/wrong), not just percentages, for the overall figure and every category — the test
       set is 101 tickets and some categories will have under 10, so a bare percentage is misleading without
       the count behind it (brief, "Small numbers").
-- [ ] Flag any category too small (brief's own example: 8 tickets ⇒ one ticket is 12.5 points) for the
-      per-category limit to be a fair test, and say so in the document and on Slide 1.
+- [x] Flag any category too small (brief's own example: 8 tickets ⇒ one ticket is 12.5 points) for the
+      per-category limit to be a fair test, and say so in the document and on Slide 1. *(None under 10;
+      Mortgage, Credit card and Money transfer flagged borderline at N = 11. Slide 1 still needs it from Part 5.)*
 - [ ] Hand the two limit numbers (overall %, per-category table) to Part 4 for the predictions meeting and to
       Part 3 for scoring every other configuration against them.
 
 ### 2.3 Design the escalation rule
 
-- [ ] Pick one approach from the brief's four examples (category-based, agreement, self-reported confidence,
+- [x] Pick one approach from the brief's four examples (category-based, agreement, self-reported confidence,
       ticket length) or a documented alternative, using the pair(s) Part 1 confirms both fit in memory
       ([1.1](#11-memory-check--do-this-before-designing-anything)). Category-based is the natural first choice: it needs
       no extra model call beyond the two the cascade already makes, and it can be tuned entirely from
       existing A1 per-ticket predictions.
-- [ ] Justify the choice against the alternatives in one paragraph — in particular, rule out or cost the
+- [x] Justify the choice against the alternatives in one paragraph — in particular, rule out or cost the
       "agreement" method's extra model call (brief: "two small calls may cost as much as one large call;
       measure it") before dropping it.
 
 ### 2.4 Tune the two settings, on the tuning set only
 
-- [ ] Using the small model's existing `responses.csv`, **filtered to `golden/split_a2.csv`'s `tuning` rows
+- [x] Using the small model's existing `responses.csv`, **filtered to `golden/split_a2.csv`'s `tuning` rows
       only**, work out which predicted categories the small model gets right reliably (category-based rule)
       or the equivalent signal for whichever method was chosen in [2.3](#23-design-the-escalation-rule).
       **Never look at the small model's Assignment 1 results on the tuning set's labels through the test-set
       tickets** — the test set is scored blind, at the end, by Part 3.
-- [ ] Choose two settings (e.g. two different "reliable category" lists, or two length cut-offs) that give
+- [x] Choose two settings (e.g. two different "reliable category" lists, or two length cut-offs) that give
       visibly different escalation fractions on the tuning set, so the two reported settings actually show a
       trade-off rather than two near-identical points.
-- [ ] For the chosen rule, estimate on the tuning set: how often a *wrong* small-model answer slips through
+- [x] For the chosen rule, estimate on the tuning set: how often a *wrong* small-model answer slips through
       because it predicted a "safe"/accepted category (brief, Example method 1) — this number belongs in the
       escalation rule document and feeds Part 4's predictions.
 
 ### 2.5 Write the escalation rule document (required supporting file)
 
-- [ ] `cascade/escalation_rule.md` (template already exists — fill it in): the rule stated precisely enough that another team could implement
+- [x] `cascade/escalation_rule.md` (template already exists — fill it in): the rule stated precisely enough that another team could implement
       it from the description alone — exact signal, exact accept/escalate condition, the two settings as
       concrete parameter values, and the memory-check evidence from Part 1. This is one of the three
       supporting files the brief requires at submission, and it must be committed **before** the A2 gate,
@@ -483,7 +531,7 @@ gate opens. Everything below is computable from data already in the repository �
 
 ### 2.6 Slide 2 (with Yeo Kai Yuan) and Slide 4 (with Jolie Ngai Ning Li)
 
-- [ ] **Slide 2 — Cascade design** (with Part 1): own the "escalation rule in full", "settings tested" and
+- [x] **Slide 2 — Cascade design** (with Part 1): own the "escalation rule in full", "settings tested" and
       "why this rule" portions; Part 1 owns the diagram and the memory-check evidence.
 - [ ] **Slide 4 — Accuracy results** (with Jolie Ngai Ning Li): own the overall/per-category limit lines drawn on
       the chart and the "which pass the limits" verdicts; Jolie Ngai Ning Li owns the measured accuracy numbers

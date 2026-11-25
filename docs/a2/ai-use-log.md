@@ -106,3 +106,48 @@ The numbers can be reproduced without the tool: the command in `accuracy_limits.
 - The prediction record, every real measurement, and the recommendation.
 - Pass/fail verdicts on Slide 4 (they need Part 3's scores).
 - `golden/split_a2.csv`, which the tool did not generate or change.
+
+---
+
+## 2026-11-25 — Part 3 (Jolie Ngai Ning Li): single-model test-set scoring
+
+**Tool.** Claude Code (Anthropic, Claude Opus 5.5), run by Jolie Ngai Ning Li in this repository. No model was called for any
+measurement, and no Assignment 1 file was edited.
+
+**What the tool produced** (`TODO_A2.md` §3.1, §3.2 and §3.4, single models only):
+
+- `analysis/accuracy_a2.py`: scores the four saved Assignment 1 runs on the 101 test rows only.
+- `analysis/output/accuracy_a2/`: `model_comparison_a2.csv`, `pass_fail_a2.csv`,
+  `per_category_a2.csv`, `sources.csv`, `report.md`, and one confusion matrix per model.
+- `TODO_A2.md` §3.1: ticked the single-model scoring task, and ticked the reuse-validity task by pointing to
+  Part 2's completed table in `docs/a2/accuracy_limits.md`. §3.2 (pass/fail) and §3.4 (confusion matrices)
+  stay unticked. Each has a "partly done, single models only" note, because the cascade is not scored yet.
+  Every other task stays unticked.
+
+The numbers can be reproduced without the tool: `python -m analysis.accuracy_a2`.
+
+**What was checked.**
+
+- The four pinned A1 response files cover the frozen golden rows exactly once. Scoring uses only
+  the 101 test rows from `golden/split_a2.csv`; tuning rows are excluded.
+- Overall scores reproduce 63/101 (Granite), 34/101 (Llama 1B), 54/101 (Llama 3B), and 75/101 (Qwen).
+- Pass/fail uses exact fractions: reference accuracy minus 10 percentage points overall and 15 per
+  category. Only Qwen passes the overall limit and all seven category limits.
+- Output coverage, category totals, confusion-matrix totals and the documented category minimum
+  counts were independently checked. Removing the duplicate files left the scores unchanged.
+- Every output cell was recomputed by a separate script that shares no code with `accuracy_a2.py`: each
+  confusion-matrix cell, per-category count, macro recall and precision, and each `sources.csv` digest,
+  prompt hash, `num_ctx` and seed against the run's `metadata.json`. There were no mismatches.
+  `model_comparison_a2.csv` has the same columns as A1's `analysis/output/accuracy/model_comparison.csv`.
+  Rerunning the script reproduces the committed outputs byte for byte. None of the 101 test responses was
+  an error or UNPARSEABLE.
+- Reuse validity relies on Part 2's documented baseline; the live environment was not checked again.
+
+**Left to the team, deliberately not done by the tool:**
+
+- The prediction record and team sign-off.
+- Running the real A2 benchmarks. Cascade scoring, determinism checks and escalation analysis
+  remain outstanding until the new runs are available.
+- Slides 4 and 6, and the final recommendation.
+- Sharing the pass/fail table with Part 1; it is ready locally and has not been sent to anyone.
+

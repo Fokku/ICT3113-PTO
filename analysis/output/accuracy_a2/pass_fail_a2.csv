@@ -1,0 +1,5 @@
+model_tag,correct,test_set_n,accuracy_pct,minimum_correct,overall_pass,all_categories_pass,qualifies,failed_categories
+granite4:3b,63,101,62.37623762376238,65,False,False,False,Debt collection; Consumer loan; Money transfer or service
+llama3.2:1b-instruct-q4_K_M,34,101,33.663366336633665,65,False,False,False,Debt collection; Mortgage; Credit card; Bank account or service; Money transfer or service
+llama3.2:3b,54,101,53.46534653465347,65,False,False,False,Credit reporting; Mortgage; Credit card; Money transfer or service
+qwen2.5:7b,75,101,74.25742574257426,65,True,True,True,

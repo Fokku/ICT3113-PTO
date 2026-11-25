@@ -546,17 +546,26 @@ the moment `golden/split_a2.csv` exists, since they are pure re-scoring of Assig
 
 ### 3.1 Score every configuration on the test set
 
-- [ ] As soon as [2.1](#21-split-the-golden-set-by-row-number) lands: score all four single models' existing
+- [x] As soon as [2.1](#21-split-the-golden-set-by-row-number) lands: score all four single models' existing
       `responses.csv` files against `golden/golden_set.csv`, restricted to `golden/split_a2.csv`'s `test`
       rows — overall accuracy (count and %), per-category accuracy (count and %), confusion matrix. This does
       not need the gate; it uses only Assignment 1 evidence.
+      **Done 2026-11-25:** `python -m analysis.accuracy_a2` writes all four single-model test-set scores,
+      per-category tables and confusion matrices to `analysis/output/accuracy_a2/`.
+      `pass_fail_a2.csv` is ready for Part 1 to review; no handoff or speed test has been performed here.
+      Only `qwen2.5:7b` passes overall and all seven categories. Cascade tasks remain outstanding.
 - [ ] **State on Slide 4 (not just in this repo) that single-model accuracy was reused from Assignment 1, not
       re-run** — the brief requires this said in the report, not just done quietly: *"Score only the test-set
       rows, and say in the report that you did this."* Name the four digests/prompt/Ollama version/machine as
       unchanged, which is the condition that makes the reuse valid.
-- [ ] **Before relying on any reused A1 figure, confirm the reuse is valid** — fill in the table in
+- [x] **Before relying on any reused A1 figure, confirm the reuse is valid** — fill in the table in
       `docs/a2/accuracy_limits.md` ("Is the reuse valid?") for each of the four models: digest, prompt hash,
       `num_ctx`/seed, Ollama version and machine all unchanged. Any mismatch means re-run that model.
+      **Done (Part 2, 2026-11-21):** the "Is the reuse valid?" table in `docs/a2/accuracy_limits.md` records
+      reuse as valid for all four models. Digests match the `models/models.yaml` pins, the prompt hash is
+      `sha256:681131c48bdc15a1`, `num_ctx` is 4096, the seed is 42, Ollama is 0.34.3 and the host is `omarchy`,
+      all as in A1. The live service was checked through `docs/a2/env_baseline.json` (2026-11-19). Part 3
+      did not check the live environment again.
 - [ ] After the gate and Part 1's benchmark pass: score the cascade at both settings the same way, from the
       new `responses.csv` produced by `run_accuracy_a2.py`.
 - [ ] **Determinism cross-check** (cheap, and the strongest evidence the reuse is sound): every model runs
@@ -574,6 +583,12 @@ the moment `golden/split_a2.csv` exists, since they are pure re-scoring of Assig
       Apply the rules in `docs/a2/accuracy_limits.md` §3 exactly: inclusive at the boundary, compared as exact
       counts, never rounded percentages. A borderline category decides the recommendation, so this is where a
       rounding slip costs most.
+      **Partly done 2026-11-25 (single models only):** `analysis/output/accuracy_a2/pass_fail_a2.csv` and
+      `per_category_a2.csv` hold the pass/fail results for the four single models, using exact fractions
+      that pass when equal to the limit. Only `qwen2.5:7b` passes (75/101, all seven categories). `granite4:3b` (63/101),
+      `llama3.2:3b` (54/101) and `llama3.2:1b-instruct-q4_K_M` (34/101) fail overall and per category. No category
+      has fewer than 10 test rows. Mortgage, Credit card and Money transfer or service (11 rows each) are flagged
+      as borderline. **Still to do:** the cascade at Settings A and B, after Part 1's runs.
 - [ ] Hand the pass/fail table to Part 1 before the speed tests start — single models that fail accuracy do
       not get a speed test (brief).
 
@@ -592,6 +607,11 @@ the moment `golden/split_a2.csv` exists, since they are pure re-scoring of Assig
 - [ ] Produce one confusion matrix per configuration (test set), and name which categories a configuration
       loses the most accuracy on when the small model's answer is accepted — the brief's prediction target
       for [Part 4's record](#part-4--toh-si-pei-predictions-recommendation-and-defence-slide-7).
+      **Partly done 2026-11-25 (single models only):** one test-set confusion matrix per single model in
+      `analysis/output/accuracy_a2/<run folder>/confusion_matrix.csv`. Rows are the actual label and columns
+      are the prediction, with UNPARSEABLE and ERROR as separate columns. Each matrix sums to 101. **Still to
+      do:** the cascade matrices at Settings A and B, and naming the categories where accepting the small
+      model's answer loses the most accuracy. Both need Part 1's cascade runs.
 - [ ] Build the (accuracy, median latency) point for every configuration and setting, once Part 1's speed
       numbers exist, for the Slide 6 chart — one point per configuration/setting, with the overall limit as a
       horizontal reference line.

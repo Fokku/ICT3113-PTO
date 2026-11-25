@@ -1,0 +1,8 @@
+actual_category,Credit reporting,Debt collection,Mortgage,Credit card,Bank account or service,Consumer loan,Money transfer or service,UNPARSEABLE,ERROR
+Credit reporting,25,0,0,0,0,0,0,0,0
+Debt collection,12,1,0,0,0,0,0,0,0
+Mortgage,8,0,0,0,0,3,0,0,0
+Credit card,6,1,0,1,1,2,0,0,0
+Bank account or service,16,0,0,0,0,0,0,0,0
+Consumer loan,7,0,0,0,0,7,0,0,0
+Money transfer or service,9,0,0,0,0,2,0,0,0

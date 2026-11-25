@@ -1,0 +1,5 @@
+model_tag,responses,metadata,model_digest,prompt_hash,num_ctx,seed
+granite4:3b,results/accuracy/granite4-3b_20261008T122430Z/responses.csv,results/accuracy/granite4-3b_20261008T122430Z/metadata.json,sha256:89962fcc75239ac434cdebceb6b7e0669397f92eaef9c487774b718bc36a3e5f,sha256:681131c48bdc15a1,4096,42
+llama3.2:1b-instruct-q4_K_M,results/accuracy/llama3.2-1b-instruct-q4_K_M_20261008T121612Z/responses.csv,results/accuracy/llama3.2-1b-instruct-q4_K_M_20261008T121612Z/metadata.json,sha256:22bc6b92eb0160c4629782fca05a9032c59d306ab2058b7dacc8a4644fbafa02,sha256:681131c48bdc15a1,4096,42
+llama3.2:3b,results/accuracy/llama3.2-3b_20261008T121848Z/responses.csv,results/accuracy/llama3.2-3b_20261008T121848Z/metadata.json,sha256:a80c4f17acd55265feec403c7aef86be0c25983ab279d83f3bcd3abbcb5b8b72,sha256:681131c48bdc15a1,4096,42
+qwen2.5:7b,results/accuracy/qwen2.5-7b_20261008T123045Z/responses.csv,results/accuracy/qwen2.5-7b_20261008T123045Z/metadata.json,sha256:845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e,sha256:681131c48bdc15a1,4096,42

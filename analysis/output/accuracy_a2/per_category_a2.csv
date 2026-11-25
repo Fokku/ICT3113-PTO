@@ -1,0 +1,29 @@
+model_tag,category,correct,test_set_n,accuracy,reference_correct,limit_pct,minimum_correct,passes,too_small,borderline
+granite4:3b,Credit reporting,22,25,0.88,21,69.0,18,True,False,False
+granite4:3b,Debt collection,5,13,0.38461538461538464,10,61.92307692307692,9,False,False,False
+granite4:3b,Mortgage,5,11,0.45454545454545453,4,21.363636363636363,3,True,False,True
+granite4:3b,Credit card,10,11,0.9090909090909091,9,66.81818181818181,8,True,False,True
+granite4:3b,Bank account or service,13,16,0.8125,15,78.75,13,True,False,False
+granite4:3b,Consumer loan,3,14,0.21428571428571427,8,42.142857142857146,6,False,False,False
+granite4:3b,Money transfer or service,5,11,0.45454545454545453,8,57.72727272727273,7,False,False,True
+llama3.2:1b-instruct-q4_K_M,Credit reporting,25,25,1.0,21,69.0,18,True,False,False
+llama3.2:1b-instruct-q4_K_M,Debt collection,1,13,0.07692307692307693,10,61.92307692307692,9,False,False,False
+llama3.2:1b-instruct-q4_K_M,Mortgage,0,11,0.0,4,21.363636363636363,3,False,False,True
+llama3.2:1b-instruct-q4_K_M,Credit card,1,11,0.09090909090909091,9,66.81818181818181,8,False,False,True
+llama3.2:1b-instruct-q4_K_M,Bank account or service,0,16,0.0,15,78.75,13,False,False,False
+llama3.2:1b-instruct-q4_K_M,Consumer loan,7,14,0.5,8,42.142857142857146,6,True,False,False
+llama3.2:1b-instruct-q4_K_M,Money transfer or service,0,11,0.0,8,57.72727272727273,7,False,False,True
+llama3.2:3b,Credit reporting,17,25,0.68,21,69.0,18,False,False,False
+llama3.2:3b,Debt collection,9,13,0.6923076923076923,10,61.92307692307692,9,True,False,False
+llama3.2:3b,Mortgage,2,11,0.18181818181818182,4,21.363636363636363,3,False,False,True
+llama3.2:3b,Credit card,3,11,0.2727272727272727,9,66.81818181818181,8,False,False,True
+llama3.2:3b,Bank account or service,15,16,0.9375,15,78.75,13,True,False,False
+llama3.2:3b,Consumer loan,8,14,0.5714285714285714,8,42.142857142857146,6,True,False,False
+llama3.2:3b,Money transfer or service,0,11,0.0,8,57.72727272727273,7,False,False,True
+qwen2.5:7b,Credit reporting,21,25,0.84,21,69.0,18,True,False,False
+qwen2.5:7b,Debt collection,10,13,0.7692307692307693,10,61.92307692307692,9,True,False,False
+qwen2.5:7b,Mortgage,4,11,0.36363636363636365,4,21.363636363636363,3,True,False,True
+qwen2.5:7b,Credit card,9,11,0.8181818181818182,9,66.81818181818181,8,True,False,True
+qwen2.5:7b,Bank account or service,15,16,0.9375,15,78.75,13,True,False,False
+qwen2.5:7b,Consumer loan,8,14,0.5714285714285714,8,42.142857142857146,6,True,False,False
+qwen2.5:7b,Money transfer or service,8,11,0.7272727272727273,8,57.72727272727273,7,True,False,True

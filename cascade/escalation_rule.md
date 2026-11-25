@@ -11,8 +11,7 @@ Yuan. Read `README.md` in this folder before filling this in.
 
 **Status.** Part 2 drafted the approach, the model pair and the two settings on 2026-11-18, from Assignment 1
 evidence only (no model calls). Under `../TODO_A2.md` guardrail 12 the final settings are a whole-team
-decision. TODO(cascade): record the team's confirmation of Setting A and Setting B, with the date, at the
-W.1 meeting, then delete this marker. If the team changes a setting, re-run the tuning figures in §3 and §4.
+decision. The team confirmed Setting A and Setting B as written in section 3 on 2026-11-25, with each of the five members confirming individually in the team chat. If the team changes a setting, re-run the tuning figures in §3 and §4.
 
 **Guardrail — read before writing section 2.** The rule below describes a decision function that runs
 *inside the service, at inference time, on a ticket whose true category is unknown*. It may only use

@@ -621,7 +621,7 @@ recommendation, the same items Part 4 held the pen on for Slide 11 in Assignment
 
 ### 4.2 Hold the pen on the prediction record
 
-- [ ] Once Part 2's limits ([2.2](#22-compute-the-accuracy-limits-reuse-no-new-calls)) and rule settings
+- [x] Once Part 2's limits ([2.2](#22-compute-the-accuracy-limits-reuse-no-new-calls)) and rule settings
       ([2.4](#24-tune-the-two-settings-on-the-tuning-set-only)) exist, run the whole-team prediction meeting
       ([W.1](#w1-prediction-record-meeting--before-the-a2-gate)) and write `predictions/prediction_record_a2.md`
       from its template (to be created alongside this file), covering exactly the three things the brief asks
@@ -630,9 +630,9 @@ recommendation, the same items Part 4 held the pen on for Slide 11 in Assignment
       - for the cascade, the expected escalation fraction, accuracy and median latency **at each of the two
         settings**;
       - which categories are expected to lose the most accuracy when the small model's answer is accepted.
-- [ ] Re-read each prediction and ask whether a measurement could prove it wrong — a vague prediction earns
+- [x] Re-read each prediction and ask whether a measurement could prove it wrong — a vague prediction earns
       nothing, same rule as Assignment 1.
-- [ ] Commit the record as part of the A2 gate (see [Definition of done](#definition-of-done--the-a2-gate)).
+- [x] Commit the record as part of the A2 gate (see [Definition of done](#definition-of-done--the-a2-gate)).
 
 ### 4.3 Recommendation, after the results
 

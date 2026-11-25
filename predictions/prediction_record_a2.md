@@ -15,10 +15,7 @@ Assignment 1, `../workload/requirements.md` R3). "Satisfies both accuracy limits
 `../docs/a2/accuracy_limits.md`. Latency and escalation-fraction figures are under the arrival rate derived
 in `../docs/a2/arrival-rate.md`.
 
-**Who wrote this, and how.** TODO(a2): name the drafter(s), whether an AI assistant was used (permitted under
-the brief), and what evidence existed when it was written (reused Assignment 1 data only, or anything else).
-Follow `../README.md`'s existing rule: **no tool, no agent and no single member may supply this record alone**
-— draft individually first, then agree it together in the meeting (`../TODO_A2.md` §W.1).
+**Who wrote this, and how.** All five members wrote their own guesses first, then the team agreed the final entry for Sections 1 to 3 on 2026-11-25 by written confirmation in the team chat, with each member confirming individually.Toh Si Pei held the pen and used an AI assistant to suggest candidate figures, compare the five guesses and draft the team entry. The AI only proposed figures and wording. Toh Si Pei decided what to use and the team confirmed the final entry. Evidence available when the record was written: Assignment 1 results, the accuracy limits, the escalation rule, test-set scores for the four single models, and two Assignment 2 measurements taken before any benchmark run (S = 3.339 s for qwen2.5:7b, and a service overhead of about 0.55 s per request). No Assignment 2 speed or accuracy benchmark had been run.
 
 ---
 

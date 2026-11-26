@@ -10,14 +10,15 @@ All figures are on the **101 test-set rows only** (`golden/split_a2.csv`, `set =
 `golden/golden_set.csv`. Single-model figures come from `python -m analysis.accuracy_a2`. Cascade figures
 are added once Part 1's A2 accuracy runs exist. Nothing is typed in by hand.
 
-**Status:** single-model rows filled in (final). Cascade rows, escalation and the escalated vs
-non-escalated split are placeholders until the cascade runs.
+**Status:** single-model rows filled in (final). Cascade rows, escalation, the escalated vs non-escalated
+split and the determinism check filled in from Part 1's A2 accuracy runs on 2026-11-26
+(`python -m analysis.cascade_accuracy_a2`, same limits). The interpretation line is still Part 3's to write.
 
 ---
 
 ## Title
 
-Accuracy on the 101 test-set tickets: `<one line: which configurations pass both limits>`
+Accuracy on the 101 test-set tickets: `qwen2.5:7b` alone and the cascade at both settings pass both limits; no other single model does
 
 ## Required statement: reuse of Assignment 1 predictions (must appear on the slide)
 
@@ -48,8 +49,8 @@ Overall limit: **at least 65/101** (`qwen2.5:7b`'s 75/101 minus 10 percentage po
 | `granite4:3b` alone | 63 | 62.38% | FAIL | FAIL | No |
 | `llama3.2:3b` alone | 54 | 53.47% | FAIL | FAIL | No |
 | `llama3.2:1b-instruct-q4_K_M` alone | 34 | 33.66% | FAIL | FAIL | No |
-| Cascade, Setting A | `<n>` | `<%>` | `<>` | `<>` | `<>` |
-| Cascade, Setting B | `<n>` | `<%>` | `<>` | `<>` | `<>` |
+| Cascade, Setting A | 76 | 75.25% | PASS | PASS | **Yes** |
+| Cascade, Setting B | 74 | 73.27% | PASS | PASS | **Yes** |
 
 Cascade = `granite4:3b` first, escalating to `qwen2.5:7b`. Setting A accepts granite's answer only for
 Mortgage, Consumer loan or Debt collection. Setting B also accepts Credit card (`cascade/escalation_rule.md`).
@@ -61,39 +62,43 @@ Mortgage, Consumer loan or Debt collection. Setting B also accepts Credit card (
 
 | Category (N) | Minimum | qwen2.5:7b | granite4:3b | llama3.2:3b | llama3.2:1b | Cascade A | Cascade B |
 |---|---|---|---|---|---|---|---|
-| Credit reporting (25) | 18 | 21 | 22 | 17 ✗ | 25 | `<>` | `<>` |
-| Debt collection (13) | 9 | 10 | 5 ✗ | 9 | 1 ✗ | `<>` | `<>` |
-| Mortgage (11)* | 3 | 4 | 5 | 2 ✗ | 0 ✗ | `<>` | `<>` |
-| Credit card (11)* | 8 | 9 | 10 | 3 ✗ | 1 ✗ | `<>` | `<>` |
-| Bank account or service (16) | 13 | 15 | 13 | 15 | 0 ✗ | `<>` | `<>` |
-| Consumer loan (14) | 6 | 8 | 3 ✗ | 8 | 7 | `<>` | `<>` |
-| Money transfer or service (11)* | 7 | 8 | 5 ✗ | 0 ✗ | 0 ✗ | `<>` | `<>` |
+| Credit reporting (25) | 18 | 21 | 22 | 17 ✗ | 25 | 21 | 21 |
+| Debt collection (13) | 9 | 10 | 5 ✗ | 9 | 1 ✗ | 10 | 10 |
+| Mortgage (11)* | 3 | 4 | 5 | 2 ✗ | 0 ✗ | 5 | 5 |
+| Credit card (11)* | 8 | 9 | 10 | 3 ✗ | 1 ✗ | 9 | 10 |
+| Bank account or service (16) | 13 | 15 | 13 | 15 | 0 ✗ | 15 | 14 |
+| Consumer loan (14) | 6 | 8 | 3 ✗ | 8 | 7 | 8 | 6 (at the limit) |
+| Money transfer or service (11)* | 7 | 8 | 5 ✗ | 0 ✗ | 0 ✗ | 8 | 8 |
 
 \* **Borderline categories:** 11 test tickets each, so one ticket moves accuracy by 9.1 percentage points.
 No category has fewer than 10 test tickets, so none is excluded from the per-category check.
 
 Per-category accuracy uses the true category as the denominator (recall). Errors and UNPARSEABLE count as
-wrong. None of the 404 single-model test responses was an error or UNPARSEABLE.
+wrong. None of the 404 single-model test responses was an error or UNPARSEABLE, and none of the 202 cascade
+test responses was either (`cascade_routing_a2.csv`: 0 errors, 0 UNPARSEABLE).
 
 ## Cascade only: escalation and escalated vs non-escalated accuracy
 
 | | Setting A | Setting B |
 |---|---|---|
-| Escalation fraction (test set) | `<n>/101 (<%>)` | `<n>/101 (<%>)` |
-| Accuracy when granite's answer was accepted | `<n>/<m> (<%>)` | `<n>/<m> (<%>)` |
-| Accuracy when escalated to qwen2.5:7b | `<n>/<m> (<%>)` | `<n>/<m> (<%>)` |
-| Tuning-set expectation (`cascade/escalation_rule.md` §3) | `<from §3>` | `<from §3>` |
+| Escalation fraction (test set) | 83/101 (82.2%) | 65/101 (64.4%) |
+| Accuracy when granite's answer was accepted | 13/18 (72.2%) | 23/36 (63.9%) |
+| Accuracy when escalated to qwen2.5:7b | 63/83 (75.9%) | 51/65 (78.5%) |
+| Accepted but wrong (true category) | 5 (Mortgage 2, Credit reporting 2, Consumer loan 1) | 13 (Consumer loan 5, Mortgage 4, Credit reporting 3, Bank account 1) |
+| Tuning-set expectation (`cascade/escalation_rule.md` §3) | 78/99 escalated (78.8%); 75/99 right; 0 accepted-but-wrong | 59/99 escalated (59.6%); 74/99 right; 8 accepted-but-wrong |
 
 One line of interpretation: does the rule catch the tickets granite gets wrong? In other words, is
 accuracy on accepted tickets close to granite's precision on those categories?
 
-Source: `analysis/output/accuracy_a2/<cascade file>`, from the accuracy run's `routing.csv` / service log.
+Source: `analysis/output/accuracy_a2/cascade_routing_a2.csv`, from each accuracy run's `routing.csv` (joined to
+its `service.jsonl`).
 
 ## Small print: determinism cross-check
 
 On all 101 test rows, granite's answer inside the cascade run (`small_model_category`) matched its A1
-`predicted_category` on `<n>/101` rows. This supports the reuse statement above. Any mismatch is explained
-here before either figure is reported.
+`predicted_category` on **101/101** rows at both settings, and `qwen2.5:7b`'s answer on every escalated row
+matched its A1 answer (83/83 at A, 65/65 at B). This supports the reuse statement above: no mismatch to explain
+(`analysis/output/accuracy_a2/cascade_determinism_a2.csv`).
 
 ## Traceability rows to add to `../outline_a2.md` (Part 5's map)
 
@@ -103,5 +108,6 @@ here before either figure is reported.
 | 4 | per-category correct / N and pass/fail | `analysis/output/accuracy_a2/per_category_a2.csv` | same |
 | 4 | reuse statement: digests, prompt hash, `num_ctx`, seed | `analysis/output/accuracy_a2/sources.csv`, `docs/a2/accuracy_limits.md` | same |
 | 4 | overall and per-category minimums | `docs/a2/accuracy_limits.md` §1–§2 | Part 2 |
-| 4 | escalation fraction, escalated vs non-escalated accuracy | `analysis/output/accuracy_a2/<cascade file>` | `<cascade scoring command>` |
-| 4 | determinism cross-check | `analysis/output/accuracy_a2/<determinism file>` | `<command>` |
+| 4 | cascade overall and per-category accuracy, pass/fail | `analysis/output/accuracy_a2/cascade_pass_fail_a2.csv`, `cascade_per_category_a2.csv` ← `results/accuracy_a2/cascade-{A,B}_*/responses.csv` | `python -m analysis.cascade_accuracy_a2` |
+| 4 | escalation fraction, escalated vs non-escalated accuracy | `analysis/output/accuracy_a2/cascade_routing_a2.csv` ← each run's `routing.csv` | same |
+| 4 | determinism cross-check | `analysis/output/accuracy_a2/cascade_determinism_a2.csv` | same |

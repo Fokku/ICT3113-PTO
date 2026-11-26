@@ -94,7 +94,7 @@ import json, sys
 h = json.load(sys.stdin)
 ok = (h.get("status") == "ok" and h.get("service_mode") == sys.argv[1]
       and (h.get("cascade_setting") or "") == sys.argv[2])
-sys.exit(0 if ok else 1)' "$mode" "$setting"; then
+sys.exit(0 if ok else 1)' "$mode" "$setting" 2>/dev/null; then   # an empty reply mid-restart is just "not yet"
             printf '  /health confirms %s %s\n' "$mode" "$setting"
             return 0
         fi

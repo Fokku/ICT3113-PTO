@@ -1,0 +1,53 @@
+{
+  "ok": true,
+  "baseline_file": "/Users/kaiyuan/claude/ICT3113-PTO/docs/a2/env_baseline.json",
+  "baseline_captured_at_utc": "2026-11-19T07:50:54Z",
+  "checked_at_utc": "2026-11-26T10:34:12Z",
+  "differences": [],
+  "current": {
+    "captured_at_utc": "2026-11-26T10:34:12Z",
+    "captured_from": "Kais-MacBook-Pro-4.local",
+    "ollama_url": "http://192.168.50.129:11434",
+    "service_url": "http://192.168.50.129:8000",
+    "ollama_version": "0.34.3",
+    "model_digests": {
+      "granite4:3b": "sha256:89962fcc75239ac434cdebceb6b7e0669397f92eaef9c487774b718bc36a3e5f",
+      "llama3.2:1b-instruct-q4_K_M": "sha256:22bc6b92eb0160c4629782fca05a9032c59d306ab2058b7dacc8a4644fbafa02",
+      "llama3.2:3b": "sha256:a80c4f17acd55265feec403c7aef86be0c25983ab279d83f3bcd3abbcb5b8b72",
+      "qwen2.5:7b": "sha256:845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e"
+    },
+    "ollama_env": {
+      "OLLAMA_HOST": "0.0.0.0:11434",
+      "OLLAMA_MAX_LOADED_MODELS": "0",
+      "OLLAMA_NUM_PARALLEL": "0"
+    },
+    "service": {
+      "prompt_hash": "sha256:681131c48bdc15a1",
+      "num_ctx": 4096,
+      "seed": 42,
+      "ollama_timeout_s": 120.0,
+      "uvicorn_workers": 1,
+      "threadpool_size": 40,
+      "categories": [
+        "Credit reporting",
+        "Debt collection",
+        "Mortgage",
+        "Credit card",
+        "Bank account or service",
+        "Consumer loan",
+        "Money transfer or service"
+      ]
+    },
+    "jmeter_version": "5.6.3",
+    "matches_assignment_1_pins": {
+      "ollama_version": true,
+      "pinned_ollama_version": "0.34.3",
+      "digests": {
+        "granite4:3b": true,
+        "llama3.2:1b-instruct-q4_K_M": true,
+        "llama3.2:3b": true,
+        "qwen2.5:7b": true
+      }
+    }
+  }
+}

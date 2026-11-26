@@ -10,7 +10,8 @@ The chart introduces no new numbers. Accuracy comes from Slide 4 (`analysis/outp
 latency from Slide 5 (`analysis/output/speed_a2/per_config.csv`). No Assignment 1 speed figure is used
 (TODO_A2.md, guardrail 10).
 
-**Status:** structure only. Waiting for the cascade accuracy runs (Slide 4) and every speed run (Slide 5).
+**Status:** data filled in 2026-11-26 by Part 1 (numbers only, from the output files). The title, the
+interpretation lines and the chart itself are still Part 3's.
 
 ---
 
@@ -30,9 +31,15 @@ latency from Slide 5 (`analysis/output/speed_a2/per_config.csv`). No Assignment 
 
 | Point | Accuracy (Slide 4) | Median latency (Slide 5) | Passes both limits? | Marker |
 |---|---|---|---|---|
-| `qwen2.5:7b` alone (reference) | 75/101 (74.26%) | `<p50_mean_ms>` | Yes | filled |
-| Cascade, Setting A | `<n>/101` | `<p50_mean_ms>` | `<>` | filled if passes, hollow if not |
-| Cascade, Setting B | `<n>/101` | `<p50_mean_ms>` | `<>` | filled if passes, hollow if not |
+| `qwen2.5:7b` alone (reference) | 75/101 (74.26%) | 4.50 s (frozen rule: run 3 only). Secondary: 5.31 s, range 4.50–6.12 | Yes | filled |
+| Cascade, Setting A | 76/101 (75.25%) | 7.63 s (frozen rule: run 2 only). Secondary: 8.83 s, range 7.63–9.61 | Yes | filled |
+| Cascade, Setting B | 74/101 (73.27%) | 5.57 s (run 2 only, both readings) | Yes | filled |
+
+Latency source: `analysis/output/speed_a2/per_config.csv` (`p50_mean_ms`, frozen §4 rule: one counted run per
+configuration, so no range) and, labelled as secondary, `analysis/output/speed_a2_secondary/per_config.csv`
+(`p50_min_ms`–`p50_max_ms`). Every run's own p50 (all nine, for an error bar that ignores the queue flag, if the
+team wants one): `qwen2.5:7b` 6.12 / 6.54 / 4.50, cascade A 9.61 / 7.63 / 9.25, cascade B 5.50 / 5.57 / 5.03 s
+(`p50_per_run_ms`). Say which one the chart uses.
 | Any other single model that passes both limits | — | — | — | none currently: all three fail on Slide 4 |
 
 - **Failing points stay on the chart, drawn hollow.** A cascade setting that fails accuracy still gets a
@@ -67,7 +74,7 @@ way `cascade_diagram.py` produces Slide 2's diagram.
 
 | Slide | Figure | Source file | Produced by |
 |---|---|---|---|
-| 6 | y: overall accuracy per configuration | `analysis/output/accuracy_a2/pass_fail_a2.csv` + `<cascade file>` | `python -m analysis.accuracy_a2` |
+| 6 | y: overall accuracy per configuration | `analysis/output/accuracy_a2/pass_fail_a2.csv` + `cascade_pass_fail_a2.csv` | `python -m analysis.accuracy_a2`; `python -m analysis.cascade_accuracy_a2` |
 | 6 | x: p50 mean and per-run range | `analysis/output/speed_a2/per_config.csv` | `python analysis/summarise_load_a2.py` |
 | 6 | overall limit line | `docs/a2/accuracy_limits.md` §1 | Part 2 |
 | 6 | the chart | `slides/drafts_a2/slide6_tradeoff.png` | `<chart script>` |

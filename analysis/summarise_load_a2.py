@@ -71,8 +71,10 @@ Definitions (kept in step with :data:`DEFINITIONS_MD`, which goes in the report)
   ``queue_residual_median_ms`` for information and is not part of the check.
   On an escalated cascade line both models' timings are summed by the service
   (``service/log_schema.py``), so the figure is the sum of both calls' waits.
-* **Queued.** Flagged when ``|halves_change_pct|`` exceeds the tolerance or the
-  queue-wait median reaches the threshold. A queued run is reported, flagged,
+* **Queued.** Flagged when ``halves_change_pct`` exceeds ``+tolerance`` (the
+  second half's p50 more than 20% *above* the first's -- one-sided, exactly as
+  the frozen ``prediction_record_a2.md`` §4 states it; a faster second half is
+  no sign of a queue) or the queue-wait median reaches the threshold. A queued run is reported, flagged,
   and not compared on p50 (``prediction_record_a2.md`` §4).
 * **Throughput.** ``completed / span_s``, where ``span_s`` is
   ``summarise_load.client_metrics``'s span: first measured sample's start to the
@@ -124,7 +126,7 @@ import json
 import math
 import re
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import pandas as pd
@@ -170,6 +172,10 @@ class Thresholds:
     gap_threshold_pp: float = 15.0
     reload_threshold_ms: float = 1000.0
     max_tickets: int = 100
+    #: False only for the labelled SECONDARY analysis (--secondary-no-queue-wait): the
+    #: median queue wait is still reported per run but no longer fails the no-queue check.
+    #: The primary output always applies it, as frozen in prediction_record_a2.md §4.
+    queue_wait_check: bool = True
 
 
 DEFINITIONS_MD = """\
@@ -189,6 +195,8 @@ DEFINITIONS_MD = """\
 | Queue wait | Median over measured `POST /tickets` log lines of `ollama_other_ms` as `analysis/bottleneck_hints.py` defines it: `total_duration/1e6 - (load_duration + prompt_eval_duration + eval_duration)/1e6`. This is where Assignment 1 measured Ollama's queueing (waiting for its single slot; `predictions/outcomes.md` 2.4). Summed over both calls on an escalated cascade line. `queue_residual_median_ms` (`model_latency_ms - total_duration/1e6`, HTTP and network) is shown for information only. |
 | Queued | Halves differ by more than the tolerance, or the queue-wait median reaches the threshold. Reported, flagged, and not compared on p50. |
 | Throughput | completed / span, where span runs from the first measured sample's start to the last measured sample's end (`timeStamp + elapsed`), as in Assignment 1's `client_metrics`. Requests per second. |
+| Accepted vs escalated p50 (cascade) | Each completed JMeter sample is joined on `request_id` to its log line and split by that line's `escalated` flag; the p50 of each group's `elapsed`, per run and pooled over the counted runs. Shows the two latencies the break-even `L(small) + f x L(large) < L(large)` is about. |
+| Ollama busy fraction | Sum over measured `POST /tickets` lines of `load_duration + prompt_eval_duration + eval_duration` (both calls on an escalated cascade line), divided by the span. Utilisation, for information only: no threshold. With random arrivals, roughly this share of tickets arrive while Ollama is busy and wait. It can exceed 1.0 for a cascade: the two models run in separate Ollama runners, so a small-model call and a large-model call can compute at the same time, sharing the CPU. |
 | Error rate | `100 * (sent - completed) / sent`: errored and unfinished together. |
 | Escalation fraction | Cascade only: `escalated == true` lines over all measured `POST /tickets` service-log lines. Accuracy-test fraction: the same over the newest test-set accuracy run of that setting. Gap = speed minus accuracy, in percentage points. |
 | Reload | A measured log line whose `load_duration` exceeds the reload threshold: a model was loaded mid-run. A loading result, not a speed result. |
@@ -212,7 +220,8 @@ RUN_COLUMNS: tuple[str, ...] = (
     "halves_change_pct",
     "queue_wait_median_ms", "n_queue_wait", "queue_residual_median_ms",
     "no_queue_check", "queued",
-    "span_s", "throughput_rps", "error_rate_pct",
+    "span_s", "throughput_rps", "error_rate_pct", "ollama_busy_fraction",
+    "p50_accepted_ms", "n_accepted", "p50_escalated_ms", "n_escalated_latency",
     "escalated_count", "escalation_total", "escalation_fraction",
     "accuracy_escalation_fraction", "escalation_gap_pp", "escalation_gap_flag",
     "max_load_duration_ms", "reload_requests", "reload",
@@ -227,6 +236,8 @@ CONFIG_COLUMNS: tuple[str, ...] = (
     "pooled_p95_ms", "pooled_n", "throughput_mean_rps", "error_rate_mean_pct",
     "sent_total", "completed_total", "errored_total", "unfinished_total",
     "escalated_count", "escalation_total", "escalation_fraction",
+    "p50_accepted_pooled_ms", "n_accepted_pooled", "p50_escalated_pooled_ms",
+    "n_escalated_pooled",
     "accuracy_run_id", "accuracy_escalated_count", "accuracy_escalation_total",
     "accuracy_escalation_fraction", "escalation_gap_pp", "escalation_gap_flag",
     "passes_accuracy", "label", "faster_than_reference", "warning",
@@ -396,6 +407,51 @@ def queue_wait(tickets: pd.DataFrame) -> dict[str, float]:
     }
 
 
+def ollama_busy_fraction(tickets: pd.DataFrame, span_s: float) -> float:
+    """Share of the run's span Ollama spent computing for measured tickets (utilisation).
+
+    ``sum(load_duration + prompt_eval_duration + eval_duration) / span_s`` over the
+    measured ``POST /tickets`` lines -- both calls on an escalated cascade line. Waiting
+    time (``ollama_other_ms``) is excluded. Informational only: it is no threshold, but it
+    shows how close a configuration runs to saturation at the fixed rate (1.0 = always busy).
+    It can exceed 1.0 for a cascade: its two models run in separate Ollama runners and can
+    compute at the same time, sharing the CPU.
+    """
+    if not _finite(span_s) or span_s <= 0 or tickets.empty:
+        return float("nan")
+    busy_ns = sum(pd.to_numeric(tickets[c], errors="coerce").fillna(0).sum()
+                  for c in ("load_duration", "prompt_eval_duration", "eval_duration"))
+    return float(busy_ns) / NS_PER_MS / 1000.0 / span_s
+
+
+def route_latencies(samples: pd.DataFrame, completed: pd.Series,
+                    tickets: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
+    """(accepted, escalated) JMeter ``elapsed`` of completed samples, split by the ``escalated``
+    flag of the log line with the same ``request_id``. Unjoined samples are left out."""
+    flags = pd.Series(tickets["escalated"].map(reconcile.as_bool).values,
+                      index=reconcile.id_strings(tickets["request_id"]).values)
+    flags = flags[~flags.index.duplicated(keep="last")]
+    done = samples.loc[completed]
+    ids = reconcile.id_strings(done["request_id"]) if "request_id" in done.columns else None
+    if ids is None:
+        empty = pd.Series(dtype="float64")
+        return empty, empty
+    route = ids.map(flags)
+    elapsed = pd.to_numeric(done["elapsed"], errors="coerce")
+    return (elapsed[route == False].dropna(),  # noqa: E712
+            elapsed[route == True].dropna())   # noqa: E712
+
+
+def latency_by_route(samples: pd.DataFrame, completed: pd.Series,
+                     tickets: pd.DataFrame) -> dict[str, object]:
+    """Per-run p50 of the tickets the small model answered alone vs the escalated ones."""
+    accepted, escalated = route_latencies(samples, completed, tickets)
+    return {"p50_accepted_ms": common.percentile(accepted, 0.50) if len(accepted) else float("nan"),
+            "n_accepted": int(len(accepted)),
+            "p50_escalated_ms": common.percentile(escalated, 0.50) if len(escalated) else float("nan"),
+            "n_escalated_latency": int(len(escalated))}
+
+
 def escalation_counts(tickets: pd.DataFrame) -> tuple[int, int]:
     """(escalated == true lines, all measured POST /tickets lines)."""
     escalated = tickets["escalated"].map(reconcile.as_bool)
@@ -443,6 +499,9 @@ class RunResult:
     metadata: dict
     row: dict[str, object]
     latencies: pd.Series  # elapsed of the completed samples, for the pooled p95
+    #: cascade only: completed samples' elapsed, split by the log line's ``escalated`` flag
+    accepted: pd.Series = field(default_factory=lambda: pd.Series(dtype="float64"))
+    escalated: pd.Series = field(default_factory=lambda: pd.Series(dtype="float64"))
 
     @property
     def config(self) -> str:
@@ -569,11 +628,11 @@ def summarise_run(info: common.RunDirInfo, thresholds: Thresholds) -> RunResult:
 
     failures: list[str] = []
     change = halves["halves_change_pct"]
-    if _finite(change) and abs(change) > 100.0 * thresholds.halves_tolerance:
+    if _finite(change) and change > 100.0 * thresholds.halves_tolerance:
         failures.append(f"second-half p50 {change:+.1f}% vs first half "
-                        f"(limit +/-{100.0 * thresholds.halves_tolerance:g}%)")
+                        f"(limit +{100.0 * thresholds.halves_tolerance:g}%)")
     wait = waits["queue_wait_median_ms"]
-    if _finite(wait) and wait >= thresholds.queue_wait_ms:
+    if thresholds.queue_wait_check and _finite(wait) and wait >= thresholds.queue_wait_ms:
         failures.append(f"median queue wait {wait:.1f} ms "
                         f"(limit < {thresholds.queue_wait_ms:g} ms)")
     if failures:
@@ -589,6 +648,7 @@ def summarise_run(info: common.RunDirInfo, thresholds: Thresholds) -> RunResult:
     span_s = float(client_metrics(samples)["span_s"]) if sent else float("nan")
     throughput = completed / span_s if _finite(span_s) and span_s > 0 else float("nan")
     error_rate = 100.0 * (sent - completed) / sent if sent else float("nan")
+    busy = ollama_busy_fraction(tickets, span_s)
 
     # --- escalation (cascade only) -------------------------------------------
     if cascade:
@@ -597,6 +657,7 @@ def summarise_run(info: common.RunDirInfo, thresholds: Thresholds) -> RunResult:
     else:
         n_escalated = n_lines = None
         fraction = None
+    split = latency_by_route(samples, completed_mask, tickets) if cascade else {}
 
     # --- reload, repeats ------------------------------------------------------
     load_ms = (pd.to_numeric(tickets["load_duration"], errors="coerce") / NS_PER_MS).dropna()
@@ -702,6 +763,11 @@ def summarise_run(info: common.RunDirInfo, thresholds: Thresholds) -> RunResult:
         "span_s": span_s,
         "throughput_rps": throughput,
         "error_rate_pct": error_rate,
+        "ollama_busy_fraction": busy,
+        "p50_accepted_ms": split.get("p50_accepted_ms"),
+        "n_accepted": split.get("n_accepted"),
+        "p50_escalated_ms": split.get("p50_escalated_ms"),
+        "n_escalated_latency": split.get("n_escalated_latency"),
         "escalated_count": n_escalated,
         "escalation_total": n_lines,
         "escalation_fraction": fraction,
@@ -718,7 +784,10 @@ def summarise_run(info: common.RunDirInfo, thresholds: Thresholds) -> RunResult:
         "reasons": "; ".join(reasons),
         "notes": "; ".join(notes),
     }
-    return RunResult(info=info, metadata=metadata, row=row, latencies=latencies)
+    accepted, escalated = (route_latencies(samples, completed_mask, tickets) if cascade
+                           else (pd.Series(dtype="float64"), pd.Series(dtype="float64")))
+    return RunResult(info=info, metadata=metadata, row=row, latencies=latencies,
+                     accepted=accepted, escalated=escalated)
 
 
 # ---------------------------------------------------------------------------
@@ -885,6 +954,19 @@ def _run_label(result: RunResult, duplicate_index: bool) -> str:
     return f"{label}@{result.info.stamp}" if duplicate_index else label
 
 
+def pooled_routes(counted: list["RunResult"], cascade: bool) -> dict[str, object]:
+    """Cascade only: p50 of the accepted and of the escalated tickets, pooled over the counted runs."""
+    if not cascade:
+        return {"p50_accepted_pooled_ms": None, "n_accepted_pooled": None,
+                "p50_escalated_pooled_ms": None, "n_escalated_pooled": None}
+    acc = pd.concat([r.accepted for r in counted], ignore_index=True) if counted else pd.Series(dtype="float64")
+    esc = pd.concat([r.escalated for r in counted], ignore_index=True) if counted else pd.Series(dtype="float64")
+    return {"p50_accepted_pooled_ms": common.percentile(acc, 0.50) if len(acc) else float("nan"),
+            "n_accepted_pooled": int(len(acc)),
+            "p50_escalated_pooled_ms": common.percentile(esc, 0.50) if len(esc) else float("nan"),
+            "n_escalated_pooled": int(len(esc))}
+
+
 def per_config(
     results: list[RunResult],
     accuracy: dict[str, AccuracyEscalation],
@@ -992,6 +1074,7 @@ def per_config(
             "escalated_count": esc_count,
             "escalation_total": esc_total,
             "escalation_fraction": esc_fraction,
+            **pooled_routes(counted, cascade),
             "accuracy_run_id": acc.run_id if acc else None,
             "accuracy_escalated_count": acc.escalated if acc else None,
             "accuracy_escalation_total": acc.total if acc else None,
@@ -1063,10 +1146,14 @@ def thresholds_md(thresholds: Thresholds, reference: str) -> str:
         "",
         "| Threshold | Value | Source |",
         "|---|---|---|",
-        f"| No-queue check: first vs second-half p50 | within +/-{tol:g}% | "
+        f"| No-queue check: second-half p50 vs first half | at most +{tol:g}% | "
         "`predictions/prediction_record_a2.md` section 4 |",
-        f"| No-queue check: median queue wait (`ollama_other_ms`) | under "
-        f"{thresholds.queue_wait_ms:g} ms | `predictions/prediction_record_a2.md` section 4 |",
+        (f"| No-queue check: median queue wait (`ollama_other_ms`) | under "
+         f"{thresholds.queue_wait_ms:g} ms | `predictions/prediction_record_a2.md` section 4 |"
+         if thresholds.queue_wait_check else
+         "| No-queue check: median queue wait (`ollama_other_ms`) | **NOT APPLIED in this "
+         "secondary analysis** (still reported per run) | deviation from "
+         "`predictions/prediction_record_a2.md` section 4; see its dated appendix |"),
         f"| Large escalation gap (speed vs accuracy test) | more than "
         f"{thresholds.gap_threshold_pp:g} pp | `predictions/prediction_record_a2.md` section 4 |",
         f"| Reload (loading result) | any measured `load_duration` above "
@@ -1095,8 +1182,18 @@ def build_report(
 ) -> str:
     """The tables, definitions, thresholds and every flag, in one page."""
     parts: list[str] = [
-        "# Assignment 2 speed-test summary",
+        "# Assignment 2 speed-test summary"
+        + ("" if thresholds.queue_wait_check else " -- SECONDARY ANALYSIS"),
         "",
+        *([] if thresholds.queue_wait_check else [
+            "> **SECONDARY ANALYSIS, NOT THE FROZEN RULE.** The no-queue check here uses the "
+            "halves test only; the frozen median-queue-wait limit "
+            "(`predictions/prediction_record_a2.md` section 4) is not applied, although each "
+            "run's queue wait is still reported. The primary result, with the frozen rule, is "
+            "`analysis/output/speed_a2/`. Why this exists: the dated appendix to the "
+            "prediction record.",
+            "",
+        ]),
         f"Source: `{runs_root}` -- {len(per_run)} speed_a2 run(s), "
         f"{len(per_cfg)} configuration(s). Generated by `analysis/summarise_load_a2.py`. "
         "Every figure comes from a `.jtl` or a service-log line in the run directories "
@@ -1214,6 +1311,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
                         help="no-queue check: max |second-half p50 / first-half p50 - 1|")
     parser.add_argument("--queue-wait-ms", type=float, default=defaults.queue_wait_ms,
                         help="no-queue check: median queue wait must be under this")
+    parser.add_argument("--secondary-no-queue-wait", action="store_true",
+                        help="SECONDARY analysis only: do not fail runs on the median queue "
+                             "wait (still reported). Needs an --out-dir other than the primary "
+                             f"{DEFAULT_OUT_DIR}; every output is labelled as a deviation from "
+                             "the frozen rule.")
     parser.add_argument("--gap-threshold-pp", type=float, default=defaults.gap_threshold_pp,
                         help="flag speed vs accuracy-test escalation gaps above this (pp)")
     parser.add_argument("--reload-threshold-ms", type=float,
@@ -1257,7 +1359,12 @@ def main(argv: list[str] | None = None) -> int:
         gap_threshold_pp=args.gap_threshold_pp,
         reload_threshold_ms=args.reload_threshold_ms,
         max_tickets=args.max_tickets,
+        queue_wait_check=not args.secondary_no_queue_wait,
     )
+    if args.secondary_no_queue_wait and args.out_dir.resolve() == DEFAULT_OUT_DIR.resolve():
+        print(f"{PROG}: FAILED: --secondary-no-queue-wait must not write to the primary "
+              f"{DEFAULT_OUT_DIR}; use e.g. analysis/output/speed_a2_secondary", file=sys.stderr)
+        return 2
     try:
         check_out_dir(args.out_dir)
         selected = select_speed_runs(args.runs)

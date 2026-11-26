@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "gate_commit": "c544a51e4db8a015331fc29c9eeb415d280836f5",
+  "gate_tag": "a2-predictions-freeze",
+  "prediction_sha": "d632ebb78e54a6a217d7e69a99c6a43807a8ca22",
+  "escalation_rule_sha": "ac99c5237df16ca3c0908bd3eee074a6cb270634",
+  "split_sha": "842dfac28556efd33100b9ef6d311b822c4f4b39"
+}

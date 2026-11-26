@@ -1,0 +1,239 @@
+== A2 gate
+  PASS
+
+== Plan (speed phase): qwen2.5:7b cascade-A cascade-B
+   cascade pair: small granite4:3b, large qwen2.5:7b; service http://192.168.50.129:8000
+   three runs each, about 13 minutes per run (docs/a2/arrival_rate.json)
+
+== Speed, 3 runs: qwen2.5:7b
++ /Users/kaiyuan/claude/ICT3113-PTO/scripts/run_load_test_a2.sh --config qwen2.5:7b --host 192.168.50.129 --port 8000 --runs 3 --yes
+Config        : qwen2.5:7b
+Model         : qwen2.5:7b (single model)
+Expected      : qwen2.5:7b resident before every run
+Plan          : jmeter/speed_test_a2.jmx
+Arrival rate  : 8.98/min (label 8.98pm); S = 3.339 s
+Duration      : 300s of arrivals, then a 360s pause; response timeout 300000ms
+Expected      : ~44.9 arrivals per run (safe upper bound 65.0; 100 tickets in the list)
+Arrival file  : docs/a2/arrival_rate.json
+Runs          : 3
+Service       : http://192.168.50.129:8000
+Ollama        : http://192.168.50.129:11434 (compose service ollama)
+Input CSV     : data/speed_test_tickets_a2.csv
+Ticket list   : workload/speed_test_rows_a2.txt
+Warm-up       : first 3 rows of data/dev/synthetic_tickets.csv
+Env baseline  : docs/a2/env_baseline.json
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+
+== Step A: A2 gate
+  PASS: gated at c544a51e4db8a015331fc29c9eeb415d280836f5 (tag 'a2-predictions-freeze')
+run_load_test_a2.sh: WARNING: the working tree has uncommitted changes. Results are traceable only to a commit; commit before measuring.
+
+== Step B: environment check against docs/a2/env_baseline.json
+ Container ict3113-ollama Running 
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+  Ollama container environment captured: OLLAMA_HOST=0.0.0.0:11434 OLLAMA_MAX_LOADED_MODELS=0 OLLAMA_NUM_PARALLEL=0 
+  unchanged from the baseline
+
+== Run 1 of 3: 20261126T095648Z_qwen2.5-7b_speed_a2_8.98pm_run1
+  [1/11] restart the Ollama container (clears its prompt cache; no model loaded)
+ Container ict3113-ollama Restarting 
+ Container ict3113-ollama Started 
+      Ollama is up (http://192.168.50.129:11434/api/version)
+  [2/11] reset the database; recreate triage as qwen2.5:7b
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+Removing volume ict3113-triage_triage_db...
+ Container ict3113-triage Removed 
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+  [3/11] wait for /health to confirm the configuration
+      /health: model_tag qwen2.5:7b, service_mode single, Ollama reachable
+  [4/11] warm-up: 3 fixed tickets, one at a time (excluded from analysis)
+      warm-up 1/3: request_id warmup-95ccf7e4-5c6c-4c11-abe4-cf2a5b20f646 (dev row 900000), HTTP 200
+      warm-up 2/3: request_id warmup-1059b161-88b6-4a72-9f44-7ad2e613f317 (dev row 900001), HTTP 200
+      warm-up 3/3: request_id warmup-bee97b84-2d80-4ab1-97b2-574ffe76665a (dev row 900002), HTTP 200
+      warm-up log lines captured (3 line(s) for 3 request(s), all warmup=true; escalated: 0)
+  [5/11] residency: ollama ps must list qwen2.5:7b
+      resident (before): qwen2.5:7b
+  [6/11] GET /stats (before)
+      total = 3
+  [7/11] JMeter (non-GUI, open model arrivals; ~660s including the pause)
+      results.jtl: 44 sample(s), 44 distinct ticket(s)
+  [8/11] GET /stats (after)
+      total = 47
+  [9/11] slice the service log into the run directory
+      service.jsonl: 44 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window); stats_calls.jsonl: 2 line(s)
+  [10/11] residency after the run (evidence only)
+      resident (after): (none); expected: qwen2.5:7b
+  [11/11] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261126T095648Z_qwen2.5-7b_speed_a2_8.98pm_run1/metadata.json
+
+== Run 2 of 3: 20261126T095648Z_qwen2.5-7b_speed_a2_8.98pm_run2
+  [1/11] restart the Ollama container (clears its prompt cache; no model loaded)
+ Container ict3113-ollama Restarting 
+ Container ict3113-ollama Started 
+      Ollama is up (http://192.168.50.129:11434/api/version)
+  [2/11] reset the database; recreate triage as qwen2.5:7b
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+Waiting up to 90s for triage to report healthy...
+ Container ict3113-triage Started 
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+  [3/11] wait for /health to confirm the configuration
+      /health: model_tag qwen2.5:7b, service_mode single, Ollama reachable
+  [4/11] warm-up: 3 fixed tickets, one at a time (excluded from analysis)
+      warm-up 1/3: request_id warmup-d40c9f2c-f2c5-4ab9-a35c-6dcde3d7a3cb (dev row 900000), HTTP 200
+      warm-up 2/3: request_id warmup-ed149c3b-04e6-4fd3-bbaa-04335619d025 (dev row 900001), HTTP 200
+      warm-up 3/3: request_id warmup-0ec8047f-3a92-45d6-b4dc-e72f8761f91b (dev row 900002), HTTP 200
+      warm-up log lines captured (3 line(s) for 3 request(s), all warmup=true; escalated: 0)
+  [5/11] residency: ollama ps must list qwen2.5:7b
+      resident (before): qwen2.5:7b
+  [6/11] GET /stats (before)
+      total = 3
+  [7/11] JMeter (non-GUI, open model arrivals; ~660s including the pause)
+      results.jtl: 44 sample(s), 44 distinct ticket(s)
+  [8/11] GET /stats (after)
+      total = 47
+  [9/11] slice the service log into the run directory
+      service.jsonl: 44 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window); stats_calls.jsonl: 2 line(s)
+  [10/11] residency after the run (evidence only)
+      resident (after): (none); expected: qwen2.5:7b
+  [11/11] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261126T095648Z_qwen2.5-7b_speed_a2_8.98pm_run2/metadata.json
+
+== Run 3 of 3: 20261126T095648Z_qwen2.5-7b_speed_a2_8.98pm_run3
+  [1/11] restart the Ollama container (clears its prompt cache; no model loaded)
+ Container ict3113-ollama Restarting 
+ Container ict3113-ollama Started 
+      Ollama is up (http://192.168.50.129:11434/api/version)
+  [2/11] reset the database; recreate triage as qwen2.5:7b
+Stopping and removing the triage container...
+ Container ict3113-triage Stopping 
+Going to remove ict3113-triage
+ Container ict3113-triage Stopped 
+ Container ict3113-triage Removing 
+ Container ict3113-triage Removed 
+Removing volume ict3113-triage_triage_db...
+Starting triage again...
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Creating 
+ Volume ict3113-triage_triage_db Created 
+ Volume ict3113-triage_triage_db Created 
+ Container ict3113-triage Creating 
+ Container ict3113-triage Created 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Waiting up to 90s for triage to report healthy...
+
+Reset complete. The service is empty and healthy.
+Check the backend before running a benchmark:
+  curl -s http://localhost:${SERVICE_PORT:-8000}/health
+It must report "status": "ok" — "degraded" means Ollama is unreachable.
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+  [3/11] wait for /health to confirm the configuration
+      /health: model_tag qwen2.5:7b, service_mode single, Ollama reachable
+  [4/11] warm-up: 3 fixed tickets, one at a time (excluded from analysis)
+      warm-up 1/3: request_id warmup-196b953f-c037-4fdb-a358-c842e978fbad (dev row 900000), HTTP 200
+      warm-up 2/3: request_id warmup-10a08d0e-3a9d-4ae2-881d-ebf03ca796d2 (dev row 900001), HTTP 200
+      warm-up 3/3: request_id warmup-e450fd6a-c92d-4407-8e81-500384c7609f (dev row 900002), HTTP 200
+      warm-up log lines captured (3 line(s) for 3 request(s), all warmup=true; escalated: 0)
+  [5/11] residency: ollama ps must list qwen2.5:7b
+      resident (before): qwen2.5:7b
+  [6/11] GET /stats (before)
+      total = 3
+  [7/11] JMeter (non-GUI, open model arrivals; ~660s including the pause)
+      results.jtl: 44 sample(s), 44 distinct ticket(s)
+  [8/11] GET /stats (after)
+      total = 47
+  [9/11] slice the service log into the run directory
+      service.jsonl: 44 measured line(s); warmup.jsonl: +0 warm-up line(s) added (0 found in window); stats_calls.jsonl: 2 line(s)
+  [10/11] residency after the run (evidence only)
+      resident (after): (none); expected: qwen2.5:7b
+  [11/11] write metadata.json
+      /Users/kaiyuan/claude/ICT3113-PTO/results/runs/20261126T095648Z_qwen2.5-7b_speed_a2_8.98pm_run3/metadata.json
+
+== Summary
+Wrote 3 run directory/ies under /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+
+Next steps (not run automatically):
+  python analysis/reconcile.py --run-dir results/runs/20261126T095648Z_qwen2.5-7b_speed_a2_8.98pm_run1
+  python analysis/reconcile.py --run-dir results/runs/20261126T095648Z_qwen2.5-7b_speed_a2_8.98pm_run2
+  python analysis/reconcile.py --run-dir results/runs/20261126T095648Z_qwen2.5-7b_speed_a2_8.98pm_run3
+  python analysis/summarise_load_a2.py --runs results/runs
+  ...and record every run in docs/a2/run-log.md (docs/playbooks/cascade-test.md section 8).
+
+== Speed, 3 runs: cascade-A
++ /Users/kaiyuan/claude/ICT3113-PTO/scripts/run_load_test_a2.sh --config cascade-A --host 192.168.50.129 --port 8000 --runs 3 --yes --small-model granite4:3b --large-model qwen2.5:7b
+Config        : cascade-A
+Cascade       : Setting A; small granite4:3b, large qwen2.5:7b (MODEL_TAG)
+Expected      : granite4:3b,qwen2.5:7b resident before every run
+Plan          : jmeter/speed_test_a2.jmx
+Arrival rate  : 8.98/min (label 8.98pm); S = 3.339 s
+Duration      : 300s of arrivals, then a 360s pause; response timeout 300000ms
+Expected      : ~44.9 arrivals per run (safe upper bound 65.0; 100 tickets in the list)
+Arrival file  : docs/a2/arrival_rate.json
+Runs          : 3
+Service       : http://192.168.50.129:8000
+Ollama        : http://192.168.50.129:11434 (compose service ollama)
+Input CSV     : data/speed_test_tickets_a2.csv
+Ticket list   : workload/speed_test_rows_a2.txt
+Warm-up       : first 3 rows of data/dev/synthetic_tickets.csv
+Env baseline  : docs/a2/env_baseline.json
+Mode          : real
+Output root   : /Users/kaiyuan/claude/ICT3113-PTO/results/runs
+JMeter        : /Users/kaiyuan/tools/apache-jmeter-5.6.3/bin/jmeter (version 5.6.3)
+Service log   : /Users/kaiyuan/claude/ICT3113-PTO/logs/service
+Service host  : omarchy (checkout claude/ICT3113-PTO; compose and reset run there)
+run_load_test_a2.sh: service host checkout is at 1587344c41bc but this checkout is at 8ec94d82fba4. Push, then 'git pull' on the service host and rebuild (docker compose build triage) before measuring.
+run_a2_campaign.sh: run_load_test_a2.sh reported a problem for cascade-A. Read its summary, record it in docs/a2/run-log.md, and re-run only for a reason in docs/playbooks/cascade-test.md section 6.

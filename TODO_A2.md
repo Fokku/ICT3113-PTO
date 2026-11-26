@@ -313,7 +313,9 @@ throughout. This gates which pairs Part 2 may even propose.
       `classify_with_cascade()` signatures fixed, with the leakage guardrail written into the docstring.
       Implement `should_escalate()` from Part 2's `cascade/escalation_rule.md` §2–3 once it's written, then
       `classify_with_cascade()`, then wire both into `service/main.py`. Not wired in yet on purpose.
-- [ ] **Copy Setting A and Setting B into `service/cascade.py` `RULE_SETTINGS`** once Part 2 hands them over.
+- [x] *(Done 2026-11-26: two `CategoryRule`s, A = {Mortgage, Consumer loan, Debt collection}, B = A + Credit card.
+      Slide 2 diagram regenerated for `granite4:3b` + `qwen2.5:7b`.)*
+      **Copy Setting A and Setting B into `service/cascade.py` `RULE_SETTINGS`** once Part 2 hands them over.
       It is one `CategoryRule(...)` or `LengthRule(...)` per setting, copied verbatim from
       `cascade/escalation_rule.md` §3. Then run the rule-fidelity check below and regenerate the Slide 2
       diagram. *Blocked on Part 2.* If Part 2 picks agreement or self-reported confidence instead, that rule
@@ -342,7 +344,9 @@ throughout. This gates which pairs Part 2 may even propose.
       between configurations.
 - [x] Tests (`tests/test_cascade_routing.py`, `tests/test_rule_fidelity.py`, `tests/test_a2_calibration.py`): cascade routing logic with both model calls stubbed (no model contacted by the test suite), same
       pattern as Assignment 1's `pytest` suite.
-- [ ] **Rule-fidelity check: the code must reproduce the documented rule.** Offline, feed the small model's
+- [x] *(Done 2026-11-26: `scripts/cascade_replay.py --small-model granite4:3b` gives 78/99 and 59/99, MATCH;
+      `tests/test_rule_fidelity.py::test_code_reproduces_escalation_rule_document` runs and passes.)*
+      **Rule-fidelity check: the code must reproduce the documented rule.** Offline, feed the small model's
       A1 answers on the tuning-set rows through the real `should_escalate()` at Setting A and Setting B. The
       escalation fraction it produces must equal the tuning-set figure in `cascade/escalation_rule.md` §3
       **exactly** — same rows, same answers, a deterministic rule. A mismatch means the code and the document
@@ -408,54 +412,72 @@ throughout. This gates which pairs Part 2 may even propose.
       threshold fixed in `predictions/prediction_record_a2.md` §4 (default 15 percentage points), as the
       brief asks ("explain any large gap").
 - [x] **No-queue check on every speed run.** *(Queue wait = median `ollama_other_ms` as
-      `analysis/bottleneck_hints.py` defines it. Note for the §4 decision: the ±20% halves test is
-      symmetric as written, so a run whose second half is *faster* is also flagged "queued". The dev
-      rehearsal hit exactly that, at −21.6%. The team may want "no more than 20% slower" instead.)* The 2×S rate exists so "no queue builds" (brief), but a slow
+      `analysis/bottleneck_hints.py` defines it. The halves test is one-sided, exactly as frozen in
+      `predictions/prediction_record_a2.md` §4: "second-half p50 no more than 20% above first-half p50" (it
+      was symmetric until 2026-11-26, fixed before any real run). `--secondary-no-queue-wait` writes the
+      labelled secondary analysis to `analysis/output/speed_a2_secondary/`; see
+      `predictions/prediction_record_a2_appendix.md` for why.)* The 2×S rate exists so "no queue builds" (brief), but a slow
       configuration (e.g. a cascade setting with heavy escalation) can still take longer than 2S per ticket.
       Its p50 then depends on how long the run lasted, not on the configuration. Report, per run: first-half
       vs second-half p50, and median `ollama_other_ms` (queue wait, from `analysis/bottleneck_hints.py`).
-      A run failing the threshold in `predictions/prediction_record_a2.md` §4 (default: halves within ±20%,
-      queue wait under 100 ms) is reported but flagged as queued, and not compared on p50.
+      A run failing the threshold in `predictions/prediction_record_a2.md` §4 (second half at most 20% above
+      the first, queue wait under 100 ms) is reported but flagged as queued, and not compared on p50.
 - [x] *(Done: cascade and single-mode consistency checks. A1 runs give byte-identical output.)* Extend `analysis/reconcile.py` to join on the new "which model answered" log field as well as
       `request_id`, so a cascade run can still be checked end to end against its `.jtl`.
 
 ### 1.5 After the A2 gate passes — run everything
 
-Nothing in this block may start before `python scripts/a2_gate.py` exits 0. *(Status 2026-11-19: every
-script below exists and enforces the gate. The block is waiting on the gate itself: Part 2's rule and
-settings, then the W.1 prediction record. Once the gate passes, the whole block is two commands from the load
-generator, each with a `--dry-run` that prints its plan:
-`scripts/run_a2_campaign.sh accuracy --small-model <tag> --host <service-host>`, then, after Part 3's pass/fail
-table, `scripts/run_a2_campaign.sh speed --small-model <tag> --host <service-host> --singles "<passing singles>"`.
-The speed phase also reconciles every new run and summarises.)*
+Nothing in this block may start before `python scripts/a2_gate.py` exits 0. *(Status 2026-11-26: the gate
+passes; the accuracy phase is done and the speed phase ran from the MacBook with
+`scripts/run_a2_campaign.sh speed --small-model granite4:3b --host 192.168.50.129 --singles ""` (only
+`qwen2.5:7b` passed among the single models). Every run is recorded in `docs/a2/run-log.md`.)*
 
-- [ ] Confirm the gate: `python scripts/a2_gate.py --json` exits 0, keep its output.
-- [ ] Accuracy test, test-set rows only, for: `qwen2.5:7b` alone (reference), each other single model alone,
+- [x] *(Done 2026-11-26: output pasted in `docs/a2/run-log.md` "Gate"; every run also keeps its own `gate.json`.)*
+      Confirm the gate: `python scripts/a2_gate.py --json` exits 0, keep its output.
+- [x] *(Done 2026-11-26: cascade A 76/101, B 74/101, both pass both limits; 0 errors; escalated 83/101 and
+      65/101; determinism cross-check 101/101 at both settings. Scored with `python -m analysis.cascade_accuracy_a2`
+      into `analysis/output/accuracy_a2/cascade_*`. Single models reused from A1, scored by Part 3.)*
+      Accuracy test, test-set rows only, for: `qwen2.5:7b` alone (reference), each other single model alone,
       and the cascade at both settings. Single-model accuracy may reuse Assignment 1's `responses.csv` filtered
       to even rows (brief, Step 4) — **do not re-run those**; only the two cascade settings need new calls.
-- [ ] Speed test, three runs each, for: `qwen2.5:7b` alone (required reference), every single model that
+- [x] *(Done 2026-11-26: `qwen2.5:7b`, cascade A and cascade B, three runs each, 44/44 completed, 0 errors, 0
+      unfinished in every run. No other single model passed accuracy. Figures in `analysis/output/speed_a2/`
+      (frozen rule) and `analysis/output/speed_a2_secondary/` (labelled); see
+      `predictions/prediction_record_a2_appendix.md` for the no-queue flags.)*
+      Speed test, three runs each, for: `qwen2.5:7b` alone (required reference), every single model that
       passed both accuracy limits, and the cascade at both settings **regardless of whether it passed** —
       brief: *"If the cascade fails the accuracy limits, still report its speed, marked as not passing
       accuracy."* Carry the pass/fail verdict from [3.2](#32-check-against-the-limits) onto every place the
       cascade's speed is shown (Slide 5, Slide 6's chart), so a fast-but-failing number is never presented
       unlabelled next to the ones that qualify. Same fixed workload-ticket list and warm-up procedure for
       every configuration ([Part 5](#52-playbooks-update) owns that list).
-- [ ] Reconcile every run: `python analysis/reconcile.py --run-dir results/runs/<dir>`.
-- [ ] Check every run against the definition of done in `docs/playbooks/cascade-test.md` §7. Re-run only for a
+- [x] *(All nine PASS: `analysis/output/reconcile/20261126T*`.)*
+      Reconcile every run: `python analysis/reconcile.py --run-dir results/runs/<dir>`.
+- [x] *(Checked, `docs/a2/run-log.md`. Every box holds except the no-queue check: six of nine runs are flagged
+      queued under the frozen rule, including two of `qwen2.5:7b`'s. Nothing was re-run: the flag comes from chance
+      in the random arrivals at about 50% utilisation, and re-running until a run passes would cherry-pick. That
+      decision and its reasons are in the appendix, for the team to review.)*
+      Check every run against the definition of done in `docs/playbooks/cascade-test.md` §7. Re-run only for a
       reason listed in §6 there, never because a number looks bad, and keep the invalid run.
-- [ ] An accuracy-test ticket that errors (e.g. HTTP 502) counts as wrong and is reported, never retried
+- [x] *(No accuracy-test ticket errored: 202/202 HTTP 200.)*
+      An accuracy-test ticket that errors (e.g. HTTP 502) counts as wrong and is reported, never retried
       singly. Any error is investigated; an infrastructure fault invalidates the whole run (rule in
       `predictions/prediction_record_a2.md` §4).
-- [ ] Hand the rebuilt `analysis/output/` to Part 3 (accuracy) and Part 4 (recommendation).
+- [x] *(Committed on branch `a2-part1-runs`: `analysis/output/accuracy_a2/cascade_*`, `verdicts_a2.csv`,
+      `analysis/output/speed_a2/`, `analysis/output/speed_a2_secondary/`. Measured numbers were also filled into the
+      Slide 4, 6 and 7 drafts, with the interpretation lines left for Parts 3 and 4.)*
+      Hand the rebuilt `analysis/output/` to Part 3 (accuracy) and Part 4 (recommendation).
 
 ### 1.6 Slides 2 and 5
 
-- [ ] **Slide 2 — Cascade design** (with Loh Wen Xuan). *Structure and diagram drafted in
+- [x] *(Content final 2026-11-26 in `slides/drafts_a2/slide2_cascade_design.md`, for Part 5 to lay out.)*
+      **Slide 2 — Cascade design** (with Loh Wen Xuan). *Structure and diagram drafted in
       `slides/drafts_a2/` (`slide2_cascade_design.md`, and `cascade_diagram.py`, which draws from
       `service/cascade.py`). Final once the pair and settings are in.* Diagram of the two-model call path, the escalation
       rule in full, the two settings tested, why this rule, and the `ollama ps` memory-check evidence from
       [1.1](#11-memory-check--do-this-before-designing-anything).
-- [ ] **Slide 5 — Speed results.** *Structure drafted in `slides/drafts_a2/slide5_speed_results.md`,
+- [x] *(Content final 2026-11-26 in `slides/drafts_a2/slide5_speed_results.md`, for Part 5 to lay out.)*
+      **Slide 5 — Speed results.** *Structure drafted in `slides/drafts_a2/slide5_speed_results.md`,
       every figure mapped to an `analysis/output/speed_a2/` column. Numbers come after the runs.* p50 per run with spread, pooled p95, throughput and error rate for every
       speed-tested configuration, and the escalation fraction under load for the cascade. Every figure from
       `analysis/output/`.
@@ -566,9 +588,13 @@ the moment `golden/split_a2.csv` exists, since they are pure re-scoring of Assig
       `sha256:681131c48bdc15a1`, `num_ctx` is 4096, the seed is 42, Ollama is 0.34.3 and the host is `omarchy`,
       all as in A1. The live service was checked through `docs/a2/env_baseline.json` (2026-11-19). Part 3
       did not check the live environment again.
-- [ ] After the gate and Part 1's benchmark pass: score the cascade at both settings the same way, from the
+- [ ] *(Data ready from Part 1, for Part 3 to check and own: `python -m analysis.cascade_accuracy_a2` gives
+      cascade A 76/101 and B 74/101, both passing, in `analysis/output/accuracy_a2/cascade_*`.)*
+      After the gate and Part 1's benchmark pass: score the cascade at both settings the same way, from the
       new `responses.csv` produced by `run_accuracy_a2.py`.
-- [ ] **Determinism cross-check** (cheap, and the strongest evidence the reuse is sound): every model runs
+- [ ] *(Data ready from Part 1: 101/101 small-model answers match A1 at both settings, and so do 83/83 and 65/65
+      escalated large-model answers, in `analysis/output/accuracy_a2/cascade_determinism_a2.csv`.)*
+      **Determinism cross-check** (cheap, and the strongest evidence the reuse is sound): every model runs
       at temperature 0 with a fixed seed, so the small model's answer inside the cascade run
       (`small_model_category` in the service log) must equal that model's A1 `predicted_category` on the
       same test-set row. Compare all 101 rows. Any mismatch means something changed between A1 and A2

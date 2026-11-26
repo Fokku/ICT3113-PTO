@@ -1,0 +1,3 @@
+config,run_dir,test_rows,routing_known,escalated,accepted,escalation_fraction,accepted_correct,escalated_correct,accepted_wrong_slips,slip_true_categories,errored,unparseable,wrong_setting_in_log,answered_by_small_but_flagged_escalated
+cascade-A,results/accuracy_a2/cascade-A_20261126T094140Z,101,101,83,18,0.8217821782178217,13,63,5,Mortgage 2; Credit reporting 2; Consumer loan 1,0,0,0,0
+cascade-B,results/accuracy_a2/cascade-B_20261126T095101Z,101,101,65,36,0.6435643564356436,23,51,13,Consumer loan 5; Mortgage 4; Credit reporting 3; Bank account or service 1,0,0,0,0

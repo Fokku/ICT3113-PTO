@@ -24,22 +24,21 @@ Verdict rule: inside the predicted range is right, outside is wrong. Section 1 a
 | Prediction (frozen) | Measured | Verdict | Why it differed (a mechanism, not "we underestimated") |
 |---|---|---|---|
 | Fastest qualifying configuration: qwen2.5:7b alone | `qwen2.5:7b` alone: no cascade setting is distinguishably faster (A slower; B's p50s inside qwen's spread) | Right | |
-| qwen2.5:7b median latency 3.0 to 4.0 s | 4.50 s (frozen rule, run 3); per-run 6.12 / 6.54 / 4.50 s | Wrong (above) | *Evidence:* median queue wait up to 2.3 s, Ollama busy 0.52–0.54 (`speed_a2/per_run.csv`); appendix §A.2 |
+| qwen2.5:7b median latency 3.0 to 4.0 s | 4.50 s (frozen rule, run 3); per-run 6.12 / 6.54 / 4.50 s | Wrong (above) | Tickets queued behind each other because arrivals are random. *Evidence:* median queue wait up to 2.3 s, Ollama busy 0.52–0.54 (`speed_a2/per_run.csv`); appendix §A.2 |
 | Setting A escalation fraction 72-85% | 83/101 (82.2%) test set; 99/132 (75.0%) under load | Right | |
 | Setting A overall accuracy 70-79% | 76/101 (75.25%) | Right | |
-| Setting A median latency 3.9-5.3 s | 7.63 s (frozen rule, run 2); per-run 9.61 / 7.63 / 9.25 s | Wrong (above) | *Evidence:* escalated tickets' p50 9.23 s vs accepted 2.29 s; Ollama busy 0.92–1.02 |
+| Setting A median latency 3.9-5.3 s | 7.63 s (frozen rule, run 2); per-run 9.61 / 7.63 / 9.25 s | Wrong (above) | Escalated tickets paid for two model calls and ran slower than we assumed. *Evidence:* escalated tickets' p50 9.23 s vs accepted 2.29 s; Ollama busy 0.92–1.02 |
 | Setting B escalation fraction 52-65% | 65/101 (64.4%) test set; 69/132 (52.3%) under load | Right (both inside, at opposite edges) | |
 | Setting B overall accuracy 69-76% | 74/101 (73.27%) | Right | |
-| Setting B median latency 3.3-4.9 s | 5.57 s (frozen rule, run 2); per-run 5.50 / 5.57 / 5.03 s | Wrong (above) | *Evidence:* escalated p50 9.01 s vs accepted 3.35 s; busy 0.75–0.85 |
-| Biggest accuracy losses under Setting B: Mortgage, Bank account, Money transfer | vs `qwen2.5:7b` alone, by category: Consumer loan −2 (6/14 vs 8/14), Bank account −1 (14/16 vs 15/16); Mortgage +1, Credit card +1, Money transfer 0. Accepted-but-wrong by true category: Consumer loan 5, Mortgage 4, Credit reporting 3, Bank account 1 | Wrong (Consumer loan lost most; Money transfer lost nothing) | *Evidence:* `cascade_per_category_a2.csv`, `cascade_routing_a2.csv` |
+| Setting B median latency 3.3-4.9 s | 5.57 s (frozen rule, run 2); per-run 5.50 / 5.57 / 5.03 s | Wrong (above) | Same cause as A, at lower load. *Evidence:* escalated p50 9.01 s vs accepted 3.35 s; busy 0.75–0.85 |
+| Biggest accuracy losses under Setting B: Mortgage, Bank account, Money transfer | Frozen measure (lowest non-escalated accuracy by category): [PENDING: Jolie's counts from cascade_routing_a2.csv]. Also, against `qwen2.5:7b` alone: Consumer loan −2 (6/14 vs 8/14), Bank account −1 (14/16 vs 15/16), Mortgage +1, Credit card +1, Money transfer 0. Accepted-but-wrong by true category: Consumer loan 5, Mortgage 4, Credit reporting 3, Bank account 1 | Wrong (provisional, until the frozen measure is filled): Consumer loan lost most, Money transfer lost nothing | We ranked from the 8 tuning-set slips (Mortgage 3, Bank account 2). On the test set Consumer loan was most often accepted wrongly, and the tuning set had only 9 of them, so we did not see it. |
 
 Section 2's "would be wrong if … the cascade's median is below qwen2.5:7b's": not triggered under the frozen
 rule (B 5.57 s vs qwen 4.50 s). Taking every run regardless of the queue flag, B's mean p50 (5.37 s) is slightly
 below qwen's (5.72 s), but the ranges overlap (5.03–5.57 inside 4.50–6.54), so it is not a measured difference.
 The *Evidence* notes are pointers to the measured mechanism, filled by Part 1. The "why" wording is Part 4's.
 
-Mark any prediction as wrong plainly. Where the team's own guesses differed (sign-off table), that
-disagreement can be mentioned in one line.
+Our five guesses were not identical. The frozen record lists each member's sign-off and where they differed, and the agreed ranges are the ones scored in this table.
 
 ## Right: the recommendation
 
@@ -60,11 +59,11 @@ disagreement can be mentioned in one line.
    74/101, every category at or above its minimum (`pass_fail_a2.csv`, `cascade_pass_fail_a2.csv`).
 2. Under the frozen §4 no-queue check every configuration has queued runs (`qwen2.5:7b` 2 of 3, A 2 of 3, B 2 of
    3), so strictly none has three valid runs. Why that happened at the brief's own rate is in
-   `predictions/prediction_record_a2_appendix.md`.
+   `predictions/prediction_record_a2_appendix.md`. We did not re-run, because the flags come from chance in the random arrivals, and re-running until one passes would select favourable arrival patterns. The thresholds were not changed.
 3–5. On the counted runs, A (7.63 s) and B (5.57 s) are both slower than `qwen2.5:7b` (4.50 s). On the labelled
    secondary reading (halves test only), A is slower (7.63–9.61 vs 4.50–6.12 s) and B is not distinguishable (5.57
    s, inside the range). Neither is distinguishably faster, so rule 5 gives `qwen2.5:7b`. The tie-break (higher
-   accuracy, then simpler) also favours it over B: 75 vs 74/101, one model vs two.
+   accuracy, then simpler) also favours it over B: 75 vs 74/101, one model vs two. Cascade A's 76/101 is above qwen's 75/101, but the tie-break only applies when speed is not distinguishable. A is slower on every reading, so it does not apply.
 
 **Recommended configuration:** `qwen2.5:7b` alone (the reference).
 **Speed gain against qwen2.5:7b alone:** none. It is the reference, and no cascade setting beat it. Cascade A is
@@ -79,10 +78,7 @@ loan 8 vs 6, Money transfer 8 vs 7 (`docs/a2/accuracy_limits.md` §2).
 82.2% and 64.4% on the test set. On the counted runs, tickets granite answered alone came back with p50 2.29 s (A) and 3.35 s
 (B). Escalated tickets took 9.23 s and 9.01 s, because they pay for both models and the wait behind other tickets. The
 break-even `L(small) + f × L(large) < L(large)` fails: at these escalation fractions most tickets pay for both
-calls. With the arrival rate fixed, Ollama was busy 0.92–1.02 of the time for cascade A and 0.75–0.85 for B,
-against 0.52–0.54 for `qwen2.5:7b` alone (`speed_a2/per_run.csv`, `ollama_busy_fraction`). So the cascade costs
-more CPU per ticket than the large model alone, which is the outcome `cascade/escalation_rule.md` §4 anticipated
-from model size. Cascade B, which escalates least, comes closest, and is still not faster.
+calls. Ollama was busy 0.92–1.02 of the time for cascade A and 0.75–0.85 for B, against 0.52–0.54 for `qwen2.5:7b` alone (`speed_a2/per_run.csv`). Above 1.0 is possible because granite and qwen run in separate runners at the same time, so it does not mean the queue was full. Our reading is that the two calls slowed each other on shared cores. We did not test this. Cascade B, which escalates least, comes closest, and is still not faster.
 **Settings that failed accuracy:** none. Both cascade settings pass both limits, so no "not passing accuracy"
 label is needed.
 

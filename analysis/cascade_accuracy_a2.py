@@ -24,6 +24,7 @@ Writes to ``analysis/output/accuracy_a2/``:
   cascade_per_category_a2.csv  one row per setting x category, same columns as per_category_a2.csv
   cascade_routing_a2.csv       escalation fraction, accuracy when accepted vs escalated (§3.3)
   cascade_determinism_a2.csv   small-model (and escalated large-model) answer vs its A1 answer, per row
+  verdicts_a2.csv              config,passes_accuracy for every configuration (for summarise_load_a2.py)
   cascade-<S>_<stamp>/confusion_matrix.csv
   cascade_report.md
 """
@@ -191,6 +192,13 @@ def main(argv: list[str] | None = None) -> int:
     write(OUT / "cascade_per_category_a2.csv", [c for r in results for c in r["categories"]])
     write(OUT / "cascade_routing_a2.csv", [r["routing"] for r in results])
     write(OUT / "cascade_determinism_a2.csv", [d for r in results for d in r["determinism"]])
+    # Every configuration's verdict in one table, in the shape summarise_load_a2.py's
+    # --accuracy-verdicts reads: Part 3's single-model verdicts plus the cascade's.
+    singles = [dict(config=r["model_tag"], passes_accuracy=str(r["qualifies"] == "True").lower(),
+                    source="pass_fail_a2.csv") for r in read(OUT / "pass_fail_a2.csv")]
+    write(OUT / "verdicts_a2.csv", singles + [
+        dict(config=r["verdict"]["model_tag"], passes_accuracy=str(r["verdict"]["qualifies"]).lower(),
+             source="cascade_pass_fail_a2.csv") for r in results])
 
     flag = lambda v: "PASS" if v else "FAIL"  # noqa: E731
     lines = ["# A2 cascade accuracy — test rows only", "",

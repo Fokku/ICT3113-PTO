@@ -126,7 +126,7 @@ import json
 import math
 import re
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import pandas as pd
@@ -195,7 +195,8 @@ DEFINITIONS_MD = """\
 | Queue wait | Median over measured `POST /tickets` log lines of `ollama_other_ms` as `analysis/bottleneck_hints.py` defines it: `total_duration/1e6 - (load_duration + prompt_eval_duration + eval_duration)/1e6`. This is where Assignment 1 measured Ollama's queueing (waiting for its single slot; `predictions/outcomes.md` 2.4). Summed over both calls on an escalated cascade line. `queue_residual_median_ms` (`model_latency_ms - total_duration/1e6`, HTTP and network) is shown for information only. |
 | Queued | Halves differ by more than the tolerance, or the queue-wait median reaches the threshold. Reported, flagged, and not compared on p50. |
 | Throughput | completed / span, where span runs from the first measured sample's start to the last measured sample's end (`timeStamp + elapsed`), as in Assignment 1's `client_metrics`. Requests per second. |
-| Ollama busy fraction | Sum over measured `POST /tickets` lines of `load_duration + prompt_eval_duration + eval_duration` (both calls on an escalated cascade line), divided by the span. Utilisation, for information only: no threshold. With random arrivals, roughly this share of tickets arrive while Ollama is busy and wait. |
+| Accepted vs escalated p50 (cascade) | Each completed JMeter sample is joined on `request_id` to its log line and split by that line's `escalated` flag; the p50 of each group's `elapsed`, per run and pooled over the counted runs. Shows the two latencies the break-even `L(small) + f x L(large) < L(large)` is about. |
+| Ollama busy fraction | Sum over measured `POST /tickets` lines of `load_duration + prompt_eval_duration + eval_duration` (both calls on an escalated cascade line), divided by the span. Utilisation, for information only: no threshold. With random arrivals, roughly this share of tickets arrive while Ollama is busy and wait. It can exceed 1.0 for a cascade: the two models run in separate Ollama runners, so a small-model call and a large-model call can compute at the same time, sharing the CPU. |
 | Error rate | `100 * (sent - completed) / sent`: errored and unfinished together. |
 | Escalation fraction | Cascade only: `escalated == true` lines over all measured `POST /tickets` service-log lines. Accuracy-test fraction: the same over the newest test-set accuracy run of that setting. Gap = speed minus accuracy, in percentage points. |
 | Reload | A measured log line whose `load_duration` exceeds the reload threshold: a model was loaded mid-run. A loading result, not a speed result. |
@@ -220,6 +221,7 @@ RUN_COLUMNS: tuple[str, ...] = (
     "queue_wait_median_ms", "n_queue_wait", "queue_residual_median_ms",
     "no_queue_check", "queued",
     "span_s", "throughput_rps", "error_rate_pct", "ollama_busy_fraction",
+    "p50_accepted_ms", "n_accepted", "p50_escalated_ms", "n_escalated_latency",
     "escalated_count", "escalation_total", "escalation_fraction",
     "accuracy_escalation_fraction", "escalation_gap_pp", "escalation_gap_flag",
     "max_load_duration_ms", "reload_requests", "reload",
@@ -234,6 +236,8 @@ CONFIG_COLUMNS: tuple[str, ...] = (
     "pooled_p95_ms", "pooled_n", "throughput_mean_rps", "error_rate_mean_pct",
     "sent_total", "completed_total", "errored_total", "unfinished_total",
     "escalated_count", "escalation_total", "escalation_fraction",
+    "p50_accepted_pooled_ms", "n_accepted_pooled", "p50_escalated_pooled_ms",
+    "n_escalated_pooled",
     "accuracy_run_id", "accuracy_escalated_count", "accuracy_escalation_total",
     "accuracy_escalation_fraction", "escalation_gap_pp", "escalation_gap_flag",
     "passes_accuracy", "label", "faster_than_reference", "warning",
@@ -410,12 +414,42 @@ def ollama_busy_fraction(tickets: pd.DataFrame, span_s: float) -> float:
     measured ``POST /tickets`` lines -- both calls on an escalated cascade line. Waiting
     time (``ollama_other_ms``) is excluded. Informational only: it is no threshold, but it
     shows how close a configuration runs to saturation at the fixed rate (1.0 = always busy).
+    It can exceed 1.0 for a cascade: its two models run in separate Ollama runners and can
+    compute at the same time, sharing the CPU.
     """
     if not _finite(span_s) or span_s <= 0 or tickets.empty:
         return float("nan")
     busy_ns = sum(pd.to_numeric(tickets[c], errors="coerce").fillna(0).sum()
                   for c in ("load_duration", "prompt_eval_duration", "eval_duration"))
     return float(busy_ns) / NS_PER_MS / 1000.0 / span_s
+
+
+def route_latencies(samples: pd.DataFrame, completed: pd.Series,
+                    tickets: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
+    """(accepted, escalated) JMeter ``elapsed`` of completed samples, split by the ``escalated``
+    flag of the log line with the same ``request_id``. Unjoined samples are left out."""
+    flags = pd.Series(tickets["escalated"].map(reconcile.as_bool).values,
+                      index=reconcile.id_strings(tickets["request_id"]).values)
+    flags = flags[~flags.index.duplicated(keep="last")]
+    done = samples.loc[completed]
+    ids = reconcile.id_strings(done["request_id"]) if "request_id" in done.columns else None
+    if ids is None:
+        empty = pd.Series(dtype="float64")
+        return empty, empty
+    route = ids.map(flags)
+    elapsed = pd.to_numeric(done["elapsed"], errors="coerce")
+    return (elapsed[route == False].dropna(),  # noqa: E712
+            elapsed[route == True].dropna())   # noqa: E712
+
+
+def latency_by_route(samples: pd.DataFrame, completed: pd.Series,
+                     tickets: pd.DataFrame) -> dict[str, object]:
+    """Per-run p50 of the tickets the small model answered alone vs the escalated ones."""
+    accepted, escalated = route_latencies(samples, completed, tickets)
+    return {"p50_accepted_ms": common.percentile(accepted, 0.50) if len(accepted) else float("nan"),
+            "n_accepted": int(len(accepted)),
+            "p50_escalated_ms": common.percentile(escalated, 0.50) if len(escalated) else float("nan"),
+            "n_escalated_latency": int(len(escalated))}
 
 
 def escalation_counts(tickets: pd.DataFrame) -> tuple[int, int]:
@@ -465,6 +499,9 @@ class RunResult:
     metadata: dict
     row: dict[str, object]
     latencies: pd.Series  # elapsed of the completed samples, for the pooled p95
+    #: cascade only: completed samples' elapsed, split by the log line's ``escalated`` flag
+    accepted: pd.Series = field(default_factory=lambda: pd.Series(dtype="float64"))
+    escalated: pd.Series = field(default_factory=lambda: pd.Series(dtype="float64"))
 
     @property
     def config(self) -> str:
@@ -620,6 +657,7 @@ def summarise_run(info: common.RunDirInfo, thresholds: Thresholds) -> RunResult:
     else:
         n_escalated = n_lines = None
         fraction = None
+    split = latency_by_route(samples, completed_mask, tickets) if cascade else {}
 
     # --- reload, repeats ------------------------------------------------------
     load_ms = (pd.to_numeric(tickets["load_duration"], errors="coerce") / NS_PER_MS).dropna()
@@ -726,6 +764,10 @@ def summarise_run(info: common.RunDirInfo, thresholds: Thresholds) -> RunResult:
         "throughput_rps": throughput,
         "error_rate_pct": error_rate,
         "ollama_busy_fraction": busy,
+        "p50_accepted_ms": split.get("p50_accepted_ms"),
+        "n_accepted": split.get("n_accepted"),
+        "p50_escalated_ms": split.get("p50_escalated_ms"),
+        "n_escalated_latency": split.get("n_escalated_latency"),
         "escalated_count": n_escalated,
         "escalation_total": n_lines,
         "escalation_fraction": fraction,
@@ -742,7 +784,10 @@ def summarise_run(info: common.RunDirInfo, thresholds: Thresholds) -> RunResult:
         "reasons": "; ".join(reasons),
         "notes": "; ".join(notes),
     }
-    return RunResult(info=info, metadata=metadata, row=row, latencies=latencies)
+    accepted, escalated = (route_latencies(samples, completed_mask, tickets) if cascade
+                           else (pd.Series(dtype="float64"), pd.Series(dtype="float64")))
+    return RunResult(info=info, metadata=metadata, row=row, latencies=latencies,
+                     accepted=accepted, escalated=escalated)
 
 
 # ---------------------------------------------------------------------------
@@ -909,6 +954,19 @@ def _run_label(result: RunResult, duplicate_index: bool) -> str:
     return f"{label}@{result.info.stamp}" if duplicate_index else label
 
 
+def pooled_routes(counted: list["RunResult"], cascade: bool) -> dict[str, object]:
+    """Cascade only: p50 of the accepted and of the escalated tickets, pooled over the counted runs."""
+    if not cascade:
+        return {"p50_accepted_pooled_ms": None, "n_accepted_pooled": None,
+                "p50_escalated_pooled_ms": None, "n_escalated_pooled": None}
+    acc = pd.concat([r.accepted for r in counted], ignore_index=True) if counted else pd.Series(dtype="float64")
+    esc = pd.concat([r.escalated for r in counted], ignore_index=True) if counted else pd.Series(dtype="float64")
+    return {"p50_accepted_pooled_ms": common.percentile(acc, 0.50) if len(acc) else float("nan"),
+            "n_accepted_pooled": int(len(acc)),
+            "p50_escalated_pooled_ms": common.percentile(esc, 0.50) if len(esc) else float("nan"),
+            "n_escalated_pooled": int(len(esc))}
+
+
 def per_config(
     results: list[RunResult],
     accuracy: dict[str, AccuracyEscalation],
@@ -1016,6 +1074,7 @@ def per_config(
             "escalated_count": esc_count,
             "escalation_total": esc_total,
             "escalation_fraction": esc_fraction,
+            **pooled_routes(counted, cascade),
             "accuracy_run_id": acc.run_id if acc else None,
             "accuracy_escalated_count": acc.escalated if acc else None,
             "accuracy_escalation_total": acc.total if acc else None,

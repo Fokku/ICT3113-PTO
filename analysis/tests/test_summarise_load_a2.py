@@ -451,6 +451,18 @@ def test_the_secondary_analysis_reports_but_does_not_apply_the_queue_wait(tmp_pa
     assert "NOT APPLIED in this secondary analysis" in report
 
 
+def test_cascade_latency_is_split_by_route(campaign) -> None:
+    # cascade-A: accepted answers take 1000/1100/1200 ms by run, escalations 3000 ms.
+    row = run_row(campaign, "cascade-A_speed_a2_5pm_run1")
+    assert row["p50_accepted_ms"] == pytest.approx(1000.0)
+    assert row["p50_escalated_ms"] == pytest.approx(3000.0)
+    assert row["n_accepted"] + row["n_escalated_latency"] == row["completed"]
+    cfg = campaign["configs"]["cascade-A"]
+    assert cfg["p50_escalated_pooled_ms"] == pytest.approx(3000.0)
+    assert cfg["n_accepted_pooled"] + cfg["n_escalated_pooled"] == cfg["pooled_n"]
+    assert campaign["configs"]["qwen2.5:7b"]["p50_accepted_pooled_ms"] is None
+
+
 def test_the_busy_fraction_is_ollama_compute_time_over_the_span(tmp_path: Path) -> None:
     build_a2_run_dir(tmp_path / "runs", steady_samples([1000] * 6))
     assert run_cli(tmp_path, tmp_path / "runs") == 0

@@ -151,3 +151,53 @@ The numbers can be reproduced without the tool: `python -m analysis.accuracy_a2`
 - Slides 4 and 6, and the final recommendation.
 - Sharing the pass/fail table with Part 1; it is ready locally and has not been sent to anyone.
 
+
+---
+
+## 2026-11-26 — Part 1 (Yeo Kai Yuan): settings in code, the A2 runs, and the figures
+
+**Tool.** Claude Code (Anthropic, Claude Opus 5.5), run by Yeo Kai Yuan in this repository, on the service host
+`omarchy`, driving the MacBook load generator over SSH.
+
+**What the tool produced or did** (`TODO_A2.md` §1.2, §1.5, §1.6):
+
+- `service/cascade.py` `RULE_SETTINGS`: Setting A and Setting B copied verbatim from the frozen
+  `cascade/escalation_rule.md` §3. `scripts/cascade_replay.py` reproduces 78/99 and 59/99, MATCH; the
+  rule-fidelity test now runs and passes. Three routing tests that assumed the empty state now set it
+  explicitly.
+- `analysis/cascade_accuracy_a2.py` (+ tests): scores the cascade's A2 accuracy runs with the limits Part 3
+  applied to the single models (read from Part 3's CSVs), the escalated-vs-accepted split and the determinism
+  cross-check. Output: `analysis/output/accuracy_a2/cascade_*`.
+- `analysis/summarise_load_a2.py`: (1) the halves check made one-sided, as the frozen prediction record §4
+  words it, before any real run; (2) a per-run Ollama busy fraction (utilisation) and the p50 of accepted
+  vs escalated tickets (joined on `request_id`); (3) a labelled `--secondary-no-queue-wait` mode.
+- `predictions/prediction_record_a2_appendix.md`: a dated appendix, kept outside the frozen record so the gate
+  still passes. It explains why the frozen no-queue check flagged six of nine runs, including two of the
+  reference model's, at the brief's own rate. The handling (frozen rule as the primary result, plus a labelled
+  secondary reading) was decided by Yeo Kai Yuan when the tool raised the issue mid-campaign.
+- **The real A2 runs**, started by the tool at Yeo Kai Yuan's instruction, from `omarchy` over SSH to the
+  MacBook (`docs/a2/run-log.md`): the cascade accuracy runs at both settings, and the speed runs for
+  `qwen2.5:7b`, cascade A and cascade B. Before them: the triage image rebuilt, the environment re-captured
+  (`docs/environment/a2/`) and checked against `docs/a2/env_baseline.json`, and the gate confirmed.
+- Data fills: `docs/a2/run-log.md` (environment, gate, rehearsal and run entries),
+  `docs/playbooks/cascade-test.md` (warm-up tickets, `ollama ps` evidence location, run command — facts about
+  Part 1's runner), Slide 2 and Slide 5 drafts (Part 1's), and measured figures into the Slide 4, 6 and 7
+  drafts. Teammates' interpretation lines were left for them.
+- A **draft** recommendation on Slide 7 (`qwen2.5:7b` alone, from the frozen §4 rule applied to the measured
+  figures), marked as the tool's draft for the team to confirm or change, with predictions-vs-outcomes
+  verdicts (mechanical: inside or outside the frozen range) and evidence pointers. The "why it differed"
+  wording was left to Part 4.
+
+**What was checked.** The full `pytest` suite passes. Every speed run was reconciled with
+`analysis/reconcile.py`. The determinism cross-check compares every cascade answer with the Assignment 1
+answer for the same row. Figures in the drafts were copied from the output CSVs, not typed from memory.
+
+**Mistake made and fixed.** Mid-campaign, the tool committed analysis-code changes on the service host,
+which put the two checkouts at different commits. The runner's own check then stopped cascade A **before
+anything was measured**; the checkouts were realigned (no service code had changed) and the cascades
+relaunched. Recorded in `docs/a2/run-log.md`.
+
+**Left to the team, deliberately not done by the tool:** confirming or changing the recommendation and its
+defence (Part 4, W.2); the "why it differed" reasoning on Slide 7; the interpretation lines on Slides 4 and 6
+and the Slide 6 chart (Part 3); the deck, environment statement, limitations and AI declaration (Part 5);
+reviewing the dated appendix to the prediction record (whole team).

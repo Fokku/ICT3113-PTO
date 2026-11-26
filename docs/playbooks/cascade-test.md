@@ -95,8 +95,10 @@ Brief: *"Send three fixed warm-up tickets, one at a time. The first one loads th
 timings. Use the same three tickets every time."* **Three, not one** — Assignment 1's `run_load_test.sh` sends
 a single warm-up request, so do not inherit its warm-up step unchanged.
 
-- **The three warm-up tickets:** TODO(a2) — fix them once, record them here, and use the same three for every
-  run of every configuration. Pick them so they are **not** in `workload/speed_test_rows_a2.txt` and are not
+- **The three warm-up tickets:** rows **900000, 900001 and 900002** of `../../data/dev/synthetic_tickets.csv`
+  (the first three hand-written dev tickets), the same three for every run of every configuration.
+  `../../scripts/run_load_test_a2.sh` sends them itself and records them as `warmup_rows` in each run's
+  `metadata.json`. Pick them so they are **not** in `workload/speed_test_rows_a2.txt` and are not
   the three tickets S was measured on: Ollama's prompt cache would otherwise make the first measured
   requests artificially fast. For the cascade, at least one must reach the large model (see below), so the
   final choice depends on the escalation rule.
@@ -107,9 +109,10 @@ a single warm-up request, so do not inherit its warm-up step unchanged.
   2. Make sure at least one of them reaches the large model — either a ticket the rule **will** escalate, or
      one sent directly to the large model.
   3. Run `ollama ps` in the container and confirm **both** tags are listed, before starting the measured run.
-     TODO(a2): paste the confirming `ollama ps` output here (or link the file it's captured in) once this is
-     run for real — this is the same evidence Part 1 collects in `TODO_A2.md` §1.1, repeated per run as the
-     brief requires ("a cascade is only tested with both models resident").
+     The confirming `ollama ps` output is captured per run, by the runner, in
+     `results/runs/<run>/ollama_ps_before.txt` (and `ollama_ps_after.txt`), next to the memory-check evidence
+     in `../environment/a2-memory-check/` (`TODO_A2.md` §1.1). If none of the three warm-ups escalated, the
+     runner sends one direct warm-up call to the large model (`large_model_warmup.json`) before checking.
   4. If either model is not listed, **stop — do not run.** See `TODO_A2.md` §1.1 for what to do if no pair
      fits.
 - Either way: throw away all warm-up timings. Use the same fixed warm-up ticket(s) every time.
@@ -132,14 +135,15 @@ completed and stored — this is the figure to check against what JMeter itself 
 number to take on faith from either side alone.
 
 ```bash
-# TODO(a2): the actual A2 run command, once scripts/run_load_test.sh (or an _a2 variant,
-# TODO_A2.md section 1.3) exists, which should perform 4.1-4.5 itself. Expected shape, by
-# analogy with Assignment 1:
-scripts/run_load_test_a2.sh --config <model-tag|cascade-a|cascade-b> \
-  --rate <per_min, from ../a2/arrival-rate.md> \
-  --duration <seconds, from ../a2/arrival-rate.md> \
-  --tickets workload/speed_test_rows_a2.txt \
-  --runs 3
+# From the load generator (the brief: a separate machine), with SERVICE_SSH pointing at the
+# service host's checkout for compose/reset/log sync. The script performs 4.1-4.5 itself.
+# Rate, run length, timeout and pause come from docs/a2/arrival_rate.json; the ticket list is
+# workload/speed_test_rows_a2.txt; the A2 gate and the environment check run first.
+SERVICE_SSH=omarchy SERVICE_REPO=claude/ICT3113-PTO JMETER_HOME=~/tools/apache-jmeter-5.6.3 \
+  scripts/run_load_test_a2.sh --config <qwen2.5:7b|cascade-A|cascade-B> \
+  [--small-model granite4:3b] --host <service host LAN address> --runs 3
+# Every configuration in order (TODO_A2.md section 1.5):
+#   scripts/run_a2_campaign.sh speed --small-model granite4:3b --host <service host> --singles ""
 ```
 
 ## 5. Report, per run

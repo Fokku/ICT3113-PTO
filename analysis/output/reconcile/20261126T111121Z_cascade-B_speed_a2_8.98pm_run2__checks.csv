@@ -1,0 +1,15 @@
+check,value,limit,verdict,detail
+jtl_samples_without_log_line,0,<= 0,pass,every measured sample has a service log line
+log_lines_without_jtl_sample,0,<= 0,pass,every log line in the run window has a matching sample
+blank_request_ids,jtl=0 log=0,0,pass,every row carries a request_id
+duplicate_request_ids,jtl=0 log=0,0,pass,request_ids are unique on both sides
+status_disagreements,0,0,pass,every matched sample agrees with its log line on HTTP status
+source_row_disagreements,0,0,pass,every matched sample agrees with its log line on source_row
+client_minus_server_latency_p99_ms,189.5,<= 250,pass,"p99 of abs(elapsed minus total_latency_ms); a large value means the load generator or the clocks, not the service, are shaping the numbers"
+unfinished_requests,0,informational,pass,every matched sample received an HTTP response
+cascade_escalated_logged,null on 0 of 44 200/502 line(s); 0 422/500 line(s),0 null on 200/502 lines,pass,every measured POST /tickets line records whether it escalated
+cascade_setting_matches_metadata,0,0,pass,every 200/502 line has cascade_setting = B
+cascade_small_model_matches_metadata,0,0,pass,every 200/502 line has small_model_tag = granite4:3b
+cascade_answering_model_consistent,0,0,pass,every HTTP 200 line names qwen2.5:7b when escalated and granite4:3b when not
+cascade_small_category_logged,0,0,pass,small_model_category is null only on escalated (length rule) or failed requests
+cascade_escalation_fraction,23/44 (52.3%),informational,pass,escalated=true lines over measured POST /tickets lines; 0 escalated HTTP 200 line(s) had no small-model category (sent straight to the large model by a length rule)

@@ -1,0 +1,102 @@
+row_number,request_id,http_status,predicted_category,model_tag,escalated,cascade_setting,small_model_tag,small_model_category
+10002,0740671b-8769-40dc-a8cd-f00b893cf058,200,Money transfer or service,qwen2.5:7b,true,B,granite4:3b,Money transfer or service
+10004,17befd7d-ae40-4d70-b3fc-40b2042598f1,200,Bank account or service,qwen2.5:7b,true,B,granite4:3b,Bank account or service
+10008,777f91a7-745c-4120-9203-0d96dd3d9bb9,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10018,300a4bbf-24f0-43e1-880d-6b510a65eda5,200,Credit card,granite4:3b,false,B,granite4:3b,Credit card
+10024,3cd342e5-246f-4ed1-b16d-40d510bfe19d,200,Bank account or service,qwen2.5:7b,true,B,granite4:3b,Bank account or service
+10026,cbb47f19-8156-48a3-80b7-64788d885ab5,200,Bank account or service,qwen2.5:7b,true,B,granite4:3b,Bank account or service
+10028,bf6f852f-11dd-4213-899f-9b083d588e79,200,Debt collection,granite4:3b,false,B,granite4:3b,Debt collection
+10038,17954771-ff58-4097-855a-dc624d4b5a26,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10068,0edd951d-49f2-478a-ab23-5d89d843a713,200,Consumer loan,granite4:3b,false,B,granite4:3b,Consumer loan
+10084,6038f726-0a16-4547-9a8d-57ace0fdaaa4,200,Bank account or service,qwen2.5:7b,true,B,granite4:3b,Bank account or service
+10098,40507bef-0476-4511-877e-4d215ad2a0b9,200,Consumer loan,granite4:3b,false,B,granite4:3b,Consumer loan
+10106,52d6e32a-9e2f-492e-9c86-46ec2556d32e,200,Credit card,granite4:3b,false,B,granite4:3b,Credit card
+10110,dc5c717b-03e7-4086-ab4b-aae7b8aee08c,200,Credit card,granite4:3b,false,B,granite4:3b,Credit card
+10112,314eeda6-0e19-4457-9ed0-d6e333bffb8a,200,Mortgage,granite4:3b,false,B,granite4:3b,Mortgage
+10114,89fd043c-4daf-43e5-bf74-746040f3b526,200,Consumer loan,granite4:3b,false,B,granite4:3b,Consumer loan
+10116,9a9486e9-e08d-4f64-a23e-d750cbd21308,200,Debt collection,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10120,2959be60-aa89-4b68-8b1c-358c83835435,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10134,d4aa88fe-24a5-4fef-ac6a-0c5d89cb37cb,200,Mortgage,granite4:3b,false,B,granite4:3b,Mortgage
+10144,f007d2ac-c7fc-41db-9b33-8ad375ca3f6a,200,Credit card,granite4:3b,false,B,granite4:3b,Credit card
+10170,13f4785f-d42b-44bf-8d56-128bf21d5d93,200,Consumer loan,granite4:3b,false,B,granite4:3b,Consumer loan
+10178,2677137b-7eb7-4215-886f-f07681323afa,200,Debt collection,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10194,295731d9-aadd-40ee-ade9-ff7d4f7cc948,200,Bank account or service,qwen2.5:7b,true,B,granite4:3b,Bank account or service
+10196,e3b55100-7076-4c32-96c8-ea8e7cf503f4,200,Bank account or service,qwen2.5:7b,true,B,granite4:3b,Bank account or service
+10210,ab5bdadf-0322-4e0d-9f9f-40ccae559fa7,200,Bank account or service,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10214,0b26be36-7d02-4055-bf23-cb6653772654,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10216,13a774b8-d336-4944-9ba2-ce533d5e670f,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10228,7b76d7b6-b9c3-44d4-8d93-230d09dde6de,200,Credit card,granite4:3b,false,B,granite4:3b,Credit card
+10234,99b8e6cd-064a-411f-a27f-d0794a205844,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10286,a75841ab-5f0e-42d6-8722-79b2e89a4425,200,Mortgage,granite4:3b,false,B,granite4:3b,Mortgage
+10314,9f722152-58a6-4afc-85c1-8df639e27fe9,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10322,e8efeab2-7ca2-4d3e-b233-de72cfc88125,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10324,7ca5c865-62b1-4cc3-8c84-dd6da5410fc7,200,Bank account or service,qwen2.5:7b,true,B,granite4:3b,Bank account or service
+10338,c24dc84e-7310-4d70-8908-93ea78e11ccd,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10348,610d31b6-ee43-44d0-955c-1072ef3346bd,200,Bank account or service,qwen2.5:7b,true,B,granite4:3b,Bank account or service
+10350,b0920167-12f9-41db-9633-5dd384110357,200,Money transfer or service,qwen2.5:7b,true,B,granite4:3b,Money transfer or service
+10354,aa477baa-e04a-429c-bb56-8606731d7bde,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10358,d387ee36-8275-4330-9cc8-ccd5b47a24bf,200,Credit card,granite4:3b,false,B,granite4:3b,Credit card
+10362,e481d1b1-e880-4ded-a9c6-acc03373cc19,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10396,fbbcf915-da01-4fb9-ac6c-2b85004fa9fc,200,Bank account or service,qwen2.5:7b,true,B,granite4:3b,Bank account or service
+10398,3f8aa412-e675-40ac-9246-6e3a33fd7259,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10406,b822199b-6d53-4be9-a3ef-13ae51f256da,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10418,c757ea88-d62a-4579-a2c9-b530d8e12f48,200,Money transfer or service,qwen2.5:7b,true,B,granite4:3b,Bank account or service
+10424,c56d7dab-e0a4-4119-bcc9-40740c8cd1d4,200,Credit card,granite4:3b,false,B,granite4:3b,Credit card
+10428,2a274ec1-a5d0-4dc3-a1cf-fa35be105ab5,200,Credit card,granite4:3b,false,B,granite4:3b,Credit card
+10432,87cc4a26-394d-45c5-a1f2-9353eacb47ae,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10440,3f4d30d3-2592-4d89-96ac-ab67a0cf9b2e,200,Credit card,granite4:3b,false,B,granite4:3b,Credit card
+10442,4f592cf3-b561-4254-a5b6-633671c85ed0,200,Mortgage,granite4:3b,false,B,granite4:3b,Mortgage
+10444,8d317ada-33ee-497e-90ce-14c45fffea85,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10452,e8f61c01-9026-4270-84d9-d5ad4af14982,200,Mortgage,granite4:3b,false,B,granite4:3b,Mortgage
+10454,3b3ec5aa-6e21-4d64-ad7d-54191384a65d,200,Bank account or service,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10494,026d1476-cb0d-4da3-9c6c-c5ceb33be95f,200,Money transfer or service,qwen2.5:7b,true,B,granite4:3b,Money transfer or service
+10496,de25b417-efbd-4136-a58c-0317d56c961b,200,Money transfer or service,qwen2.5:7b,true,B,granite4:3b,Bank account or service
+10510,fdb22e87-8523-4951-88c4-f437fa70f2eb,200,Consumer loan,granite4:3b,false,B,granite4:3b,Consumer loan
+10512,5134c813-6aa2-413c-b80a-b9d5d3d51ddd,200,Consumer loan,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10520,f5dc3c56-8911-459d-b5a4-7de60edfa7b1,200,Credit card,granite4:3b,false,B,granite4:3b,Credit card
+10524,30e2f25e-a448-4288-8e66-230dce927441,200,Bank account or service,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10526,33b73dae-87b8-41ba-bdb1-8cffb34b090d,200,Mortgage,granite4:3b,false,B,granite4:3b,Mortgage
+10528,0fec841d-71b1-4b17-befe-987205cf2425,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10540,06f4446b-5f23-4b31-a0f8-d2085e82c04c,200,Bank account or service,qwen2.5:7b,true,B,granite4:3b,Bank account or service
+10560,68b166c5-b191-4a35-b09e-2f3d69d0221d,200,Bank account or service,qwen2.5:7b,true,B,granite4:3b,Bank account or service
+10562,047d6eb0-f67d-44e3-be61-8a0c974054ff,200,Credit card,granite4:3b,false,B,granite4:3b,Credit card
+10570,133e98cb-254c-412e-9ddf-c318cc3598d3,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10602,1432b491-a192-46de-8ad9-384a261bda22,200,Credit card,granite4:3b,false,B,granite4:3b,Credit card
+10604,aa457ecd-0302-4046-886f-1330c5f8076d,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10622,05156955-e099-4848-9e98-d475c9ccaed5,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10638,7b99d3e3-4408-4bdc-bed9-f576c07b0865,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10652,c5e04ac3-0059-4e09-a1e9-b995203b0e37,200,Money transfer or service,qwen2.5:7b,true,B,granite4:3b,Bank account or service
+10658,156f7e1f-e39d-4c20-a065-1c192e4b4605,200,Credit card,granite4:3b,false,B,granite4:3b,Credit card
+10662,8a79ca41-2e64-4c7e-a4b9-f8c9eb9623d2,200,Bank account or service,qwen2.5:7b,true,B,granite4:3b,Bank account or service
+10666,8dd3b792-e292-4a56-b4ae-b350a3a942a2,200,Debt collection,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10678,2a895301-c29c-42b0-89b1-cc2804172228,200,Bank account or service,qwen2.5:7b,true,B,granite4:3b,Bank account or service
+10688,7e068036-8544-42d0-a1fe-9553fb24f2a2,200,Money transfer or service,qwen2.5:7b,true,B,granite4:3b,Money transfer or service
+10710,dd62044a-0e9a-4f97-8434-4f9d197c1614,200,Money transfer or service,qwen2.5:7b,true,B,granite4:3b,Money transfer or service
+10714,28cf5f90-823f-4a2f-a10b-584ffef5ce72,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10718,77af8b34-1cb5-483d-beb5-d352b7dc1ade,200,Debt collection,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10722,a798fa27-b29e-4aa3-908d-675601b143d3,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10724,32efdcd9-afcf-48d2-a828-0d64e23ecf97,200,Bank account or service,qwen2.5:7b,true,B,granite4:3b,Bank account or service
+10746,1fb37e03-c348-49aa-a203-226cf1bef537,200,Debt collection,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10750,1665f3e0-d51d-4ed6-b7a8-7b2df63183f1,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10754,cae72a9e-8803-4dfd-ac85-8144e2f160c2,200,Bank account or service,qwen2.5:7b,true,B,granite4:3b,Bank account or service
+10762,fce6109d-19f2-460c-8b13-44bee14e3937,200,Bank account or service,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10770,1d9dbd3e-411c-46f3-8f72-9d4abf8ea797,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10774,6c444cdf-0604-4613-8702-774db76b8e45,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10790,c33605e4-d232-4882-81cd-55f33f549b9b,200,Debt collection,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10792,af846a53-f0e5-4eab-95eb-17c1bfed03dc,200,Debt collection,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10796,2c12b77c-d0b2-4c0b-b7bf-34fb60d614bf,200,Consumer loan,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10818,095f8d37-d9f2-41da-a26a-fca54716c3aa,200,Debt collection,granite4:3b,false,B,granite4:3b,Debt collection
+10822,0da836c8-1f77-4184-bda1-a72099da67fa,200,Consumer loan,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10840,395432b9-9579-46a2-92fb-50f78dce7e8c,200,Credit card,granite4:3b,false,B,granite4:3b,Credit card
+10846,a876e3f1-402d-4247-8840-ccb35acc30be,200,Debt collection,granite4:3b,false,B,granite4:3b,Debt collection
+10858,719594a7-0020-4141-8f72-bb3b324e26ac,200,Credit card,granite4:3b,false,B,granite4:3b,Credit card
+10866,dd41d73d-46f0-4722-a3b6-d25f81a80fc0,200,Credit card,granite4:3b,false,B,granite4:3b,Credit card
+10900,b5f62a2f-24ee-454c-923f-72180994f395,200,Mortgage,granite4:3b,false,B,granite4:3b,Mortgage
+10904,2e8f76d2-03df-47ec-b98d-61b36aebc085,200,Credit card,granite4:3b,false,B,granite4:3b,Credit card
+10914,4d7b01a2-e467-48f8-ba24-ce2f4aa040dd,200,Credit card,granite4:3b,false,B,granite4:3b,Credit card
+10950,a0374659-8b7b-4fc0-ad40-7bbd5bfd5946,200,Debt collection,granite4:3b,false,B,granite4:3b,Debt collection
+10962,56d13717-dfa0-4b42-8635-157b37ee1bea,200,Bank account or service,qwen2.5:7b,true,B,granite4:3b,Bank account or service
+10970,01d86908-243e-4978-9ca6-db26e9013a3c,200,Debt collection,granite4:3b,false,B,granite4:3b,Debt collection
+10976,fcdb0f84-449b-4268-9c8b-673e92fbe8f9,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10982,3810bdbd-60c5-4b86-a939-fb1779b45cbb,200,Credit reporting,qwen2.5:7b,true,B,granite4:3b,Credit reporting
+10996,af2585e2-0a0a-4d84-88b4-ace75e4edc47,200,Mortgage,granite4:3b,false,B,granite4:3b,Mortgage

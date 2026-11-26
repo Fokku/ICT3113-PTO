@@ -1,0 +1,111 @@
+== A2 gate
+  PASS
+
+== Plan (accuracy phase): cascade-A cascade-B
+   cascade pair: small granite4:3b, large qwen2.5:7b; service http://192.168.50.129:8000
+
+== Accuracy, test rows: cascade-A
++ ssh -n -o BatchMode=yes omarchy cd claude/ICT3113-PTO && env MODEL_TAG=qwen2.5:7b SERVICE_MODE=cascade CASCADE_SETTING=A CASCADE_SMALL_MODEL_TAG=granite4:3b docker compose -f docker-compose.yml up -d --force-recreate --no-deps triage
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+  /health confirms cascade A
++ /Users/kaiyuan/claude/ICT3113-PTO/.venv/bin/python /Users/kaiyuan/claude/ICT3113-PTO/scripts/run_accuracy_a2.py --config cascade-A --rows test --host 192.168.50.129 --port 8000
+A2 gate: PASS (commit c544a51e4db8a015331fc29c9eeb415d280836f5, tag 'a2-predictions-freeze').
+Config   : cascade-A (small granite4:3b, large qwen2.5:7b)
+Rule     : category: escalate = predicted_category NOT IN {"Debt collection", "Mortgage", "Consumer loan"}
+Service  : http://192.168.50.129:8000
+Rows     : test set of golden/split_a2.csv
+Input    : narratives from data/team_rows.csv
+Tickets  : 101
+Output   : /Users/kaiyuan/claude/ICT3113-PTO/results/accuracy_a2/cascade-A_20261126T094140Z
+
+  [   1/101] posted; HTTP errors so far: 0
+  [  10/101] posted; HTTP errors so far: 0
+  [  20/101] posted; HTTP errors so far: 0
+  [  30/101] posted; HTTP errors so far: 0
+  [  40/101] posted; HTTP errors so far: 0
+  [  50/101] posted; HTTP errors so far: 0
+  [  60/101] posted; HTTP errors so far: 0
+  [  70/101] posted; HTTP errors so far: 0
+  [  80/101] posted; HTTP errors so far: 0
+  [  90/101] posted; HTTP errors so far: 0
+  [ 100/101] posted; HTTP errors so far: 0
+  [ 101/101] posted; HTTP errors so far: 0
+
+Wrote /Users/kaiyuan/claude/ICT3113-PTO/results/accuracy_a2/cascade-A_20261126T094140Z
+  responses.csv : 101 rows
+  service.jsonl : 101 log lines
+  routing.csv   : 101 rows, 0 without a log line
+  escalated     : 83 of 101 tickets with a log line
+  HTTP status counts: {200: 101}
+
+No accuracy was computed here, by design.
+Score it (Part 3, TODO_A2.md §3.1) with:
+    python analysis/accuracy.py --results results/accuracy_a2 --out-dir analysis/output/accuracy_a2
+  Keep --out-dir: accuracy.py's default is Assignment 1's analysis/output/accuracy/, which it would overwrite.
+  Only the 101 test-set rows were posted, so the other 99 golden rows appear in missing_rows.csv and accuracy.py reports incomplete coverage (exit 1). That is expected for this run: Part 3 scores the test-set rows only.
+  An errored ticket counts as wrong (TODO_A2.md §1.5); accuracy.py lists it in errored_responses.csv rather than scoring it.
+
+== Accuracy, test rows: cascade-B
++ ssh -n -o BatchMode=yes omarchy cd claude/ICT3113-PTO && env MODEL_TAG=qwen2.5:7b SERVICE_MODE=cascade CASCADE_SETTING=B CASCADE_SMALL_MODEL_TAG=granite4:3b docker compose -f docker-compose.yml up -d --force-recreate --no-deps triage
+ Container ict3113-triage Recreate 
+ Container ict3113-triage Recreated 
+ Container ict3113-triage Starting 
+ Container ict3113-triage Started 
+Traceback (most recent call last):
+  File "<string>", line 3, in <module>
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/json/__init__.py", line 293, in load
+    return loads(fp.read(),
+           ^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/json/decoder.py", line 355, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+  /health confirms cascade B
++ /Users/kaiyuan/claude/ICT3113-PTO/.venv/bin/python /Users/kaiyuan/claude/ICT3113-PTO/scripts/run_accuracy_a2.py --config cascade-B --rows test --host 192.168.50.129 --port 8000
+A2 gate: PASS (commit c544a51e4db8a015331fc29c9eeb415d280836f5, tag 'a2-predictions-freeze').
+Config   : cascade-B (small granite4:3b, large qwen2.5:7b)
+Rule     : category: escalate = predicted_category NOT IN {"Debt collection", "Mortgage", "Credit card", "Consumer loan"}
+Service  : http://192.168.50.129:8000
+Rows     : test set of golden/split_a2.csv
+Input    : narratives from data/team_rows.csv
+Tickets  : 101
+Output   : /Users/kaiyuan/claude/ICT3113-PTO/results/accuracy_a2/cascade-B_20261126T095101Z
+
+  [   1/101] posted; HTTP errors so far: 0
+  [  10/101] posted; HTTP errors so far: 0
+  [  20/101] posted; HTTP errors so far: 0
+  [  30/101] posted; HTTP errors so far: 0
+  [  40/101] posted; HTTP errors so far: 0
+  [  50/101] posted; HTTP errors so far: 0
+  [  60/101] posted; HTTP errors so far: 0
+  [  70/101] posted; HTTP errors so far: 0
+  [  80/101] posted; HTTP errors so far: 0
+  [  90/101] posted; HTTP errors so far: 0
+  [ 100/101] posted; HTTP errors so far: 0
+  [ 101/101] posted; HTTP errors so far: 0
+
+Wrote /Users/kaiyuan/claude/ICT3113-PTO/results/accuracy_a2/cascade-B_20261126T095101Z
+  responses.csv : 101 rows
+  service.jsonl : 101 log lines
+  routing.csv   : 101 rows, 0 without a log line
+  escalated     : 65 of 101 tickets with a log line
+  HTTP status counts: {200: 101}
+
+No accuracy was computed here, by design.
+Score it (Part 3, TODO_A2.md §3.1) with:
+    python analysis/accuracy.py --results results/accuracy_a2 --out-dir analysis/output/accuracy_a2
+  Keep --out-dir: accuracy.py's default is Assignment 1's analysis/output/accuracy/, which it would overwrite.
+  Only the 101 test-set rows were posted, so the other 99 golden rows appear in missing_rows.csv and accuracy.py reports incomplete coverage (exit 1). That is expected for this run: Part 3 scores the test-set rows only.
+  An errored ticket counts as wrong (TODO_A2.md §1.5); accuracy.py lists it in errored_responses.csv rather than scoring it.
+
+Next: Part 3 scores all configurations on the test rows:
+  python analysis/accuracy.py --results results/accuracy_a2 --out-dir analysis/output/accuracy_a2
+then hands back the pass/fail table; run this script again with: speed --singles "<passing single models>"

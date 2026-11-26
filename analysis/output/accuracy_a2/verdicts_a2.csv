@@ -1,0 +1,7 @@
+config,passes_accuracy,source
+granite4:3b,false,pass_fail_a2.csv
+llama3.2:1b-instruct-q4_K_M,false,pass_fail_a2.csv
+llama3.2:3b,false,pass_fail_a2.csv
+qwen2.5:7b,true,pass_fail_a2.csv
+cascade-A,true,cascade_pass_fail_a2.csv
+cascade-B,true,cascade_pass_fail_a2.csv

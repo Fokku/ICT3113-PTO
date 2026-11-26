@@ -1,0 +1,203 @@
+config,row_number,small_model_category,granite_a1,small_matches_a1,escalated,final_category,qwen_a1,large_matches_a1
+cascade-A,10002,Money transfer or service,Money transfer or service,True,True,Money transfer or service,Money transfer or service,True
+cascade-A,10004,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-A,10008,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10018,Credit card,Credit card,True,True,Credit card,Credit card,True
+cascade-A,10024,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-A,10026,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-A,10028,Debt collection,Debt collection,True,False,Debt collection,,
+cascade-A,10038,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10068,Consumer loan,Consumer loan,True,False,Consumer loan,,
+cascade-A,10084,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-A,10098,Consumer loan,Consumer loan,True,False,Consumer loan,,
+cascade-A,10106,Credit card,Credit card,True,True,Credit card,Credit card,True
+cascade-A,10110,Credit card,Credit card,True,True,Credit card,Credit card,True
+cascade-A,10112,Mortgage,Mortgage,True,False,Mortgage,,
+cascade-A,10114,Consumer loan,Consumer loan,True,False,Consumer loan,,
+cascade-A,10116,Credit reporting,Credit reporting,True,True,Debt collection,Debt collection,True
+cascade-A,10120,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10134,Mortgage,Mortgage,True,False,Mortgage,,
+cascade-A,10144,Credit card,Credit card,True,True,Credit card,Credit card,True
+cascade-A,10170,Consumer loan,Consumer loan,True,False,Consumer loan,,
+cascade-A,10178,Credit reporting,Credit reporting,True,True,Debt collection,Debt collection,True
+cascade-A,10194,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-A,10196,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-A,10210,Credit reporting,Credit reporting,True,True,Bank account or service,Bank account or service,True
+cascade-A,10214,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10216,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10228,Credit card,Credit card,True,True,Credit card,Credit card,True
+cascade-A,10234,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10286,Mortgage,Mortgage,True,False,Mortgage,,
+cascade-A,10314,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10322,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10324,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-A,10338,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10348,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-A,10350,Money transfer or service,Money transfer or service,True,True,Money transfer or service,Money transfer or service,True
+cascade-A,10354,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10358,Credit card,Credit card,True,True,Consumer loan,Consumer loan,True
+cascade-A,10362,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10396,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-A,10398,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10406,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10418,Bank account or service,Bank account or service,True,True,Money transfer or service,Money transfer or service,True
+cascade-A,10424,Credit card,Credit card,True,True,Consumer loan,Consumer loan,True
+cascade-A,10428,Credit card,Credit card,True,True,Credit card,Credit card,True
+cascade-A,10432,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10440,Credit card,Credit card,True,True,Debt collection,Debt collection,True
+cascade-A,10442,Mortgage,Mortgage,True,False,Mortgage,,
+cascade-A,10444,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10452,Mortgage,Mortgage,True,False,Mortgage,,
+cascade-A,10454,Credit reporting,Credit reporting,True,True,Bank account or service,Bank account or service,True
+cascade-A,10494,Money transfer or service,Money transfer or service,True,True,Money transfer or service,Money transfer or service,True
+cascade-A,10496,Bank account or service,Bank account or service,True,True,Money transfer or service,Money transfer or service,True
+cascade-A,10510,Consumer loan,Consumer loan,True,False,Consumer loan,,
+cascade-A,10512,Credit reporting,Credit reporting,True,True,Consumer loan,Consumer loan,True
+cascade-A,10520,Credit card,Credit card,True,True,Consumer loan,Consumer loan,True
+cascade-A,10524,Credit reporting,Credit reporting,True,True,Bank account or service,Bank account or service,True
+cascade-A,10526,Mortgage,Mortgage,True,False,Mortgage,,
+cascade-A,10528,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10540,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-A,10560,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-A,10562,Credit card,Credit card,True,True,Credit card,Credit card,True
+cascade-A,10570,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10602,Credit card,Credit card,True,True,Bank account or service,Bank account or service,True
+cascade-A,10604,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10622,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10638,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10652,Bank account or service,Bank account or service,True,True,Money transfer or service,Money transfer or service,True
+cascade-A,10658,Credit card,Credit card,True,True,Bank account or service,Bank account or service,True
+cascade-A,10662,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-A,10666,Credit reporting,Credit reporting,True,True,Debt collection,Debt collection,True
+cascade-A,10678,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-A,10688,Money transfer or service,Money transfer or service,True,True,Money transfer or service,Money transfer or service,True
+cascade-A,10710,Money transfer or service,Money transfer or service,True,True,Money transfer or service,Money transfer or service,True
+cascade-A,10714,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10718,Credit reporting,Credit reporting,True,True,Debt collection,Debt collection,True
+cascade-A,10722,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10724,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-A,10746,Credit reporting,Credit reporting,True,True,Debt collection,Debt collection,True
+cascade-A,10750,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10754,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-A,10762,Credit reporting,Credit reporting,True,True,Bank account or service,Bank account or service,True
+cascade-A,10770,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10774,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10790,Credit reporting,Credit reporting,True,True,Debt collection,Debt collection,True
+cascade-A,10792,Credit reporting,Credit reporting,True,True,Debt collection,Debt collection,True
+cascade-A,10796,Credit reporting,Credit reporting,True,True,Consumer loan,Consumer loan,True
+cascade-A,10818,Debt collection,Debt collection,True,False,Debt collection,,
+cascade-A,10822,Credit reporting,Credit reporting,True,True,Consumer loan,Consumer loan,True
+cascade-A,10840,Credit card,Credit card,True,True,Credit card,Credit card,True
+cascade-A,10846,Debt collection,Debt collection,True,False,Debt collection,,
+cascade-A,10858,Credit card,Credit card,True,True,Bank account or service,Bank account or service,True
+cascade-A,10866,Credit card,Credit card,True,True,Credit reporting,Credit reporting,True
+cascade-A,10900,Mortgage,Mortgage,True,False,Mortgage,,
+cascade-A,10904,Credit card,Credit card,True,True,Consumer loan,Consumer loan,True
+cascade-A,10914,Credit card,Credit card,True,True,Credit card,Credit card,True
+cascade-A,10950,Debt collection,Debt collection,True,False,Debt collection,,
+cascade-A,10962,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-A,10970,Debt collection,Debt collection,True,False,Debt collection,,
+cascade-A,10976,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10982,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-A,10996,Mortgage,Mortgage,True,False,Mortgage,,
+cascade-B,10002,Money transfer or service,Money transfer or service,True,True,Money transfer or service,Money transfer or service,True
+cascade-B,10004,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-B,10008,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10018,Credit card,Credit card,True,False,Credit card,,
+cascade-B,10024,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-B,10026,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-B,10028,Debt collection,Debt collection,True,False,Debt collection,,
+cascade-B,10038,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10068,Consumer loan,Consumer loan,True,False,Consumer loan,,
+cascade-B,10084,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-B,10098,Consumer loan,Consumer loan,True,False,Consumer loan,,
+cascade-B,10106,Credit card,Credit card,True,False,Credit card,,
+cascade-B,10110,Credit card,Credit card,True,False,Credit card,,
+cascade-B,10112,Mortgage,Mortgage,True,False,Mortgage,,
+cascade-B,10114,Consumer loan,Consumer loan,True,False,Consumer loan,,
+cascade-B,10116,Credit reporting,Credit reporting,True,True,Debt collection,Debt collection,True
+cascade-B,10120,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10134,Mortgage,Mortgage,True,False,Mortgage,,
+cascade-B,10144,Credit card,Credit card,True,False,Credit card,,
+cascade-B,10170,Consumer loan,Consumer loan,True,False,Consumer loan,,
+cascade-B,10178,Credit reporting,Credit reporting,True,True,Debt collection,Debt collection,True
+cascade-B,10194,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-B,10196,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-B,10210,Credit reporting,Credit reporting,True,True,Bank account or service,Bank account or service,True
+cascade-B,10214,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10216,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10228,Credit card,Credit card,True,False,Credit card,,
+cascade-B,10234,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10286,Mortgage,Mortgage,True,False,Mortgage,,
+cascade-B,10314,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10322,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10324,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-B,10338,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10348,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-B,10350,Money transfer or service,Money transfer or service,True,True,Money transfer or service,Money transfer or service,True
+cascade-B,10354,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10358,Credit card,Credit card,True,False,Credit card,,
+cascade-B,10362,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10396,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-B,10398,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10406,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10418,Bank account or service,Bank account or service,True,True,Money transfer or service,Money transfer or service,True
+cascade-B,10424,Credit card,Credit card,True,False,Credit card,,
+cascade-B,10428,Credit card,Credit card,True,False,Credit card,,
+cascade-B,10432,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10440,Credit card,Credit card,True,False,Credit card,,
+cascade-B,10442,Mortgage,Mortgage,True,False,Mortgage,,
+cascade-B,10444,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10452,Mortgage,Mortgage,True,False,Mortgage,,
+cascade-B,10454,Credit reporting,Credit reporting,True,True,Bank account or service,Bank account or service,True
+cascade-B,10494,Money transfer or service,Money transfer or service,True,True,Money transfer or service,Money transfer or service,True
+cascade-B,10496,Bank account or service,Bank account or service,True,True,Money transfer or service,Money transfer or service,True
+cascade-B,10510,Consumer loan,Consumer loan,True,False,Consumer loan,,
+cascade-B,10512,Credit reporting,Credit reporting,True,True,Consumer loan,Consumer loan,True
+cascade-B,10520,Credit card,Credit card,True,False,Credit card,,
+cascade-B,10524,Credit reporting,Credit reporting,True,True,Bank account or service,Bank account or service,True
+cascade-B,10526,Mortgage,Mortgage,True,False,Mortgage,,
+cascade-B,10528,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10540,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-B,10560,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-B,10562,Credit card,Credit card,True,False,Credit card,,
+cascade-B,10570,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10602,Credit card,Credit card,True,False,Credit card,,
+cascade-B,10604,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10622,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10638,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10652,Bank account or service,Bank account or service,True,True,Money transfer or service,Money transfer or service,True
+cascade-B,10658,Credit card,Credit card,True,False,Credit card,,
+cascade-B,10662,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-B,10666,Credit reporting,Credit reporting,True,True,Debt collection,Debt collection,True
+cascade-B,10678,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-B,10688,Money transfer or service,Money transfer or service,True,True,Money transfer or service,Money transfer or service,True
+cascade-B,10710,Money transfer or service,Money transfer or service,True,True,Money transfer or service,Money transfer or service,True
+cascade-B,10714,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10718,Credit reporting,Credit reporting,True,True,Debt collection,Debt collection,True
+cascade-B,10722,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10724,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-B,10746,Credit reporting,Credit reporting,True,True,Debt collection,Debt collection,True
+cascade-B,10750,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10754,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-B,10762,Credit reporting,Credit reporting,True,True,Bank account or service,Bank account or service,True
+cascade-B,10770,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10774,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10790,Credit reporting,Credit reporting,True,True,Debt collection,Debt collection,True
+cascade-B,10792,Credit reporting,Credit reporting,True,True,Debt collection,Debt collection,True
+cascade-B,10796,Credit reporting,Credit reporting,True,True,Consumer loan,Consumer loan,True
+cascade-B,10818,Debt collection,Debt collection,True,False,Debt collection,,
+cascade-B,10822,Credit reporting,Credit reporting,True,True,Consumer loan,Consumer loan,True
+cascade-B,10840,Credit card,Credit card,True,False,Credit card,,
+cascade-B,10846,Debt collection,Debt collection,True,False,Debt collection,,
+cascade-B,10858,Credit card,Credit card,True,False,Credit card,,
+cascade-B,10866,Credit card,Credit card,True,False,Credit card,,
+cascade-B,10900,Mortgage,Mortgage,True,False,Mortgage,,
+cascade-B,10904,Credit card,Credit card,True,False,Credit card,,
+cascade-B,10914,Credit card,Credit card,True,False,Credit card,,
+cascade-B,10950,Debt collection,Debt collection,True,False,Debt collection,,
+cascade-B,10962,Bank account or service,Bank account or service,True,True,Bank account or service,Bank account or service,True
+cascade-B,10970,Debt collection,Debt collection,True,False,Debt collection,,
+cascade-B,10976,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10982,Credit reporting,Credit reporting,True,True,Credit reporting,Credit reporting,True
+cascade-B,10996,Mortgage,Mortgage,True,False,Mortgage,,

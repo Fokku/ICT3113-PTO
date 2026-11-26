@@ -201,3 +201,47 @@ relaunched. Recorded in `docs/a2/run-log.md`.
 defence (Part 4, W.2); the "why it differed" reasoning on Slide 7; the interpretation lines on Slides 4 and 6
 and the Slide 6 chart (Part 3); the deck, environment statement, limitations and AI declaration (Part 5);
 reviewing the dated appendix to the prediction record (whole team).
+
+---
+
+## 2026-11-26 — Part 3 (Jolie Ngai Ning Li): cascade checks, escalation comparison, Slides 4 and 6
+
+**Tool.** Claude Code (Anthropic, Claude Opus 5.5), run by Jolie Ngai Ning Li in this repository. No model
+was called and no run was started. The work only read the A1 and A2 run files and the output CSVs. No
+result file, Assignment 1 file, or teammate's script was edited.
+
+**What the tool produced:**
+
+- `slides/drafts_a2/slide6_tradeoff_chart.py` (standard library only) writes `slide6_tradeoff.svg` (the
+  Slide 6 chart) and `slide6_tradeoff_points.csv` (every plotted value). It reads only
+  `analysis/output/accuracy_a2/` and `analysis/output/speed_a2/per_config.csv`. The limit line is computed
+  from `qwen2.5:7b`'s row, not typed in.
+- `slides/drafts_a2/slide6_tradeoff.md`: the title, which latency the chart uses (the frozen rule's counted
+  run, with queued runs drawn faint and not counted), the interpretation and the production notes.
+- `slides/drafts_a2/slide4_accuracy_results.md`: the interpretation line and a table of where accepting
+  granite's answer cost accuracy, using the frozen record §3 measure (non-escalated accuracy by true
+  category). This feeds Slide 7's prediction check.
+
+
+**What was checked.**
+
+- Part 1's cascade figures were recomputed from each accuracy run's raw `responses.csv` and `service.jsonl`,
+  without using `analysis/cascade_accuracy_a2.py` or `routing.csv`. Results: A 76/101, B 74/101, every
+  per-category count, the escalated vs accepted split (A 13/18 and 63/83; B 23/36 and 51/65) and the
+  determinism cross-check (101/101 granite, 83/83 and 65/65 qwen). All match. Routing followed the setting's
+  accept-list on all 202 tickets, and the answer returned always matched the logged answer.
+- Both cascade confusion matrices sum to 101, with diagonals equal to the scores.
+- Escalation under load was recomputed from each speed run's `service.jsonl` with warm-up excluded: A 33/44
+  and B 23/44 in every run. The gaps against the test set (−7.2 pp and −12.1 pp) are within the 15 pp
+  threshold. None of the speed-test tickets is a golden-set row.
+- The service URL changed from 192.168.50.130 to 192.168.50.129. `docs/a2/run-log.md` records this as a
+  DHCP change on the same `omarchy` host, so the "same machine" reuse statement stands.
+- The chart was rendered and inspected for label collisions. Its colours passed the palette validator for
+  colour-blind separation.
+
+**Left to the team, deliberately not done by the tool:**
+
+- Part 2's half of Slide 4 (the limit lines and verdicts) and Part 5's assembly.
+- The verdict on the §3 category prediction and the recommendation (Part 4, Slide 7). The tool supplied the
+  counts only.
+- Sending the results to Part 4. They are ready in the repository and have not been sent to anyone.

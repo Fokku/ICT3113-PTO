@@ -1,0 +1,4 @@
+config,label,correct,test_n,accuracy_pct,qualifies,runs_counted,p50_s,queued_runs_s
+qwen2.5:7b,qwen2.5:7b alone,75,101,74.25742574257426,True,run3,4.5045,run1=6.12; run2=6.54
+cascade-A,"Cascade, Setting A",76,101,75.24752475247524,True,run2,7.6285,run1=9.61; run3=9.25
+cascade-B,"Cascade, Setting B",74,101,73.26732673267327,True,run2,5.569,run1=5.50; run3=5.03

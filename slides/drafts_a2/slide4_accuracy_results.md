@@ -14,6 +14,11 @@ are added once Part 1's A2 accuracy runs exist. Nothing is typed in by hand.
 split and the determinism check filled in from Part 1's A2 accuracy runs on 2026-11-26
 (`python -m analysis.cascade_accuracy_a2`, same limits). The interpretation line is still Part 3's to write.
 
+**Part 3 update, 2026-11-26:** Part 3 checked every cascade figure by recomputing it from each run's raw
+`responses.csv` and `service.jsonl`, without using Part 1's scorer or `routing.csv`. All figures match, and
+routing followed the rule on all 202 tickets. Part 3 also added the interpretation and the category-loss
+table below.
+
 ---
 
 ## Title
@@ -87,8 +92,31 @@ test responses was either (`cascade_routing_a2.csv`: 0 errors, 0 UNPARSEABLE).
 | Accepted but wrong (true category) | 5 (Mortgage 2, Credit reporting 2, Consumer loan 1) | 13 (Consumer loan 5, Mortgage 4, Credit reporting 3, Bank account 1) |
 | Tuning-set expectation (`cascade/escalation_rule.md` §3) | 78/99 escalated (78.8%); 75/99 right; 0 accepted-but-wrong | 59/99 escalated (59.6%); 74/99 right; 8 accepted-but-wrong |
 
-One line of interpretation: does the rule catch the tickets granite gets wrong? In other words, is
-accuracy on accepted tickets close to granite's precision on those categories?
+**Interpretation (on the slide):** the rule catches most, but not all, of granite's mistakes. Accepted
+answers were right 13/18 times at A and 23/36 at B, below the 75.9% and 78.5% that `qwen2.5:7b` achieved
+on the escalated tickets. Accepting granite's "Credit card" answers (Setting B) let 8 more wrong answers
+through than A, and the misses landed in Consumer loan, which is exactly at its limit at B (6/14). Both
+settings still pass, and both are within two tickets of `qwen2.5:7b` alone (76 and 74 vs 75/101).
+
+**Where accepting granite's answer cost accuracy (frozen prediction-record §3 measure: non-escalated
+accuracy by true category, `cascade_routing_a2.csv` / `responses.csv`).** These figures feed Slide 7's
+prediction check.
+
+| True category | Setting A: right / accepted | Setting B: right / accepted |
+|---|---|---|
+| Credit reporting | 0/2 | 0/3 |
+| Bank account or service | — (none accepted) | 0/1 |
+| Consumer loan | 3/4 | 3/8 |
+| Mortgage | 5/7 | 5/9 |
+| Debt collection | 5/5 | 5/5 |
+| Credit card | — | 10/10 |
+| Money transfer or service | — | — |
+
+At Setting B, ranked from lowest: Credit reporting 0/3 and Bank account 0/1 (both 0%), then Consumer loan
+3/8 (37.5%), then Mortgage 5/9 (55.6%). Money transfer had no accepted tickets, so it lost nothing. By the
+number of tickets lost, the order is Consumer loan 5, Mortgage 4, Credit reporting 3, Bank account 1.
+Against `qwen2.5:7b` alone, B is down only in Consumer loan (−2) and Bank account (−1). The denominators
+are tiny (1 to 10 tickets), so the 0% rows rest on one to three tickets.
 
 Source: `analysis/output/accuracy_a2/cascade_routing_a2.csv`, from each accuracy run's `routing.csv` (joined to
 its `service.jsonl`).

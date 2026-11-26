@@ -13,11 +13,15 @@ latency from Slide 5 (`analysis/output/speed_a2/per_config.csv`). No Assignment 
 **Status:** data filled in 2026-11-26 by Part 1 (numbers only, from the output files). The title, the
 interpretation lines and the chart itself are still Part 3's.
 
+**Part 3 update, 2026-11-26:** title, interpretation and chart added. Chart:
+[`slide6_tradeoff.svg`](slide6_tradeoff.svg), produced by `python slides/drafts_a2/slide6_tradeoff_chart.py`.
+Plotted values: `slide6_tradeoff_points.csv`.
+
 ---
 
 ## Title
 
-`<one line: e.g. "The cascade is / is not faster than qwen2.5:7b at the accuracy we need">`
+All three pass accuracy, but neither cascade setting is faster than `qwen2.5:7b` alone
 
 ## The chart
 
@@ -40,6 +44,12 @@ configuration, so no range) and, labelled as secondary, `analysis/output/speed_a
 (`p50_min_ms`–`p50_max_ms`). Every run's own p50 (all nine, for an error bar that ignores the queue flag, if the
 team wants one): `qwen2.5:7b` 6.12 / 6.54 / 4.50, cascade A 9.61 / 7.63 / 9.25, cascade B 5.50 / 5.57 / 5.03 s
 (`p50_per_run_ms`). Say which one the chart uses.
+
+**The chart uses the frozen rule.** Each filled point is the p50 of the configuration's one counted run
+(`speed_a2/per_config.csv` → `p50_mean_ms`). There is no error bar, because one counted run gives no range.
+The runs flagged queued appear as faint hollow circles at their own p50 and are labelled "not counted", so
+the spread is visible without being used for the comparison. This matches Slide 5's primary table and
+Slide 7's rule.
 | Any other single model that passes both limits | — | — | — | none currently: all three fail on Slide 4 |
 
 - **Failing points stay on the chart, drawn hollow.** A cascade setting that fails accuracy still gets a
@@ -54,21 +64,37 @@ team wants one): `qwen2.5:7b` 6.12 / 6.54 / 4.50, cascade A 9.61 / 7.63 / 9.25, 
 
 ## Short interpretation (2–3 lines, under the chart)
 
-1. Where the cascade sits against `qwen2.5:7b` alone: faster, slower, or not distinguishable (per-run p50
-   ranges overlap)?
-2. Whether each setting is above the limit line.
-3. The trade-off in one sentence: Setting B escalates less (expected faster) but accepts more of granite's
-   answers (expected less accurate). Did the measurement bear that out?
+1. **The cascade is slower, not faster.** Under the frozen rule, `qwen2.5:7b` alone has a median of 4.50 s.
+   Setting A's is 7.63 s (+3.12 s) and Setting B's is 5.57 s (+1.06 s), so both are marked "slower"
+   (`faster_than_reference`). Including the queued runs doesn't change this: every Setting A run
+   (7.63–9.61 s) is slower than every `qwen2.5:7b` run (4.50–6.54 s). Setting B's runs (5.03–5.57 s) fall
+   inside `qwen2.5:7b`'s range, so at best B is no faster.
+2. **All three points are above the limit line, within two tickets of each other**: A 76/101, `qwen2.5:7b`
+   75/101, B 74/101. Accuracy does not separate them; latency does.
+3. **Why the cascade loses on speed.** An escalated ticket pays for two model calls. Under load, escalated
+   tickets had a median of 9.23 s (A) and 9.01 s (B), against 2.29 s and 3.35 s for accepted tickets. The
+   cascade escalated 75% (A) and 52% (B) of the speed-test tickets. B escalates less, so it is 2.06 s
+   faster than A. It costs only two tickets of accuracy, but Consumer loan sits exactly at its limit
+   (6/14), so one more wrong answer there would fail B. The break-even `L(small) + f × L(large) < L(large)`
+   is worked on Slide 7.
 
-If the cascade is not faster, point to the break-even on Slide 7:
-`L(small) + f × L(large) < L(large)`.
+Under the chart, one line: *"granite4:3b, llama3.2:3b and llama3.2:1b failed accuracy on Slide 4, so they
+were not speed-tested and have no point."*
 
 ## Producing the chart
 
-Plot from the CSVs, not by hand, so each coordinate traces to a file. One option is a short script next to
-this file (`slide6_tradeoff_chart.py`, not written yet) that reads `pass_fail_a2.csv` and the cascade
-accuracy file for y, and `speed_a2/per_config.csv` for x. It writes `slide6_tradeoff.png` / `.svg`, the same
-way `cascade_diagram.py` produces Slide 2's diagram.
+`python slides/drafts_a2/slide6_tradeoff_chart.py` (standard library only, no matplotlib) reads
+`analysis/output/accuracy_a2/pass_fail_a2.csv` and `cascade_pass_fail_a2.csv` for y, and
+`analysis/output/speed_a2/per_config.csv` for x. It works out the limit line from `qwen2.5:7b`'s row
+(75/101 − 10 pp), so no number is typed in by hand. It writes:
+
+- `slide6_tradeoff.svg`: the chart, 960×540 (16:9). PowerPoint inserts SVG directly.
+- `slide6_tradeoff_points.csv`: every plotted value, as the table view and for traceability.
+
+A configuration that fails accuracy is drawn automatically as a hollow marker labelled "fails accuracy".
+None does at present. Colours are the reference palette's first three categorical slots, checked as a set
+for colour-blind separation. Every point also has a direct text label, so identity never depends on colour
+alone.
 
 ## Traceability rows to add to `../outline_a2.md` (Part 5's map)
 
@@ -77,4 +103,4 @@ way `cascade_diagram.py` produces Slide 2's diagram.
 | 6 | y: overall accuracy per configuration | `analysis/output/accuracy_a2/pass_fail_a2.csv` + `cascade_pass_fail_a2.csv` | `python -m analysis.accuracy_a2`; `python -m analysis.cascade_accuracy_a2` |
 | 6 | x: p50 mean and per-run range | `analysis/output/speed_a2/per_config.csv` | `python analysis/summarise_load_a2.py` |
 | 6 | overall limit line | `docs/a2/accuracy_limits.md` §1 | Part 2 |
-| 6 | the chart | `slides/drafts_a2/slide6_tradeoff.png` | `<chart script>` |
+| 6 | the chart and its plotted values | `slides/drafts_a2/slide6_tradeoff.svg`, `slide6_tradeoff_points.csv` | `python slides/drafts_a2/slide6_tradeoff_chart.py` |

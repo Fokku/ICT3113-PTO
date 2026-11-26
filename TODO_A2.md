@@ -576,10 +576,14 @@ the moment `golden/split_a2.csv` exists, since they are pure re-scoring of Assig
       per-category tables and confusion matrices to `analysis/output/accuracy_a2/`.
       `pass_fail_a2.csv` is ready for Part 1 to review; no handoff or speed test has been performed here.
       Only `qwen2.5:7b` passes overall and all seven categories. Cascade tasks remain outstanding.
-- [ ] **State on Slide 4 (not just in this repo) that single-model accuracy was reused from Assignment 1, not
+- [x] **State on Slide 4 (not just in this repo) that single-model accuracy was reused from Assignment 1, not
       re-run** — the brief requires this said in the report, not just done quietly: *"Score only the test-set
       rows, and say in the report that you did this."* Name the four digests/prompt/Ollama version/machine as
       unchanged, which is the condition that makes the reuse valid.
+      **Done 2026-11-26 (in the draft):** `slides/drafts_a2/slide4_accuracy_results.md` → "Required statement".
+      It names the four digests, the prompt hash, `num_ctx`/seed, Ollama 0.34.3 and `omarchy`. The A2 runs
+      reached `omarchy` at 192.168.50.129, a DHCP change already recorded in `docs/a2/run-log.md`.
+      **Part 5:** keep this statement in `Group10_A2.pptx`.
 - [x] **Before relying on any reused A1 figure, confirm the reuse is valid** — fill in the table in
       `docs/a2/accuracy_limits.md` ("Is the reuse valid?") for each of the four models: digest, prompt hash,
       `num_ctx`/seed, Ollama version and machine all unchanged. Any mismatch means re-run that model.
@@ -588,23 +592,34 @@ the moment `golden/split_a2.csv` exists, since they are pure re-scoring of Assig
       `sha256:681131c48bdc15a1`, `num_ctx` is 4096, the seed is 42, Ollama is 0.34.3 and the host is `omarchy`,
       all as in A1. The live service was checked through `docs/a2/env_baseline.json` (2026-11-19). Part 3
       did not check the live environment again.
-- [ ] *(Data ready from Part 1, for Part 3 to check and own: `python -m analysis.cascade_accuracy_a2` gives
+- [x] *(Data ready from Part 1, for Part 3 to check and own: `python -m analysis.cascade_accuracy_a2` gives
       cascade A 76/101 and B 74/101, both passing, in `analysis/output/accuracy_a2/cascade_*`.)*
       After the gate and Part 1's benchmark pass: score the cascade at both settings the same way, from the
       new `responses.csv` produced by `run_accuracy_a2.py`.
-- [ ] *(Data ready from Part 1: 101/101 small-model answers match A1 at both settings, and so do 83/83 and 65/65
+      **Checked and owned by Part 3, 2026-11-26.** Every figure was recomputed from each run's raw
+      `responses.csv` and `service.jsonl`, without using Part 1's scorer or `routing.csv`. Results: A 76/101 and
+      B 74/101, every per-category count identical, 101 test rows each with none missing or repeated, 0 errors,
+      0 UNPARSEABLE. The answer returned always matches the logged answer, and routing followed the setting's
+      accept-list on all 202 tickets.
+- [x] *(Data ready from Part 1: 101/101 small-model answers match A1 at both settings, and so do 83/83 and 65/65
       escalated large-model answers, in `analysis/output/accuracy_a2/cascade_determinism_a2.csv`.)*
+      **Checked by Part 3, 2026-11-26:** confirmed from `service.jsonl` against the A1 `responses.csv` files.
+      There is no mismatch to explain, so the reuse holds.
       **Determinism cross-check** (cheap, and the strongest evidence the reuse is sound): every model runs
       at temperature 0 with a fixed seed, so the small model's answer inside the cascade run
       (`small_model_category` in the service log) must equal that model's A1 `predicted_category` on the
       same test-set row. Compare all 101 rows. Any mismatch means something changed between A1 and A2
       (prompt, digest, `num_ctx`, Ollama version). Find out what before reporting either result.
-- [ ] `analysis/output/accuracy_a2/` (new output directory): one table per configuration, plus a
+- [x] `analysis/output/accuracy_a2/` (new output directory): one table per configuration, plus a
       `model_comparison_a2.csv` in the same shape as Assignment 1's, so every number traces to a file.
+      **Done:** single models in `pass_fail_a2.csv`, `per_category_a2.csv` and `model_comparison_a2.csv` (same
+      columns as A1's). The cascade is in `cascade_pass_fail_a2.csv`, `cascade_per_category_a2.csv`,
+      `cascade_routing_a2.csv` and `cascade_determinism_a2.csv`. Every configuration has a confusion matrix
+      in its run folder.
 
 ### 3.2 Check against the limits
 
-- [ ] For every configuration, mark pass/fail against Part 2's overall limit and each per-category limit from
+- [x] For every configuration, mark pass/fail against Part 2's overall limit and each per-category limit from
       `docs/a2/accuracy_limits.md`, and flag which categories are too small to be a fair per-category test.
       Apply the rules in `docs/a2/accuracy_limits.md` §3 exactly: inclusive at the boundary, compared as exact
       counts, never rounded percentages. A borderline category decides the recommendation, so this is where a
@@ -614,23 +629,37 @@ the moment `golden/split_a2.csv` exists, since they are pure re-scoring of Assig
       that pass when equal to the limit. Only `qwen2.5:7b` passes (75/101, all seven categories). `granite4:3b` (63/101),
       `llama3.2:3b` (54/101) and `llama3.2:1b-instruct-q4_K_M` (34/101) fail overall and per category. No category
       has fewer than 10 test rows. Mortgage, Credit card and Money transfer or service (11 rows each) are flagged
-      as borderline. **Still to do:** the cascade at Settings A and B, after Part 1's runs.
-- [ ] Hand the pass/fail table to Part 1 before the speed tests start — single models that fail accuracy do
+      as borderline.
+      **Cascade done 2026-11-26** (`cascade_pass_fail_a2.csv`, `cascade_per_category_a2.csv`, checked by Part 3):
+      Setting A 76/101 and Setting B 74/101 both pass overall and in all seven categories. Setting B's Consumer
+      loan is exactly at its limit (6/14, minimum 6), which passes because the boundary is inclusive. One more
+      wrong answer there would fail B.
+- [x] Hand the pass/fail table to Part 1 before the speed tests start — single models that fail accuracy do
       not get a speed test (brief).
+      **Done:** Part 1 read `pass_fail_a2.csv` from the repo into `verdicts_a2.csv` before the speed runs. Only
+      `qwen2.5:7b` was speed-tested as a single model.
 
 ### 3.3 Escalated vs non-escalated accuracy (cascade only)
 
-- [ ] From the cascade's service logs, split the test-set results into "answered by the small model" and
+- [x] From the cascade's service logs, split the test-set results into "answered by the small model" and
       "escalated to the large model", and report accuracy separately for each group, at both settings. This is
       the number that shows whether the rule is actually catching the tickets the small model gets wrong
       (brief, Step 4).
-- [ ] Compare the test-set escalation fraction here against the under-load escalation fraction Part 1 reports
+      **Done 2026-11-26** (`cascade_routing_a2.csv`, checked by Part 3). Setting A escalated 83/101; accepted
+      answers were right 13/18 and escalated answers 63/83. Setting B escalated 65/101; accepted 23/36,
+      escalated 51/65. Written up on Slide 4.
+- [x] Compare the test-set escalation fraction here against the under-load escalation fraction Part 1 reports
       from the speed test ([1.4](#14-analysis-script-updates)); explain any gap above the threshold in
       `predictions/prediction_record_a2.md` §4, since the ticket sets differ.
+      **Done 2026-11-26.** Under load, A escalated 33/44 (75.0%) against 82.2% on the test set, a gap of
+      −7.2 pp. B escalated 23/44 (52.3%) against 64.4%, a gap of −12.1 pp. Both are within the 15 pp threshold,
+      so nothing needs explaining in the record. Part 3 recomputed these from each speed run's `service.jsonl`
+      (warm-up excluded); all three runs per setting gave the same count. None of the 44 speed-test tickets is
+      a golden-set row, so the gap comes only from the different ticket mix.
 
 ### 3.4 Confusion matrices and trade-off data
 
-- [ ] Produce one confusion matrix per configuration (test set), and name which categories a configuration
+- [x] Produce one confusion matrix per configuration (test set), and name which categories a configuration
       loses the most accuracy on when the small model's answer is accepted — the brief's prediction target
       for [Part 4's record](#part-4--toh-si-pei-predictions-recommendation-and-defence-slide-7).
       **Partly done 2026-11-25 (single models only):** one test-set confusion matrix per single model in
@@ -638,17 +667,31 @@ the moment `golden/split_a2.csv` exists, since they are pure re-scoring of Assig
       are the prediction, with UNPARSEABLE and ERROR as separate columns. Each matrix sums to 101. **Still to
       do:** the cascade matrices at Settings A and B, and naming the categories where accepting the small
       model's answer loses the most accuracy. Both need Part 1's cascade runs.
-- [ ] Build the (accuracy, median latency) point for every configuration and setting, once Part 1's speed
+      **Cascade done 2026-11-26:** both matrices are in `analysis/output/accuracy_a2/cascade-{A,B}_*/`. Each
+      sums to 101, with diagonals of 76 and 74. Category losses use the frozen record §3 measure,
+      non-escalated accuracy by true category, and are tabulated on Slide 4. At Setting B, from lowest:
+      Credit reporting 0/3 and Bank account 0/1, then Consumer loan 3/8, then Mortgage 5/9. Money transfer
+      had none accepted. By tickets lost: Consumer loan 5, Mortgage 4, Credit reporting 3, Bank account 1.
+      Ready for Part 4 to use in Slide 7's verdict.
+- [x] Build the (accuracy, median latency) point for every configuration and setting, once Part 1's speed
       numbers exist, for the Slide 6 chart — one point per configuration/setting, with the overall limit as a
       horizontal reference line.
+      **Done 2026-11-26:** `python slides/drafts_a2/slide6_tradeoff_chart.py` builds the points from the
+      output CSVs and writes `slide6_tradeoff_points.csv` and `slide6_tradeoff.svg`.
 
 ### 3.5 Slides 4 and 6
 
-- [ ] **Slide 4 — Accuracy results** (with Loh Wen Xuan): measured overall and per-category accuracy with counts
+- [x] **Slide 4 — Accuracy results** (with Loh Wen Xuan): measured overall and per-category accuracy with counts
       for every configuration, escalation fraction, and escalated-vs-non-escalated accuracy.
-- [ ] **Slide 6 — Trade-off.** One chart, accuracy vs. latency, one point per configuration and setting, the
+      **Drafted 2026-11-26:** `slides/drafts_a2/slide4_accuracy_results.md`. All numbers, the interpretation
+      and the category-loss table are in. Loh Wen Xuan still needs to confirm the limit lines and verdicts
+      (Part 2's half) before Part 5 assembles the slide.
+- [x] **Slide 6 — Trade-off.** One chart, accuracy vs. latency, one point per configuration and setting, the
       overall limit drawn as a line, with a short interpretation of where the cascade sits relative to the
       single models.
+      **Drafted 2026-11-26:** `slides/drafts_a2/slide6_tradeoff.md` and `slide6_tradeoff.svg`. Both cascade
+      settings are slower than `qwen2.5:7b` alone under the frozen rule (7.63 s and 5.57 s vs 4.50 s), and
+      all three pass accuracy.
 
 ---
 

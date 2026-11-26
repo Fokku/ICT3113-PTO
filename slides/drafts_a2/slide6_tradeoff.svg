@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="960" height="540" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+<title>Test-set accuracy vs median latency, one point per speed-tested configuration</title>
+<rect width="960" height="540" fill="#fcfcfb"/>
+<line x1="84" x2="924" y1="422.0" y2="422.0" stroke="#e6e5e1" stroke-width="1"/>
+<text x="74" y="426.0" font-size="13" fill="#52514e" text-anchor="end">60%</text>
+<line x1="84" x2="924" y1="323.5" y2="323.5" stroke="#e6e5e1" stroke-width="1"/>
+<text x="74" y="327.5" font-size="13" fill="#52514e" text-anchor="end">65%</text>
+<line x1="84" x2="924" y1="225.0" y2="225.0" stroke="#e6e5e1" stroke-width="1"/>
+<text x="74" y="229.0" font-size="13" fill="#52514e" text-anchor="end">70%</text>
+<line x1="84" x2="924" y1="126.5" y2="126.5" stroke="#e6e5e1" stroke-width="1"/>
+<text x="74" y="130.5" font-size="13" fill="#52514e" text-anchor="end">75%</text>
+<line x1="84" x2="924" y1="28.0" y2="28.0" stroke="#e6e5e1" stroke-width="1"/>
+<text x="74" y="32.0" font-size="13" fill="#52514e" text-anchor="end">80%</text>
+<text x="84.0" y="444" font-size="13" fill="#52514e" text-anchor="middle">0 s</text>
+<text x="236.7" y="444" font-size="13" fill="#52514e" text-anchor="middle">2 s</text>
+<text x="389.5" y="444" font-size="13" fill="#52514e" text-anchor="middle">4 s</text>
+<text x="542.2" y="444" font-size="13" fill="#52514e" text-anchor="middle">6 s</text>
+<text x="694.9" y="444" font-size="13" fill="#52514e" text-anchor="middle">8 s</text>
+<text x="847.6" y="444" font-size="13" fill="#52514e" text-anchor="middle">10 s</text>
+<line x1="84" x2="924" y1="422" y2="422" stroke="#8a8984" stroke-width="1"/>
+<text x="504.0" y="468" font-size="14" fill="#0b0b0b" text-anchor="middle">Median latency under load (p50 of the counted run, seconds)</text>
+<text transform="translate(22 225.0) rotate(-90)" font-size="14" fill="#0b0b0b" text-anchor="middle">Overall accuracy, 101 test tickets</text>
+<line x1="84" x2="924" y1="338.1" y2="338.1" stroke="#52514e" stroke-width="2" stroke-dasharray="6 5"/>
+<text x="920" y="356.1" font-size="13" fill="#52514e" text-anchor="end">Overall limit 64.26% (pass needs at least 65/101)</text>
+<circle cx="551.3" cy="141.1" r="5" fill="none" stroke="#2a78d6" stroke-width="1.5" opacity="0.55"/>
+<circle cx="583.4" cy="141.1" r="5" fill="none" stroke="#2a78d6" stroke-width="1.5" opacity="0.55"/>
+<circle cx="817.9" cy="121.6" r="5" fill="none" stroke="#eb6834" stroke-width="1.5" opacity="0.55"/>
+<circle cx="790.4" cy="121.6" r="5" fill="none" stroke="#eb6834" stroke-width="1.5" opacity="0.55"/>
+<circle cx="504.0" cy="160.6" r="5" fill="none" stroke="#1baf7a" stroke-width="1.5" opacity="0.55"/>
+<circle cx="468.1" cy="160.6" r="5" fill="none" stroke="#1baf7a" stroke-width="1.5" opacity="0.55"/>
+<circle cx="428.0" cy="141.1" r="8" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="414.0" y="125.1" font-size="14" fill="#0b0b0b" text-anchor="end"><tspan font-weight="600">qwen2.5:7b alone</tspan><tspan fill="#52514e"> 75/101 · 4.50 s</tspan></text>
+<circle cx="666.5" cy="121.6" r="8" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"/>
+<text x="666.5" y="103.6" font-size="14" fill="#0b0b0b" text-anchor="middle"><tspan font-weight="600">Cascade, Setting A</tspan><tspan fill="#52514e"> 76/101 · 7.63 s</tspan></text>
+<circle cx="509.3" cy="160.6" r="8" fill="#1baf7a" stroke="#fcfcfb" stroke-width="2"/>
+<text x="523.3" y="186.6" font-size="14" fill="#0b0b0b" text-anchor="start"><tspan font-weight="600">Cascade, Setting B</tspan><tspan fill="#52514e"> 74/101 · 5.57 s</tspan></text>
+<circle cx="92" cy="510" r="7" fill="#52514e"/>
+<text x="106" y="514" font-size="13" fill="#52514e">Counted run (frozen no-queue rule)</text>
+<circle cx="362" cy="510" r="5" fill="none" stroke="#52514e" stroke-width="1.5" opacity="0.55"/>
+<text x="376" y="514" font-size="13" fill="#52514e">Run flagged queued, not counted</text>
+<line x1="612" x2="640" y1="510" y2="510" stroke="#52514e" stroke-width="2" stroke-dasharray="6 5"/>
+<text x="648" y="514" font-size="13" fill="#52514e">Overall accuracy limit</text>
+</svg>

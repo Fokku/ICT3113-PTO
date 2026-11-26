@@ -377,6 +377,17 @@ def test_more_samples_than_the_ticket_list_is_a_repeat(campaign) -> None:
     assert "sent 101 > 100 tickets" in row["reasons"]
 
 
+def test_a_faster_second_half_is_not_a_queue(tmp_path: Path) -> None:
+    # prediction_record_a2.md §4 (frozen): second-half p50 no more than 20% ABOVE the first's.
+    # First half 3000/3000/3000 -> 3000; second 2000/2000/2000 -> 2000: -33%, not queued.
+    build_a2_run_dir(tmp_path / "runs", steady_samples([3000, 3000, 3000, 2000, 2000, 2000]))
+    assert run_cli(tmp_path, tmp_path / "runs") == 0
+    row = first_row(tmp_path)
+    assert row["halves_change_pct"] == pytest.approx(-100 / 3)
+    assert row["no_queue_check"] != "queued"
+    assert row["queued"] is False
+
+
 def test_a_repeated_source_row_is_a_repeat_even_under_the_limit(tmp_path: Path) -> None:
     samples = steady_samples([1000] * 5)
     samples[4] = A2Sample(40_000, 1000, source_row="20000")
@@ -408,7 +419,7 @@ def test_no_p99_anywhere_in_the_outputs(campaign) -> None:
 def test_the_report_states_its_definitions_and_thresholds(campaign) -> None:
     report = campaign["report"]
     for needle in ("## Definitions used in this report", "## Thresholds in force",
-                   "within +/-20%", "under 100 ms", "more than 15 pp",
+                   "at most +20%", "under 100 ms", "more than 15 pp",
                    "above 1000 ms", "at most 100 sent", "Split by time at the midpoint",
                    "`ollama_other_ms`", "No Assignment 1 speed figure is used"):
         assert needle in report, needle
@@ -416,14 +427,14 @@ def test_the_report_states_its_definitions_and_thresholds(campaign) -> None:
 
 def test_thresholds_come_from_the_command_line(tmp_path: Path) -> None:
     build_a2_run_dir(tmp_path / "runs", steady_samples([1000, 1000, 1000, 1150, 1150, 1150]))
-    # +15% passes at the default +/-20% and fails at +/-10%.
+    # +15% passes at the default +20% and fails at +10%.
     assert run_cli(tmp_path, tmp_path / "runs") == 0
     row = first_row(tmp_path)
     assert row["no_queue_check"] == "pass"
     assert run_cli(tmp_path, tmp_path / "runs", "--halves-tolerance", "0.10") == 0
     row = first_row(tmp_path)
     assert row["no_queue_check"] == "queued"
-    assert "limit +/-10%" in row["reasons"]
+    assert "limit +10%" in row["reasons"]
 
 
 def test_the_halves_are_split_by_time_not_by_count(tmp_path: Path) -> None:

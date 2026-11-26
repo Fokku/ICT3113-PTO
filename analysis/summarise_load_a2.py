@@ -71,8 +71,10 @@ Definitions (kept in step with :data:`DEFINITIONS_MD`, which goes in the report)
   ``queue_residual_median_ms`` for information and is not part of the check.
   On an escalated cascade line both models' timings are summed by the service
   (``service/log_schema.py``), so the figure is the sum of both calls' waits.
-* **Queued.** Flagged when ``|halves_change_pct|`` exceeds the tolerance or the
-  queue-wait median reaches the threshold. A queued run is reported, flagged,
+* **Queued.** Flagged when ``halves_change_pct`` exceeds ``+tolerance`` (the
+  second half's p50 more than 20% *above* the first's -- one-sided, exactly as
+  the frozen ``prediction_record_a2.md`` §4 states it; a faster second half is
+  no sign of a queue) or the queue-wait median reaches the threshold. A queued run is reported, flagged,
   and not compared on p50 (``prediction_record_a2.md`` §4).
 * **Throughput.** ``completed / span_s``, where ``span_s`` is
   ``summarise_load.client_metrics``'s span: first measured sample's start to the
@@ -569,9 +571,9 @@ def summarise_run(info: common.RunDirInfo, thresholds: Thresholds) -> RunResult:
 
     failures: list[str] = []
     change = halves["halves_change_pct"]
-    if _finite(change) and abs(change) > 100.0 * thresholds.halves_tolerance:
+    if _finite(change) and change > 100.0 * thresholds.halves_tolerance:
         failures.append(f"second-half p50 {change:+.1f}% vs first half "
-                        f"(limit +/-{100.0 * thresholds.halves_tolerance:g}%)")
+                        f"(limit +{100.0 * thresholds.halves_tolerance:g}%)")
     wait = waits["queue_wait_median_ms"]
     if _finite(wait) and wait >= thresholds.queue_wait_ms:
         failures.append(f"median queue wait {wait:.1f} ms "
@@ -1063,7 +1065,7 @@ def thresholds_md(thresholds: Thresholds, reference: str) -> str:
         "",
         "| Threshold | Value | Source |",
         "|---|---|---|",
-        f"| No-queue check: first vs second-half p50 | within +/-{tol:g}% | "
+        f"| No-queue check: second-half p50 vs first half | at most +{tol:g}% | "
         "`predictions/prediction_record_a2.md` section 4 |",
         f"| No-queue check: median queue wait (`ollama_other_ms`) | under "
         f"{thresholds.queue_wait_ms:g} ms | `predictions/prediction_record_a2.md` section 4 |",

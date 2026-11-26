@@ -437,6 +437,24 @@ def test_thresholds_come_from_the_command_line(tmp_path: Path) -> None:
     assert "limit +10%" in row["reasons"]
 
 
+def test_the_secondary_analysis_reports_but_does_not_apply_the_queue_wait(tmp_path: Path) -> None:
+    # 150 ms median queue wait, flat halves: queued under the frozen rule, not in the secondary.
+    build_a2_run_dir(tmp_path / "runs", steady_samples([1000] * 6, other_ms=150.0))
+    assert run_cli(tmp_path, tmp_path / "runs") == 0
+    assert first_row(tmp_path)["no_queue_check"] == "queued"
+    assert run_cli(tmp_path, tmp_path / "runs", "--secondary-no-queue-wait") == 0
+    row = first_row(tmp_path)
+    assert row["queue_wait_median_ms"] == pytest.approx(150.0)
+    assert row["no_queue_check"] == "pass" and row["valid"] is True
+    report = (tmp_path / "out" / "report.md").read_text(encoding="utf-8")
+    assert "SECONDARY ANALYSIS, NOT THE FROZEN RULE" in report
+    assert "NOT APPLIED in this secondary analysis" in report
+
+
+def test_the_secondary_analysis_never_writes_to_the_primary_output() -> None:
+    assert summarise_load_a2.main(["--secondary-no-queue-wait"]) == 2
+
+
 def test_the_halves_are_split_by_time_not_by_count(tmp_path: Path) -> None:
     # Four arrivals in the first 3 s and one at 100 s: the midpoint is 50 s, so the
     # halves hold 4 and 1 samples (an equal-count split would give 3 and 2).

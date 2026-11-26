@@ -195,6 +195,7 @@ DEFINITIONS_MD = """\
 | Queue wait | Median over measured `POST /tickets` log lines of `ollama_other_ms` as `analysis/bottleneck_hints.py` defines it: `total_duration/1e6 - (load_duration + prompt_eval_duration + eval_duration)/1e6`. This is where Assignment 1 measured Ollama's queueing (waiting for its single slot; `predictions/outcomes.md` 2.4). Summed over both calls on an escalated cascade line. `queue_residual_median_ms` (`model_latency_ms - total_duration/1e6`, HTTP and network) is shown for information only. |
 | Queued | Halves differ by more than the tolerance, or the queue-wait median reaches the threshold. Reported, flagged, and not compared on p50. |
 | Throughput | completed / span, where span runs from the first measured sample's start to the last measured sample's end (`timeStamp + elapsed`), as in Assignment 1's `client_metrics`. Requests per second. |
+| Ollama busy fraction | Sum over measured `POST /tickets` lines of `load_duration + prompt_eval_duration + eval_duration` (both calls on an escalated cascade line), divided by the span. Utilisation, for information only: no threshold. With random arrivals, roughly this share of tickets arrive while Ollama is busy and wait. |
 | Error rate | `100 * (sent - completed) / sent`: errored and unfinished together. |
 | Escalation fraction | Cascade only: `escalated == true` lines over all measured `POST /tickets` service-log lines. Accuracy-test fraction: the same over the newest test-set accuracy run of that setting. Gap = speed minus accuracy, in percentage points. |
 | Reload | A measured log line whose `load_duration` exceeds the reload threshold: a model was loaded mid-run. A loading result, not a speed result. |
@@ -218,7 +219,7 @@ RUN_COLUMNS: tuple[str, ...] = (
     "halves_change_pct",
     "queue_wait_median_ms", "n_queue_wait", "queue_residual_median_ms",
     "no_queue_check", "queued",
-    "span_s", "throughput_rps", "error_rate_pct",
+    "span_s", "throughput_rps", "error_rate_pct", "ollama_busy_fraction",
     "escalated_count", "escalation_total", "escalation_fraction",
     "accuracy_escalation_fraction", "escalation_gap_pp", "escalation_gap_flag",
     "max_load_duration_ms", "reload_requests", "reload",
@@ -400,6 +401,21 @@ def queue_wait(tickets: pd.DataFrame) -> dict[str, float]:
         "n_queue_wait": int(len(other_ms)),
         "queue_residual_median_ms": common.percentile(residual_ms, 0.50),
     }
+
+
+def ollama_busy_fraction(tickets: pd.DataFrame, span_s: float) -> float:
+    """Share of the run's span Ollama spent computing for measured tickets (utilisation).
+
+    ``sum(load_duration + prompt_eval_duration + eval_duration) / span_s`` over the
+    measured ``POST /tickets`` lines -- both calls on an escalated cascade line. Waiting
+    time (``ollama_other_ms``) is excluded. Informational only: it is no threshold, but it
+    shows how close a configuration runs to saturation at the fixed rate (1.0 = always busy).
+    """
+    if not _finite(span_s) or span_s <= 0 or tickets.empty:
+        return float("nan")
+    busy_ns = sum(pd.to_numeric(tickets[c], errors="coerce").fillna(0).sum()
+                  for c in ("load_duration", "prompt_eval_duration", "eval_duration"))
+    return float(busy_ns) / NS_PER_MS / 1000.0 / span_s
 
 
 def escalation_counts(tickets: pd.DataFrame) -> tuple[int, int]:
@@ -595,6 +611,7 @@ def summarise_run(info: common.RunDirInfo, thresholds: Thresholds) -> RunResult:
     span_s = float(client_metrics(samples)["span_s"]) if sent else float("nan")
     throughput = completed / span_s if _finite(span_s) and span_s > 0 else float("nan")
     error_rate = 100.0 * (sent - completed) / sent if sent else float("nan")
+    busy = ollama_busy_fraction(tickets, span_s)
 
     # --- escalation (cascade only) -------------------------------------------
     if cascade:
@@ -708,6 +725,7 @@ def summarise_run(info: common.RunDirInfo, thresholds: Thresholds) -> RunResult:
         "span_s": span_s,
         "throughput_rps": throughput,
         "error_rate_pct": error_rate,
+        "ollama_busy_fraction": busy,
         "escalated_count": n_escalated,
         "escalation_total": n_lines,
         "escalation_fraction": fraction,

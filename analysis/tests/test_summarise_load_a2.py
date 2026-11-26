@@ -451,6 +451,19 @@ def test_the_secondary_analysis_reports_but_does_not_apply_the_queue_wait(tmp_pa
     assert "NOT APPLIED in this secondary analysis" in report
 
 
+def test_the_busy_fraction_is_ollama_compute_time_over_the_span(tmp_path: Path) -> None:
+    build_a2_run_dir(tmp_path / "runs", steady_samples([1000] * 6))
+    assert run_cli(tmp_path, tmp_path / "runs") == 0
+    row = first_row(tmp_path)
+    log = [json.loads(line) for line in
+           next((tmp_path / "runs").iterdir()).joinpath("service.jsonl").read_text().splitlines()]
+    busy_ns = sum(r["load_duration"] + r["prompt_eval_duration"] + r["eval_duration"]
+                  for r in log if r.get("endpoint") == "/tickets" and r.get("method") == "POST"
+                  and not r.get("warmup"))
+    assert row["ollama_busy_fraction"] == pytest.approx(busy_ns / 1e9 / row["span_s"], rel=1e-3)
+    assert 0 < row["ollama_busy_fraction"] < 1
+
+
 def test_the_secondary_analysis_never_writes_to_the_primary_output() -> None:
     assert summarise_load_a2.main(["--secondary-no-queue-wait"]) == 2
 

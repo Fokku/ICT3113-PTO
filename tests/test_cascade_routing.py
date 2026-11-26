@@ -190,8 +190,11 @@ def test_length_rule_escalates_long_tickets_and_unparseable_short_ones() -> None
     assert "len(narrative) > 500" in rule.describe()
 
 
-def test_an_unconfigured_setting_refuses_rather_than_guessing() -> None:
-    """Until escalation_rule.md §3 is copied in, both settings are None."""
+def test_an_unconfigured_setting_refuses_rather_than_guessing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A setting left as None (as both were until escalation_rule.md §3 was copied in) refuses."""
+    monkeypatch.setattr(cascade, "RULE_SETTINGS", {"A": None, "B": None})
     with pytest.raises(cascade.CascadeNotConfiguredError, match="escalation_rule.md"):
         cascade.rule_for("A")
     with pytest.raises(cascade.CascadeNotConfiguredError):
@@ -316,7 +319,11 @@ def test_nothing_is_cached_between_identical_tickets(test_rules) -> None:
     assert fake.tags_called == [SMALL_TAG, LARGE_TAG, SMALL_TAG, LARGE_TAG]
 
 
-def test_classify_refuses_before_any_model_call_when_unconfigured() -> None:
+def test_classify_refuses_before_any_model_call_when_unconfigured(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # The real settings are filled in now, so recreate the unconfigured state explicitly.
+    monkeypatch.setattr(cascade, "RULE_SETTINGS", {"A": None, "B": None})
     fake = TwoModelFake()
     with pytest.raises(cascade.CascadeNotConfiguredError):
         run_cascade(fake, SHORT_NARRATIVE, "A")
@@ -388,7 +395,10 @@ def test_setting_names_are_normalised_to_upper_case(tmp_path: Path) -> None:
     assert settings.cascade_setting == "B"
 
 
-def test_a_cascade_service_will_not_start_without_a_written_rule(tmp_path: Path) -> None:
+def test_a_cascade_service_will_not_start_without_a_written_rule(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(cascade, "RULE_SETTINGS", {"A": None, "B": None})
     settings = load_settings(env=cascade_env(tmp_path), use_dotenv=False)
     with pytest.raises(ConfigError, match="escalation_rule.md"):
         service_main.create_app(settings)

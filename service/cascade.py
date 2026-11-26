@@ -199,17 +199,22 @@ class LengthRule:
 
 Rule = Union[CategoryRule, LengthRule]
 
-#: Setting A and Setting B -- copy the literal values from
-#: ``cascade/escalation_rule.md`` §3 here, and nowhere else. Examples of the
-#: shape (NOT the team's settings):
-#:     "A": CategoryRule(accept_categories=frozenset({"Mortgage", "Credit card"})),
-#:     "B": LengthRule(max_chars=900),
-#: TODO(cascade): Part 2 (Loh Wen Xuan) hands over the two settings; Part 1
-#: (Yeo Kai Yuan) writes them here, then runs scripts/cascade_replay.py to
-#: prove the tuning-set escalation counts match escalation_rule.md §3 exactly.
+#: Setting A and Setting B, copied verbatim from ``cascade/escalation_rule.md``
+#: §2-3 (frozen at tag ``a2-predictions-freeze``), and written nowhere else in
+#: code. Small model ``granite4:3b``, large model ``qwen2.5:7b`` (§1).
+#: ``scripts/cascade_replay.py --small-model granite4:3b`` proves the code gives
+#: §3's tuning-set escalation counts exactly: 78/99 at A and 59/99 at B
+#: (``tests/test_rule_fidelity.py``).
 RULE_SETTINGS: dict[str, Rule | None] = {
-    "A": None,
-    "B": None,
+    # The "reliable categories" setting: the predicted categories granite4:3b
+    # got right every time on the tuning set.
+    "A": CategoryRule(
+        accept_categories=frozenset({"Mortgage", "Consumer loan", "Debt collection"})
+    ),
+    # The "lowest escalation that still passes" setting: A plus Credit card.
+    "B": CategoryRule(
+        accept_categories=frozenset({"Mortgage", "Consumer loan", "Debt collection", "Credit card"})
+    ),
 }
 
 

@@ -3,25 +3,22 @@
 Owner: Part 5 -- Koh Tong Wei (deck assembly). Content owners per slide are in
 slides/outline_a2.md.
 
-Styling: the deck is built ON slides/Group10.pptx (the submitted Assignment 1
-deck), so it inherits that deck's theme, slide layouts and wave artwork. Every
-shape below copies the A1 deck's own shape styles: Arial, indigo 241160 text,
-blue-violet 545EEA / violet 8861F1 accents, cyan 01CFE6 step markers, lavender
-E2E4FC cards, red B3261E emphasis, and the same header-row table style.
-
-Every figure is copied from a committed file named in the slide's source line.
-Anything that needs the A2 gate (a2-predictions-freeze) and the real runs is
-shown as "pending" (violet, dashed), so a gap cannot be mistaken for a result.
+Uses the Assignment 1 slide layouts, artwork and palette.
+Result tables and figures are populated from the repository evidence.
 
 Usage (from the repository root):  python slides/build_deck_a2.py [out.pptx]
 Needs python-pptx and lxml.
 """
 import copy
+import csv
 import sys
+from statistics import quantiles
 from pathlib import Path
 
 from lxml import etree
 from pptx import Presentation
+from pptx.chart.data import XyChartData
+from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION, XL_MARKER_STYLE
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_CONNECTOR, MSO_SHAPE
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
@@ -33,15 +30,15 @@ TEMPLATE = HERE / "Group10.pptx"
 OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else HERE / "Group10_A2.pptx"
 
 # ----------------------------------------------------------------- palette ---
-# Taken from Group10.pptx's own shapes (slide 2 diagram, cards, tables).
-INK = "241160"      # titles, body text, table header fill
-BLUE = "545EEA"     # card headings, primary boxes
-VIOLET = "8861F1"   # outlines, arrows, dashed boundaries
-CYAN = "01CFE6"     # numbered step markers
-CARD = "E2E4FC"     # lavender card fill
-TINT = "F4F5FE"     # alternate table row, container fill
-MUTED = "4A4670"    # secondary text
-RED = "B3261E"      # emphasis (verdicts, key figures)
+# Assignment 1 palette.
+INK = "241160"
+BLUE = "545EEA"
+VIOLET = "8861F1"
+CYAN = "01CFE6"
+CARD = "E2E4FC"
+TINT = "F4F5FE"
+MUTED = "4A4670"
+RED = "B3261E"
 WHITE = "FFFFFF"
 FONT = "Arial"
 MONO = "Courier New"
@@ -178,7 +175,7 @@ PENDING = object()
 
 
 def table(s, rows, x, y, w, col_w, row_h=0.24, size=10, head_size=None, first_bold=True):
-    """A1 table style: indigo header, white/tint banding, no visible borders, Arial."""
+    """Dark header, alternating row fills and quiet cell borders."""
     nr, nc = len(rows), len(rows[0])
     gf = s.shapes.add_table(nr, nc, I(x), I(y), I(w), I(row_h * nr))
     tbl = gf.table
@@ -214,7 +211,7 @@ def table(s, rows, x, y, w, col_w, row_h=0.24, size=10, head_size=None, first_bo
             cell.vertical_anchor = MSO_ANCHOR.MIDDLE
             runs_into(cell.text_frame, [[(str(text), o)]], size=o["size"],
                       align=o.get("align", PP_ALIGN.LEFT))
-            # transparent borders, as in the A1 tables
+            # transparent borders
             tcPr = cell._tc.get_or_add_tcPr()
             for tag in ("a:lnL", "a:lnR", "a:lnT", "a:lnB"):
                 ln = etree.SubElement(tcPr, qn(tag))
@@ -237,43 +234,50 @@ def pending_card(s, x, y, w, h, what, size=10.5):
 
 
 def source(s, text):
-    textbox(s, 1.3, 5.11, 7.8, 0.25, [[("Source: " + text, {"color": MUTED, "i": True})]], size=7.5)
+    line(s, 0.7, 5.07, 9.1, 5.07, CARD, 0.75)
+    textbox(s, 0.7, 5.13, 8.4, 0.25, [[("Source: " + text, {"color": MUTED, "i": True})]], size=7.5)
 
 
 # ---------------------------------------------------------- deck from A1 ---
 prs = Presentation(str(TEMPLATE))
+COVER_LAYOUT = prs.slides[0].slide_layout
+CONTENT_LAYOUT = prs.slides[1].slide_layout
 sldIdLst = prs.slides._sldIdLst
 for sldId in list(sldIdLst):
     prs.part.drop_rel(sldId.rId)
     sldIdLst.remove(sldId)
 
-LAYOUT = {l.name: l for l in prs.slide_layouts}
-
-
 def content_slide(title):
-    s = prs.slides.add_slide(LAYOUT["TITLE_AND_BODY"])
+    s = prs.slides.add_slide(CONTENT_LAYOUT)
     for ph in list(s.placeholders):
         if ph.placeholder_format.idx != 0:
             ph._element.getparent().remove(ph._element)
-    s.shapes.title.text = title
+    heading = s.shapes.title
+    heading.left, heading.top, heading.width, heading.height = I(0.88), I(0.58), I(8.4), I(0.49)
+    heading.text_frame.vertical_anchor = MSO_ANCHOR.TOP
+    for side in ("left", "right", "top", "bottom"):
+        setattr(heading.text_frame, f"margin_{side}", I(0))
+    runs_into(heading.text_frame, [[(title, {"b": True})]], size=28)
     return s
 
 
 # ============================================================ 1. Cover ===
-s = prs.slides.add_slide(LAYOUT["TITLE"])
+s = prs.slides.add_slide(COVER_LAYOUT)
 t = s.placeholders[0]
-runs_into(t.text_frame, [[("ICT3113 Assignment 2 – Fast Triage Within an Accuracy Floor", {})]], size=26)
-for r in t.text_frame.paragraphs[0].runs:  # inherit the layout's title font, as in A1
-    r.font.name = None
-t.left, t.top, t.width, t.height = I(0.84), I(1.26), I(8.32), I(0.97)
+t.text_frame.vertical_anchor = MSO_ANCHOR.TOP
+for side in ("left", "right", "top", "bottom"):
+    setattr(t.text_frame, f"margin_{side}", I(0))
+runs_into(t.text_frame, [
+    [("ICT3113 Assignment 2", {"b": True, "size": 15, "color": BLUE})],
+    [("Fast Triage Within an Accuracy Floor", {"b": True})]
+], size=26, space_before=5)
+t.left, t.top, t.width, t.height = I(0.94), I(1.26), I(8.22), I(0.97)
 sub = s.placeholders[1]
-names = [[("Group P2-10:", {"b": True})]] + [[(f"{n} ({sid})", {})] for n, sid in MEMBERS] + \
-        [[("Repository:", {"b": True})], [("github.com/Fokku/ICT3113-PTO", {"link": REPO})]]
+names = [[("Group P2-10", {"b": True, "color": BLUE})]] + [[(f"{n} ({sid})", {})] for n, sid in MEMBERS] + \
+        [[("github.com/Fokku/ICT3113-PTO", {"link": REPO, "color": BLUE})]]
+sub.text_frame.vertical_anchor = MSO_ANCHOR.TOP
 runs_into(sub.text_frame, names, size=11.5, space_before=5)
-for p in sub.text_frame.paragraphs:
-    for r in p.runs:
-        r.font.name = None
-sub.left, sub.top, sub.width, sub.height = I(0.96), I(2.33), I(3.75), I(2.66)
+sub.left, sub.top, sub.width, sub.height = I(0.84), I(2.33), I(3.75), I(2.66)
 # top model + limits
 card(s, 4.95, 2.33, 4.2, 0.78, fill=BLUE, paras=[
     [("Top A1 model  ", {"color": WHITE}), ("qwen2.5:7b  74.0%", {"b": True, "color": WHITE, "size": 12}),
@@ -334,11 +338,11 @@ card(s, 0.65, 4.3, 5.25, 0.72, paras=[
      ("granite + 7B 7.05 GiB (chosen)", {"b": True, "color": RED}), (".", {})]], size=9.5)
 # right column
 textbox(s, 6.1, 1.38, 3.0, 0.28, [[("The rule in full (category-based)", {"b": True, "size": 12})]])
-card(s, 6.1, 1.7, 3.0, 0.72, paras=[
+card(s, 6.1, 1.67, 3.0, 0.80, paras=[
     [("escalate = small.predicted_category", {"font": MONO, "size": 8.5, "b": True})],
     [("           not in ACCEPT[setting]", {"font": MONO, "size": 8.5, "b": True})],
-    [("Reads only granite's normalised category, never the label.", {"color": MUTED, "size": 9})]],
-     margin=(0.1, 0.03), space_before=1)
+    [("Canonical category only. UNPARSEABLE escalates. Small-call failure returns an error.", {"color": MUTED, "size": 9})]],
+     margin=(0.1, 0.02), space_before=0)
 table(s, [("Tuning (99)", "Setting A", "Setting B"),
           ("ACCEPT", ("Mortgage, Cons. loan, Debt coll.", {"size": 8}), ("A + Credit card", {"size": 8})),
           ("Escalated", "78/99 (78.8%)", "59/99 (59.6%)"),
@@ -348,10 +352,10 @@ table(s, [("Tuning (99)", "Setting A", "Setting B"),
 card(s, 6.1, 3.88, 3.0, 1.14, paras=[
     [("Why this rule. ", {"b": True, "color": BLUE}),
      ("No extra model call. Agreement escalates the same 59/99 as B for +2 correct, but adds a second small call "
-      "to every ticket. Length does not predict granite's errors (71% vs 66% right). Confidence needs a prompt "
+      "to every ticket. Length does not predict granite's errors (median 774 chars wrong vs 720 right). Confidence needs a prompt "
       "change or an extra call. Tuned on odd rows only.", {})]], size=9, anchor=MSO_ANCHOR.TOP,
      margin=(0.1, 0.05))
-source(s, "cascade/escalation_rule.md §1–3 (settings pending whole-team sign-off, W.1); "
+source(s, "cascade/escalation_rule.md §1–3; "
           "docs/environment/a2-memory-check/20261119T073203Z/summary.md")
 
 # ============================================== 3. Environment & method ===
@@ -398,111 +402,161 @@ source(s, "docs/a2/arrival-rate.md §1–4; docs/a2/env_baseline.json; docs/test
 
 # ================================================== 4. Accuracy results ===
 s = content_slide("Accuracy Results")
-cfgs = ["granite 3B", "llama 3B", "llama 1B", "Casc. A", "Casc. B"]
-rows = [("Category (N)", "Limit", "Pass ≥", "qwen 7B (ref.)") + tuple(cfgs)]
-for n, N, c, p, lim, needs, b in CATS:
-    rows.append(((("⚠ " if b else "") + f"{n.replace(' or service', '')} ({N})", {"color": RED} if b else {}), lim, needs, f"{c}/{N} ({p})")
-                + (PENDING,) * 5)
-rows.append((("Overall (101)", {"fill": CARD}), ("64.26%", {"fill": CARD, "b": True}), ("65/101", {"fill": CARD, "b": True}),
-             ("75/101 (74.3%)", {"fill": CARD, "b": True})) + (PENDING,) * 5)
-rows.append(("Passes both?", "", "", ("reference", {"b": True, "color": BLUE})) + (PENDING,) * 5)
-table(s, rows, 0.7, 1.25, 8.4, [1.85, 0.72, 0.65, 1.13, 0.81, 0.81, 0.81, 0.81, 0.81], row_h=0.235, size=9, head_size=9)
-pending_card(s, 0.7, 3.85, 4.1, 1.17, "escalation fraction on the test set (Setting A and B), and accuracy of "
-                                      "escalated vs accepted tickets, from the cascade accuracy run's service log.")
-card(s, 5.0, 3.85, 4.1, 1.17, anchor=MSO_ANCHOR.TOP, margin=(0.12, 0.07), paras=[
-    [("Reused, not re-run. ", {"b": True, "color": BLUE}),
-     ("The four single models are re-scored from their Assignment 1 answers on the 101 even rows: same digests, "
-      "prompt, Ollama 0.34.3 and machine. Only the cascade is new.", {})],
-    [("⚠ N = 11: ", {"b": True, "color": RED}),
-     ("a verdict rests on one or two tickets; Mortgage's 3/11 is barely a test.", {})]], size=9.5, space_before=3)
-source(s, "docs/a2/accuracy_limits.md §1–3 (limits, qwen2.5:7b); analysis/output/accuracy_a2/ (other columns, "
-          "once produced); exact counts decide pass/fail")
+accuracy_dir = HERE.parent / "analysis/output/accuracy_a2"
+
+
+def records(path):
+    with path.open(encoding="utf-8-sig", newline="") as stream:
+        return list(csv.DictReader(stream))
+
+
+models = ["qwen2.5:7b", "granite4:3b", "llama3.2:3b",
+          "llama3.2:1b-instruct-q4_K_M", "cascade-A", "cascade-B"]
+by_category = {
+    (r["model_tag"], r["category"]): r
+    for name in ("per_category_a2.csv", "cascade_per_category_a2.csv")
+    for r in records(accuracy_dir / name)
+}
+rows = [("Category", "Pass ≥", "Qwen 7B", "Granite 3B", "Llama 3B", "Llama 1B", "Cascade A", "Cascade B")]
+totals = [0] * len(models)
+verdicts = [True] * len(models)
+for name, n, reference, _, _, minimum, borderline in CATS:
+    label = name.replace(" or service", "") + ("*" if borderline else "")
+    cells = [label, minimum]
+    for i, model in enumerate(models):
+        result = by_category.get((model, name))
+        correct = int(result["correct"]) if result else reference
+        passes = correct >= int(minimum.split("/")[0])
+        totals[i] += correct
+        verdicts[i] &= passes
+        cells.append((f"{correct}/{n} ({correct/n:.0%})", {"color": INK if passes else RED}))
+    rows.append(tuple(cells))
+rows.append(("Overall", "65/101", *(f"{n}/101 ({n/101:.2%})" for n in totals)))
+rows.append(("Both limits", "", *("PASS" if p and n >= 65 else ("FAIL", {"color": RED})
+                                  for p, n in zip(verdicts, totals))))
+table(s, rows, 0.7, 1.25, 8.4, [1.6, 0.62, 1.03, 1.03, 1.03, 1.03, 1.03, 1.03],
+      row_h=0.235, size=8.5)
+routing = [("Test-set routing", "Cascade A", "Cascade B")]
+route_data = records(accuracy_dir / "cascade_routing_a2.csv")
+for title, numerator, denominator in [("Escalated", "escalated", "test_rows"),
+                                       ("Escalated correct", "escalated_correct", "escalated"),
+                                       ("Accepted correct", "accepted_correct", "accepted")]:
+    counts = [(int(r[numerator]), int(r[denominator])) for r in route_data]
+    routing.append((title, *(f"{a}/{b} ({a/b:.1%})" for a, b in counts)))
+table(s, routing, 0.7, 3.72, 4.12, [1.53, 1.29, 1.3], row_h=0.26, size=8.5)
+card(s, 5.0, 3.72, 4.1, 1.19, paras=[
+    "Raw logs independently confirmed routing on 202 tickets. Accepted tickets were less accurate than escalated tickets in both settings.",
+    "B let 8 more errors through on the accepted path than A. Consumer loan was exactly at its floor (6/14). * N = 11."
+], size=9)
+source(s, "analysis/output/accuracy_a2/{per_category_a2,cascade_per_category_a2,cascade_routing_a2,sources}.csv")
 
 # ===================================================== 5. Speed results ===
 s = content_slide("Speed Results")
-rows = [("Configuration", "p50/run", "Mean±SD", "p95 [n]", "Thru", "Err %", "Esc.")]
-for name, esc in [("qwen2.5:7b (ref.)", "n/a"), ("Passing singles", "n/a"), ("Cascade A", None), ("Cascade B", None)]:
-    rows.append((name,) + (PENDING,) * 5 + ((esc, {"color": MUTED}) if esc else PENDING,))
-table(s, rows, 0.7, 1.3, 5.5, [1.3, 0.75, 0.75, 0.7, 0.66, 0.66, 0.68], row_h=0.3, size=9, head_size=9)
-textbox(s, 0.7, 2.88, 5.5, 0.45, [[("Latency in seconds; p95 pooled over the 3 runs with its count; Thru in "
-                                     "tickets an hour. No p99: the sample is too small.", {"color": MUTED})]],
-        size=9.5)
-pending_card(s, 0.7, 3.45, 5.5, 0.7, "sent / completed / errored / unfinished per run, and the no-queue check "
-                                    "(halves within 20%, queue wait under 100 ms).", size=9.5)
-pending_card(s, 0.7, 4.27, 5.5, 0.75, "escalation under load vs on the test set, per setting; a gap over 15 pp "
-                                    "is explained.", size=9.5)
-card(s, 6.4, 1.3, 2.7, 1.15, paras=[
-    [("Same load for all. ", {"b": True, "color": BLUE}),
-     ("8.98 a minute for 300 s, 3 runs, the same 100 tickets: ≈ 135 requests behind each pooled p95.", {})]],
-     size=9.5)
-card(s, 6.4, 2.58, 2.7, 1.15, paras=[
-    [("Fresh numbers only. ", {"b": True, "color": BLUE}),
-     ("No Assignment 1 speed figure is reused, ", {}), ("qwen2.5:7b included", {"b": True, "color": RED}),
-     (".", {})]], size=9.5)
-card(s, 6.4, 3.86, 2.7, 1.16, paras=[
-    [("Nothing dropped. ", {"b": True, "color": BLUE}),
-     ("A cascade setting failing accuracy is still shown, marked ", {}),
-     ("not passing", {"b": True, "color": RED}), ("; unfinished requests are reported.", {})]], size=9.5)
-source(s, "analysis/output/speed_a2/per_config.csv, per_run.csv (analysis/summarise_load_a2.py); "
-          "every run reconciled by analysis/reconcile.py")
+speed_dir = HERE.parent / "analysis/output/speed_a2"
+speed = records(speed_dir / "per_config.csv")
+runs = records(speed_dir / "per_run.csv")
+names = ["Qwen 7B", "Cascade A", "Cascade B"]
+textbox(s, 0.7, 1.22, 8.4, 0.25,
+        ["8.98 tickets/min for 300 s per run. All tests used the same workload. Latency in seconds."], size=10)
+rows = [("Configuration", "p50 R1 / R2 / R3", "All-run mean (range)", "Counted p50", "p95 counted / all [n]", "req/s R1 / R2 / R3")]
+for name, result in zip(names, speed):
+    group = sorted((r for r in runs if r["config"] == result["config"]), key=lambda r: int(r["run_index"]))
+    medians = [float(r["p50_ms"]) / 1000 for r in group]
+    by_run = " / ".join(f"{m:.2f}" + ("*" if r["queued"] == "True" else "") for m, r in zip(medians, group))
+    rate = " / ".join(f'{float(r["throughput_rps"]):.3f}' for r in group)
+    elapsed = [
+        int(sample["elapsed"]) / 1000
+        for run in group
+        for sample in records(HERE.parent / "results/runs" / run["run_id"] / "results.jtl")
+        if sample["success"].lower() == "true" and sample["label"] == "POST /tickets"
+    ]
+    pooled_p95 = quantiles(elapsed, n=100, method="inclusive")[94]
+    rows.append((name, by_run, f"{sum(medians)/3:.2f} ({min(medians):.2f}–{max(medians):.2f})",
+                 f'{float(result["p50_mean_ms"])/1000:.2f}',
+                 f'{float(result["pooled_p95_ms"])/1000:.2f} [{result["pooled_n"]}] / {pooled_p95:.2f} [{len(elapsed)}]', rate))
+table(s, rows, 0.7, 1.58, 8.4, [1.0, 1.49, 1.51, 0.89, 1.88, 1.63], row_h=0.29, size=8.5)
+textbox(s, 0.7, 2.84, 8.4, 0.42, [
+    "* Queue check flagged two runs per configuration. Counted p50 and p95 use the eligible run. All-run figures include flagged runs.",
+    "Every run: 44 sent, 44 completed, 0 errors (0%), 0 unfinished. All nine runs reconciled."
+], size=9)
+table(s, [("Escalation", "Under load", "Accuracy test", "Gap"),
+          ("Cascade A", "99/132 (75.0%)", "83/101 (82.2%)", "−7.2 pp"),
+          ("Cascade B", "69/132 (52.3%)", "65/101 (64.4%)", "−12.1 pp")],
+      0.7, 3.45, 4.58, [1.07, 1.23, 1.33, 0.95], row_h=0.30, size=9)
+card(s, 5.48, 3.45, 3.62, 1.14, paras=[
+    "Secondary check (first vs second half only): A stayed slower. B’s 5.57 s fell within Qwen’s 4.50–6.12 s range.",
+    "Cascade A and B both passed the accuracy limits."
+], size=9)
+source(s, "analysis/output/speed_a2/{per_run,per_config}.csv; speed_a2_secondary/per_config.csv; results/runs/*_speed_a2_*/results.jtl")
 
 # ========================================================= 6. Trade-off ===
-s = content_slide("Trade-off: Accuracy vs Latency")
-cx, cy, cwid, ch = 1.25, 1.35, 4.95, 3.3
-line(s, cx, cy, cx, cy + ch, MUTED, 1)
-line(s, cx, cy + ch, cx + cwid, cy + ch, MUTED, 1)
-
-
-def yof(p):
-    return cy + ch - (p - 50) / 30 * ch
-
-
-for p in (50, 60, 70, 80):
-    textbox(s, cx - 0.5, yof(p) - 0.1, 0.45, 0.2, [[(f"{p}%", {"color": MUTED})]], size=8.5, align=PP_ALIGN.RIGHT)
-    if p > 50:
-        line(s, cx, yof(p), cx + cwid, yof(p), CARD, 0.75)
-line(s, cx, yof(64.26), cx + cwid, yof(64.26), RED, 1.75, "dash")
-textbox(s, cx + cwid - 2.2, yof(64.26) - 0.24, 2.2, 0.22, [[("Overall limit 64.26%", {"b": True, "color": RED})]],
-        size=9, align=PP_ALIGN.RIGHT)
-line(s, cx, yof(74.26), cx + cwid, yof(74.26), BLUE, 1.25, "sysDot")
-textbox(s, cx + cwid - 2.6, yof(74.26) - 0.24, 2.6, 0.22, [[("qwen2.5:7b on the test set 74.26%",
-                                                             {"color": BLUE})]], size=9, align=PP_ALIGN.RIGHT)
-textbox(s, 0.55, cy + ch / 2 - 0.3, 0.6, 0.4, [[("Test-set accuracy", {"color": MUTED})]], size=8.5,
-        align=PP_ALIGN.CENTER)
-textbox(s, cx, cy + ch + 0.05, cwid, 0.22, [[("Median latency (mean of per-run p50)  →  faster to the left",
-                                              {"color": MUTED})]], size=8.5, align=PP_ALIGN.CENTER)
-pending_card(s, cx + 0.45, yof(57) - 0.22, cwid - 0.9, 0.5, "one point per configuration and setting; failing "
-                                                             "points drawn hollow.", size=9.5)
-card(s, 6.45, 1.3, 2.65, 1.5, anchor=MSO_ANCHOR.TOP, margin=(0.12, 0.07), paras=[
-    [("How to read it. ", {"b": True, "color": BLUE}),
-     ("Up is more accurate, left is faster. The pick is the left-most point above the red line, and it must be ", {}),
-     ("distinguishably faster", {"b": True, "color": RED}), (" than qwen2.5:7b.", {})]], size=9.5)
-pending_card(s, 6.45, 2.95, 2.65, 1.75, "short interpretation: where each cascade setting sits relative to the "
-                                       "single models, and whether it beats the best qualifying one on speed.",
-             size=9.5)
-source(s, "Slide 4 (test-set accuracy) × Slide 5 (mean per-run p50); analysis/output/accuracy_a2/, "
-          "analysis/output/speed_a2/")
+s = content_slide("Accuracy and Median Latency")
+chart_data = XyChartData()
+for name, result, total in zip(names, speed, [totals[0], totals[-2], totals[-1]]):
+    series = chart_data.add_series(f"{name} ({total}/101)")
+    series.add_data_point(float(result["p50_mean_ms"]) / 1000, total / 101)
+limit = chart_data.add_series("Overall limit (64.26%)")
+for x in (4, 8):
+    limit.add_data_point(x, 0.6426)
+chart = s.shapes.add_chart(XL_CHART_TYPE.XY_SCATTER_LINES, I(0.7), I(1.29), I(5.65), I(3.69), chart_data).chart
+chart.has_legend = True
+chart.legend.position = XL_LEGEND_POSITION.BOTTOM
+chart.legend.font.size = Pt(10)
+chart.legend.font.name = FONT
+chart.legend.font.color.rgb = RGBColor.from_string(INK)
+for axis, low, high, unit, fmt, label in [
+    (chart.category_axis, 4, 8, 1, '0" s"', "Counted-run p50"),
+    (chart.value_axis, 0.60, 0.80, 0.05, "0%", "Test-set accuracy"),
+]:
+    axis.minimum_scale, axis.maximum_scale, axis.major_unit = low, high, unit
+    axis.tick_labels.number_format = fmt
+    axis.tick_labels.font.size = Pt(9)
+    axis.tick_labels.font.name = FONT
+    axis.tick_labels.font.color.rgb = RGBColor.from_string(MUTED)
+    axis.format.line.color.rgb = RGBColor.from_string(MUTED)
+    if axis.has_major_gridlines:
+        axis.major_gridlines.format.line.color.rgb = RGBColor.from_string(CARD)
+    axis.has_title = True
+    axis.axis_title.text_frame.text = label
+    axis_title_font = axis.axis_title.text_frame.paragraphs[0].font
+    axis_title_font.size = Pt(10)
+    axis_title_font.name = FONT
+    axis_title_font.color.rgb = RGBColor.from_string(INK)
+for series, color in zip(chart.series, [BLUE, VIOLET, INK, RED]):
+    series.format.line.color.rgb = RGBColor.from_string(color)
+    series.marker.style = XL_MARKER_STYLE.NONE if color == RED else XL_MARKER_STYLE.CIRCLE
+    if color != RED:
+        series.marker.size = 9
+        series.marker.format.fill.solid()
+        series.marker.format.fill.fore_color.rgb = RGBColor.from_string(color)
+        series.marker.format.line.color.rgb = RGBColor.from_string(color)
+card(s, 6.55, 1.48, 2.55, 2.76, paras=[
+    "Each point uses one counted run. All three configurations pass both accuracy limits.",
+    "Counted p50 vs Qwen: A +3.12 s, B +1.06 s.",
+    "With queued runs included, A stayed slower (7.63–9.61 s). B’s range (5.03–5.57 s) fell inside Qwen’s (4.50–6.54 s).",
+    "Three standalone models failed accuracy and skipped speed testing."
+], size=10, space_before=7)
+source(s, "Slide 4 and analysis/output/accuracy_a2/; Slide 5 and analysis/output/speed_a2/per_config.csv")
 
 # ======================================= 7. Predictions, recommendation ===
-s = content_slide("Predictions, Recommendation and Defence")
-rows = [("Prediction", "Predicted", "Measured", "Why we were off"),
-        ("Fastest config passing both limits", PENDING, PENDING, PENDING),
-        ("Setting A: escalation, accuracy, p50", PENDING, PENDING, PENDING),
-        ("Setting B: escalation, accuracy, p50", PENDING, PENDING, PENDING),
-        ("Categories losing most when accepted", PENDING, PENDING, PENDING)]
-table(s, rows, 0.7, 1.3, 8.4, [2.7, 1.7, 1.7, 2.3], row_h=0.4, size=10, head_size=10)
-card(s, 0.7, 3.5, 4.1, 1.4, anchor=MSO_ANCHOR.TOP, margin=(0.12, 0.08), paras=[
-    [("Recommended configuration. ", {"b": True, "color": BLUE}), ("pending", {"i": True, "color": VIOLET})],
-    [("Against the overall limit and all seven category limits; speed gain vs qwen2.5:7b; accuracy cost in counts. "
-      "If the cascade lost: why, citing the measured escalation fraction and both latencies.", {"color": MUTED})]],
-     size=9.5, space_before=4)
-card(s, 5.0, 3.5, 4.1, 1.4, anchor=MSO_ANCHOR.TOP, margin=(0.12, 0.08), paras=[
-    [("Decision rule, fixed before measuring. ", {"b": True, "color": BLUE}),
-     ("Rank by the mean of the three per-run p50s; A beats B only if A's p50 range lies wholly below B's. "
-      "Ties: higher accuracy, then the simpler configuration. ", {}),
-     ("Not distinguishably faster than qwen2.5:7b → recommend qwen2.5:7b.", {"b": True, "color": RED})]], size=9.5)
-source(s, "predictions/prediction_record_a2.md (frozen under tag a2-predictions-freeze, checked by "
-          "scripts/a2_gate.py); Slides 4–6")
+s = content_slide("Predictions and Recommendation")
+rows = [("Prediction", "Predicted", "Measured", "Verdict and explanation"),
+        ("Fastest qualifying option", "Qwen 7B", "Qwen 7B", "Correct. Qwen led on counted p50."),
+        ("Qwen p50", "3.0–4.0 s", "4.50 s", "Higher. Queue wait reached 2.30 s in a flagged run."),
+        ("Cascade A: escalation, accuracy, p50", "72–85%, 70–79%, 3.9–5.3 s", "82.2%, 75.25%, 7.63 s", "Routing and accuracy in range. Escalated p50 was 9.23 s."),
+        ("Cascade B: escalation, accuracy, p50", "52–65%, 69–76%, 3.3–4.9 s", "64.4%, 73.27%, 5.57 s", "Routing and accuracy in range. Escalated p50 was 9.01 s."),
+        ("Lowest accuracy on B’s accepted tickets", "Mortgage, bank account, money transfer", "Credit reporting 0/3, bank account 0/1, consumer loan 3/8", "Wrong. B escalated all Money transfer tickets. The accepted counts were small.")]
+table(s, rows, 0.7, 1.25, 8.4, [2.04, 1.68, 1.63, 3.05], row_h=0.39, size=8.4)
+card(s, 0.7, 3.73, 4.1, 1.22, paras=[
+    [("Draft recommendation: Qwen 7B alone", {"b": True, "color": BLUE})],
+    "75/101 vs a 65/101 minimum and all seven category limits met (Slide 4). As the reference, it has zero speed gain and zero accuracy cost overall or by category. Team confirmation pending."
+], size=9)
+card(s, 5.0, 3.73, 4.1, 1.22, paras=[
+    "Under load, A escalated 75.0% (p50 2.29 s accepted, 9.23 s escalated); B escalated 52.3% (3.35 s, 9.01 s). Escalations paid for both calls and queueing.",
+    "Two queued runs each ruled out a three-run comparison. Neither cascade showed a clear speed gain, so the frozen rule favours Qwen."
+], size=9)
+source(s, "a2-predictions-freeze:predictions/prediction_record_a2.md; predictions/prediction_record_a2_appendix.md; Slides 4–6")
+
 
 # ================================= 8. Limitations, references, AI use ===
 s = content_slide("Limitations, References and AI Use")
@@ -515,11 +569,11 @@ lims = [("Small sample.", "101 test tickets; three categories at N = 11 (one tic
 card(s, 0.7, 1.28, 4.1, 2.62, anchor=MSO_ANCHOR.TOP, margin=(0.12, 0.07),
      paras=[[("What the results do not show", {"b": True, "color": BLUE, "size": 11})]] +
            [[(h + " ", {"b": True}), (d, {})] for h, d in lims], size=9, space_before=3)
-card(s, 0.7, 3.98, 4.1, 1.06, anchor=MSO_ANCHOR.TOP, margin=(0.12, 0.07), paras=[
+card(s, 0.7, 3.94, 4.1, 1.11, anchor=MSO_ANCHOR.TOP, margin=(0.12, 0.07), paras=[
     [("AI use. ", {"b": True, "color": BLUE}),
      ("Claude Code (Anthropic) wrote the cascade code, A2 scripts, JMeter plan and tests, computed limits and "
       "tuning counts by script, and drafted documents and slides. ", {}),
-     ("The team chose the rule and settings, made the predictions, ran every test and made the recommendation.",
+     ("Codex assembled the results. The team chose the rule and settings, made the predictions and ran the tests. The draft recommendation awaits team confirmation.",
       {"b": True})]], size=9)
 refs = [
     "[1] US CFPB, \"Consumer Complaint Database.\" consumerfinance.gov/data-research/consumer-complaints/.",
